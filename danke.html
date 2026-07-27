@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Danke! So schaltest du cockpit frei</title>
+<style>
+:root{--ink:#0e1218;--muted:#5b6675;--line:#e4e8ee;--accent:#1f5eff;--accent-soft:#edf2ff;
+      --ok:#0f8a5f;--okbg:#e7f6ef;--soft:#f6f8fb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;height:60px}
+.logo{font-weight:700;font-size:19px;letter-spacing:-.03em;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--accent)}
+main{padding:56px 0 80px}
+.tick{width:56px;height:56px;border-radius:50%;background:var(--okbg);color:var(--ok);
+      display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin-bottom:22px}
+h1{font-size:31px;letter-spacing:-.025em;margin-bottom:10px}
+.lead{color:var(--muted);font-size:17px;margin-bottom:36px}
+h2{font-size:19px;margin:38px 0 12px;letter-spacing:-.01em}
+p,li{color:#232b36}
+
+.steps{counter-reset:s;list-style:none;margin-top:8px}
+.steps li{counter-increment:s;position:relative;padding:0 0 22px 46px;border-left:2px solid var(--line);margin-left:14px}
+.steps li:last-child{border-left-color:transparent;padding-bottom:0}
+.steps li:before{content:counter(s);position:absolute;left:-15px;top:-2px;width:28px;height:28px;
+  border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.steps b{display:block;margin-bottom:3px;font-size:16px}
+.steps span{color:var(--muted);font-size:14.5px}
+
+.key{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:13px 16px;
+     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14.5px;letter-spacing:.04em;
+     color:var(--muted);margin-top:10px;text-align:center}
+
+.dl{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{display:inline-block;padding:11px 19px;border-radius:9px;font-weight:600;font-size:14.5px;
+     text-decoration:none;border:1px solid var(--line);color:var(--ink);background:#fff}
+.btn:hover{border-color:#c3ccd8}
+.btn.p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.p:hover{background:#1747cc}
+
+.box{border-radius:9px;padding:16px 18px;font-size:14.5px;margin:22px 0}
+.hi{background:var(--okbg);border:1px solid #b9e3cd;color:#0b5f43}
+.info{background:var(--accent-soft);border:1px solid #cfdcff;color:#1b3d8f}
+.box b{display:block;margin-bottom:4px}
+
+details{border-bottom:1px solid var(--line);padding:15px 0}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:14px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";color:var(--accent);font-weight:700;font-size:20px;line-height:1}
+details[open] summary:after{content:"–"}
+details p{margin-top:9px;color:var(--muted);font-size:14.5px}
+
+footer{border-top:1px solid var(--line);padding:30px 0;font-size:14px;color:var(--muted)}
+footer a{color:var(--muted);margin-right:18px;text-decoration:none}
+footer a:hover{color:var(--ink);text-decoration:underline}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a href="/" class="logo">cock<span>pit</span></a></div></header>
+
+<main><div class="wrap">
+  <div class="tick">✓</div>
+  <h1>Danke — der Kauf hat geklappt.</h1>
+  <p class="lead">Deine Bestätigungsmail mit dem Lizenzschlüssel ist unterwegs.
+     Hier stehen die drei Schritte bis zum freigeschalteten Pro.</p>
+
+  <ol class="steps">
+    <li>
+      <b>Lizenzschlüssel aus der E-Mail holen</b>
+      <span>Absender ist <b>Lemon Squeezy</b>, nicht cockpit — deshalb landet die Mail
+      manchmal im Spam-Ordner. Der Schlüssel sieht so aus:</span>
+      <div class="key">XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</div>
+    </li>
+    <li>
+      <b>App herunterladen und öffnen</b>
+      <span>Falls noch nicht geschehen:</span>
+      <div class="dl">
+        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-windows-setup.exe" class="btn">Windows</a>
+        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-macos-universal.dmg" class="btn">macOS</a>
+        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-linux-x86_64.AppImage" class="btn">Linux</a>
+        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest" class="btn">Alle Pakete</a>
+      </div>
+    </li>
+    <li>
+      <b>Schlüssel eintragen</b>
+      <span>In der App: <b>Einstellungen → Lizenz → Schlüssel eintragen</b>.
+      Einmal einfügen, auf „Freischalten" tippen — fertig. Alle Pro-Funktionen sind
+      sofort verfügbar.</span>
+    </li>
+  </ol>
+
+  <div class="box hi">
+    <b>Danach brauchst du kein Internet mehr</b>
+    Die Prüfung läuft einmal beim Freischalten. Anschließend funktioniert cockpit
+    mindestens 30 Tage lang völlig offline weiter — so, wie es sich für eine App
+    gehört, die deine Daten auf deinem Gerät lässt.
+  </div>
+
+  <h2>Häufige Fragen direkt nach dem Kauf</h2>
+  <details open>
+    <summary>Ich habe keine E-Mail bekommen.</summary>
+    <p>Schau zuerst im Spam-Ordner nach — Absender ist „Lemon Squeezy". Wenn dort
+       nichts liegt, schreib uns an <a href="mailto:Kontakt@mesco.cc">Kontakt@mesco.cc</a>
+       und nenne die E-Mail-Adresse, mit der du bezahlt hast. Wir schicken den Schlüssel
+       dann von Hand.</p>
+  </details>
+  <details>
+    <summary>Auf wie vielen Geräten darf ich cockpit nutzen?</summary>
+    <p>Auf drei gleichzeitig. Möchtest du wechseln, melde ein Gerät unter
+       <b>Einstellungen → Lizenz → Gerät abmelden</b> ab — der Platz wird sofort frei.</p>
+  </details>
+  <details>
+    <summary>Die App sagt, die Lizenz sei auf zu vielen Geräten aktiv.</summary>
+    <p>Dann sind alle drei Plätze belegt — häufig durch einen alten Rechner. Melde dort
+       ab, oder schreib uns kurz: Wir setzen die Aktivierungen zurück.</p>
+  </details>
+  <details>
+    <summary>Wie richte ich die KI ein?</summary>
+    <p>Unter <b>Einstellungen → KI</b> hast du drei Wege: einen eigenen API-Schlüssel bei
+       einem Anbieter deiner Wahl, ein lokales Modell über LM Studio oder Ollama
+       (kostenlos, läuft auf deinem Rechner), oder Apple Intelligence auf neueren
+       Apple-Geräten. Der lokale Weg ist der datenschutzfreundlichste — dann verlässt
+       kein Text dein Gerät.</p>
+  </details>
+  <details>
+    <summary>Ich möchte doch zurücktreten.</summary>
+    <p>30 Tage lang, ohne Begründung. Eine formlose Mail an
+       <a href="mailto:Kontakt@mesco.cc">Kontakt@mesco.cc</a> mit deiner Bestellnummer
+       genügt. Details in der <a href="/widerruf.html">Widerrufsbelehrung</a>.</p>
+  </details>
+
+  <div class="box info" style="margin-top:32px">
+    <b>Eine Bitte</b>
+    Wenn cockpit dir hilft, schreib uns in zwei Wochen kurz, was gut läuft und was
+    fehlt. Ein Satz genügt. Rückmeldungen der ersten Käufer bestimmen, was als
+    Nächstes gebaut wird.
+  </div>
+</div></main>
+
+<footer><div class="wrap">
+  <a href="/">Startseite</a>
+  <a href="/impressum.html">Impressum</a>
+  <a href="/datenschutz.html">Datenschutz</a>
+  <a href="/widerruf.html">Widerruf</a>
+  <a href="/lizenzbedingungen.html">Lizenzbedingungen</a>
+</div></footer>
+</body>
+</html>

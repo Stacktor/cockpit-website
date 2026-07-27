@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto.</title>
+<meta name="description" content="Der Bewerbungsmanager, der deine Daten auf deinem Gerät lässt. KI-Anschreiben mit deinem eigenen Schlüssel. Einmal kaufen statt ewig abonnieren. Für Windows, macOS, Linux, iPhone und iPad.">
+<meta property="og:title" content="cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto.">
+<meta property="og:description" content="Deine Bewerbungsdaten bleiben auf deinem Gerät. KI mit eigenem Schlüssel. Einmal kaufen, für immer nutzen.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cockpit.mesco.cc/">
+<link rel="canonical" href="https://cockpit.mesco.cc/">
+<!-- Lemon Squeezy Overlay-Checkout -->
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+<style>
+:root{
+  --ink:#0e1218; --muted:#5b6675; --line:#e4e8ee; --bg:#ffffff; --soft:#f6f8fb;
+  --accent:#1f5eff; --accent-dark:#1747cc; --accent-soft:#edf2ff;
+  --ok:#0f8a5f; --ok-soft:#e7f6ef; --gold:#8a6d1f; --gold-soft:#fdf6e3;
+  --max:1080px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+section{padding:76px 0;border-top:1px solid var(--line)}
+section.plain{border-top:0}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.18}
+h1{font-size:clamp(30px,5.2vw,50px);font-weight:700}
+h2{font-size:clamp(23px,3.4vw,33px);font-weight:680;margin-bottom:10px}
+h3{font-size:17px;font-weight:640;margin-bottom:6px}
+p.lead{font-size:18px;color:var(--muted);max-width:620px}
+.center{text-align:center}
+.center p.lead{margin-left:auto;margin-right:auto}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+
+/* Header */
+header{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:40}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-weight:700;font-size:19px;letter-spacing:-.03em;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--accent)}
+nav a{margin-left:22px;text-decoration:none;color:var(--muted);font-size:14.5px;font-weight:520}
+nav a:hover{color:var(--ink)}
+@media(max-width:700px){nav a:not(.btn){display:none}}
+
+/* Buttons */
+.btn{display:inline-block;padding:13px 24px;border-radius:9px;font-weight:620;font-size:15px;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:.15s}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:var(--accent-dark)}
+.btn-s{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn-s:hover{border-color:#c3ccd8}
+.btn-sm{padding:9px 17px;font-size:14px}
+nav .btn{margin-left:22px}
+
+/* Hero */
+.hero{padding:86px 0 70px;text-align:center;background:linear-gradient(180deg,var(--accent-soft) 0%,#fff 82%)}
+.hero h1{max-width:840px;margin:0 auto 18px}
+.hero .lead{margin:0 auto 30px;font-size:19px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.micro{font-size:13.5px;color:var(--muted)}
+.trust{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:38px;font-size:13.5px;color:var(--muted);font-weight:530}
+.trust b{color:var(--ink);font-weight:640}
+
+/* Mock-Screenshot */
+.shot{margin:52px auto 0;max-width:900px;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:0 22px 50px -18px rgba(14,18,24,.24);background:#fff}
+.shot .bar{height:34px;background:var(--soft);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 13px;gap:6px}
+.shot .bar i{width:10px;height:10px;border-radius:50%;background:#d9dee6;display:block}
+.shot .body{display:flex;min-height:280px;text-align:left}
+.shot .sb{width:150px;background:#fafbfd;border-right:1px solid var(--line);padding:14px 10px}
+.shot .sb div{font-size:12px;color:var(--muted);padding:7px 9px;border-radius:6px;margin-bottom:2px}
+.shot .sb div.on{background:var(--accent-soft);color:var(--accent);font-weight:640}
+.shot .kb{flex:1;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.col h4{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:9px;font-weight:700}
+.tile{background:#fff;border:1px solid var(--line);border-radius:7px;padding:9px;margin-bottom:7px;box-shadow:0 1px 2px rgba(14,18,24,.05)}
+.tile b{display:block;font-size:12px;margin-bottom:2px}
+.tile span{font-size:10.5px;color:var(--muted)}
+.tile .tag{display:inline-block;margin-top:6px;font-size:9.5px;padding:2px 6px;border-radius:9px;background:var(--soft);color:var(--muted);font-weight:640}
+.tile .tag.g{background:var(--ok-soft);color:var(--ok)}
+.tile .tag.b{background:var(--accent-soft);color:var(--accent)}
+@media(max-width:760px){.shot .sb{display:none}.shot .kb{grid-template-columns:1fr 1fr}}
+
+/* Grids */
+.grid{display:grid;gap:20px;margin-top:38px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.feat{padding:22px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.feat .ic{width:34px;height:34px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:13px;color:var(--accent);font-weight:700;font-size:15px}
+.feat p{font-size:14.5px;color:var(--muted)}
+
+/* Vergleich */
+.cmp{width:100%;border-collapse:collapse;margin-top:34px;font-size:14.5px}
+.cmp th,.cmp td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.cmp th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.cmp th.me,.cmp td.me{background:var(--accent-soft)}
+.cmp th.me{color:var(--accent)}
+.cmp td:first-child{font-weight:560}
+.y{color:var(--ok);font-weight:700}
+.n{color:#b9c0ca;font-weight:700}
+@media(max-width:700px){.cmp{font-size:13px}.cmp th,.cmp td{padding:10px 7px}}
+
+/* Preise */
+.prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:20px;margin-top:40px;align-items:start}
+.plan{border:1px solid var(--line);border-radius:13px;padding:26px;background:#fff;position:relative}
+.plan.hi{border:2px solid var(--accent);box-shadow:0 14px 36px -14px rgba(31,94,255,.35)}
+.flag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11.5px;font-weight:700;padding:4px 13px;border-radius:20px;white-space:nowrap}
+.plan .nm{font-size:14px;font-weight:680;color:var(--muted);margin-bottom:9px}
+.plan .pr{font-size:38px;font-weight:720;letter-spacing:-.035em}
+.plan .pr small{font-size:15px;font-weight:520;color:var(--muted);letter-spacing:0}
+.plan .old{font-size:14.5px;color:var(--muted);text-decoration:line-through;margin-bottom:4px}
+.plan .note{font-size:13px;color:var(--muted);margin:8px 0 18px;min-height:38px}
+.plan ul{list-style:none;margin:18px 0 0;font-size:14px}
+.plan li{padding:6px 0 6px 23px;position:relative;color:#2c3542}
+.plan li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.plan li.no{color:var(--muted)}
+.plan li.no:before{content:"–";color:#c3ccd8}
+.plan .btn{width:100%;text-align:center;margin-top:6px}
+.vat{font-size:12px;color:var(--muted);text-align:center;margin-top:26px}
+
+/* Privacy */
+.priv{background:var(--soft)}
+.pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:30px;padding:8px 16px;font-size:14px;font-weight:560;margin:6px 6px 0 0}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:block}
+
+/* FAQ */
+details{border-bottom:1px solid var(--line);padding:17px 0}
+summary{cursor:pointer;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";color:var(--accent);font-weight:700;font-size:21px;line-height:1}
+details[open] summary:after{content:"–"}
+details p{margin-top:11px;color:var(--muted);font-size:15px;max-width:760px}
+
+/* Newsletter */
+.mail{background:var(--ink);color:#fff;border-radius:14px;padding:42px 34px;text-align:center;margin-top:12px}
+.mail h2{color:#fff}
+.mail p{color:#a8b2c0;max-width:520px;margin:8px auto 22px}
+.mailform{display:flex;gap:9px;max-width:430px;margin:0 auto;flex-wrap:wrap}
+.mailform input{flex:1;min-width:210px;padding:13px 15px;border-radius:9px;border:1px solid #313b49;background:#1a212b;color:#fff;font:inherit;font-size:15px}
+.mailform input::placeholder{color:#78838f}
+.mailform button{padding:13px 22px;border-radius:9px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:640;cursor:pointer}
+.mailform button:hover{background:var(--accent-dark)}
+#mailmsg{font-size:14px;margin-top:13px;color:#8de0ba;min-height:20px}
+
+footer{padding:44px 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer a{color:var(--muted);text-decoration:none;margin-right:18px}
+footer a:hover{color:var(--ink);text-decoration:underline}
+.warnbox{background:var(--gold-soft);border:1px solid #e8d9ac;color:var(--gold);border-radius:9px;padding:13px 16px;font-size:13.5px;margin-top:26px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="#top" class="logo">cock<span>pit</span></a>
+    <nav>
+      <a href="#funktionen">Funktionen</a>
+      <a href="#vergleich">Vergleich</a>
+      <a href="#datenschutz">Datenschutz</a>
+      <a href="#preise">Preise</a>
+      <a href="#preise" class="btn btn-p btn-sm">Kaufen</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <h1>Bewerbungen organisieren, ohne deinen Lebenslauf an fremde Server zu geben.</h1>
+    <p class="lead">cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App — die alles auf <b>deinem Gerät</b> speichert. Kein Konto, keine Cloud, kein Abo-Zwang.</p>
+    <div class="cta">
+      <!-- ▼ ERSETZEN: DEIN-STORE + Variant-UUID (Anleitung Schritt 3) -->
+      <a href="https://DEIN-STORE.lemonsqueezy.com/buy/PRODUKT-UUID-LIFETIME?embed=1&media=0" class="btn btn-p lemonsqueezy-button">Einmalig kaufen — 59 €</a>
+      <a href="#download" class="btn btn-s">Kostenlos testen</a>
+    </div>
+    <p class="micro">30 Tage Geld-zurück, ohne Rückfragen · Windows · macOS · Linux · iPhone · iPad</p>
+
+    <div class="trust">
+      <span><b>0</b> Server, die deine Daten sehen</span>
+      <span><b>0 €</b> KI-Kosten (eigener Schlüssel)</span>
+      <span><b>Kein</b> Konto nötig</span>
+    </div>
+
+    <div class="shot" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body">
+        <div class="sb">
+          <div class="on">Pipeline</div><div>Stellen</div><div>Anschreiben</div>
+          <div>Posteingang</div><div>Interview</div><div>Lebenslauf</div><div>Kontakte</div>
+        </div>
+        <div class="kb">
+          <div class="col"><h4>Entwurf</h4>
+            <div class="tile"><b>Siemens AG</b><span>DevOps Engineer</span><br><span class="tag b">KI-Anschreiben bereit</span></div>
+            <div class="tile"><b>Zalando SE</b><span>Backend Developer</span></div>
+          </div>
+          <div class="col"><h4>Beworben</h4>
+            <div class="tile"><b>SAP SE</b><span>Platform Engineer</span><br><span class="tag">vor 4 Tagen</span></div>
+            <div class="tile"><b>Otto GmbH</b><span>Cloud Architect</span><br><span class="tag">Nachfassen fällig</span></div>
+            <div class="tile"><b>Bosch</b><span>Rust Developer</span></div>
+          </div>
+          <div class="col"><h4>Gespräch</h4>
+            <div class="tile"><b>Trivago</b><span>Senior Backend</span><br><span class="tag g">Mi. 14:00</span></div>
+          </div>
+          <div class="col"><h4>Zusage</h4>
+            <div class="tile"><b>Celonis</b><span>Staff Engineer</span><br><span class="tag g">78.000 €</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="eyebrow">Das Problem</div>
+    <h2>Bewerben ist Projektarbeit — nur ohne Werkzeug.</h2>
+    <p class="lead">Fünf Portale, drei Postfächer, eine Excel-Tabelle, die niemand pflegt. Und ein Anschreiben, das 45 Minuten kostet und trotzdem generisch klingt.</p>
+    <div class="grid g3">
+      <div class="feat"><div class="ic">1</div><h3>Kein Überblick</h3><p>Wo hast du dich beworben? Wann war das? Wer hat sich nie gemeldet? Nach der zwanzigsten Bewerbung weiß das niemand mehr.</p></div>
+      <div class="feat"><div class="ic">2</div><h3>Anschreiben fressen Zeit</h3><p>30 bis 60 Minuten pro Stück. ChatGPT hilft — aber du kopierst deinen Werdegang jedes Mal neu hinein.</p></div>
+      <div class="feat"><div class="ic">3</div><h3>Deine Daten auf fremden Servern</h3><p>Gehalt, Kündigungsgründe, Absagen, aktueller Arbeitgeber. Die bestehenden Tools laden all das in eine US-Cloud.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="funktionen">
+  <div class="wrap">
+    <div class="eyebrow">Die Lösung</div>
+    <h2>Alles an einem Ort. Auf deinem Gerät.</h2>
+    <p class="lead">Sieben Werkzeuge, ein gemeinsamer Kern — nativ auf Desktop und iPhone.</p>
+    <div class="grid g3">
+      <div class="feat"><div class="ic">◧</div><h3>Pipeline</h3><p>Kanban von „Entwurf" bis „Zusage". Erinnerungen, Kalender, automatische Nachfass-Vorschläge, wenn sich zwei Wochen nichts tut.</p></div>
+      <div class="feat"><div class="ic">⌕</div><h3>Stellen finden</h3><p>Bundesagentur für Arbeit, Arbeitnow, Adzuna und RSS-Feeds in einer Liste — von der KI danach sortiert, wie gut sie zu deinem Profil passen. Nur offizielle Schnittstellen, kein Scraping.</p></div>
+      <div class="feat"><div class="ic">✎</div><h3>KI-Anschreiben</h3><p>Aus deinem Profil und der Stellenanzeige, in deinem Ton. Der Auto-Modus bereitet gleich mehrere auf einmal vor.</p></div>
+      <div class="feat"><div class="ic">✉</div><h3>Posteingang mit KI</h3><p>Eingehende Mails werden zusammengefasst und einsortiert, Antwortentwürfe stehen bereit. Versand nur mit ausdrücklicher Bestätigung.</p></div>
+      <div class="feat"><div class="ic">◑</div><h3>Interview-Training</h3><p>Simuliertes Gespräch mit Rückmeldung, Musterantworten und Bewertung — bevor es ernst wird.</p></div>
+      <div class="feat"><div class="ic">▤</div><h3>Lebenslauf</h3><p>PDF einlesen und daraus dein Profil bauen, oder aus dem Profil einen sauberen Lebenslauf erzeugen — deutsch und englisch.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="vergleich">
+  <div class="wrap">
+    <div class="eyebrow">Vergleich</div>
+    <h2>Warum nicht einfach Teal, Huntr oder Excel?</h2>
+    <p class="lead">Die anderen Werkzeuge sind gut. Sie sind nur für einen anderen Markt und ein anderes Datenschutzverständnis gebaut.</p>
+    <table class="cmp">
+      <thead><tr><th>&nbsp;</th><th class="me">cockpit</th><th>Teal / Huntr</th><th>ChatGPT</th><th>Excel</th></tr></thead>
+      <tbody>
+        <tr><td>Daten bleiben auf deinem Gerät</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="y">Ja</td></tr>
+        <tr><td>Ohne Benutzerkonto nutzbar</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="y">Ja</td></tr>
+        <tr><td>Deutsche Stellenquellen (Arbeitsagentur)</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="n">Nein</td></tr>
+        <tr><td>Anschreiben auf Deutsch, in deinem Ton</td><td class="me y">Ja</td><td>teilweise</td><td>manuell</td><td class="n">Nein</td></tr>
+        <tr><td>Eigener KI-Schlüssel oder lokales Modell</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="n">–</td></tr>
+        <tr><td>Interview-Training</td><td class="me y">Ja</td><td>teilweise</td><td>manuell</td><td class="n">Nein</td></tr>
+        <tr><td>Ohne Abo dauerhaft nutzbar</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="y">Ja</td></tr>
+        <tr><td>Preis pro Jahr</td><td class="me"><b>39 €</b> oder einmalig 59 €</td><td>ca. 120–180 €</td><td>ca. 250 €</td><td>0 €</td></tr>
+      </tbody>
+    </table>
+    <p class="micro" style="margin-top:14px">Preise der Wettbewerber laut deren öffentlichen Angaben, Stand Juli 2026. Teal und Huntr bieten kostenlose Tarife mit eingeschränktem Funktionsumfang.</p>
+  </div>
+</section>
+
+<section class="priv" id="datenschutz">
+  <div class="wrap">
+    <div class="eyebrow">Datenschutz</div>
+    <h2>Das ist keine Funktion. Das ist die Architektur.</h2>
+    <p class="lead">Bewerbungsdaten sind mit das Sensibelste, was du digital besitzt: aktueller Arbeitgeber, Wunschgehalt, jede Absage. cockpit ist so gebaut, dass diese Daten dein Gerät nie verlassen — nicht weil wir es versprechen, sondern weil es technisch keinen Server gibt, der sie entgegennehmen könnte.</p>
+    <div style="margin-top:26px">
+      <span class="pill"><i></i>SQLite auf deiner Festplatte</span>
+      <span class="pill"><i></i>Schlüssel im System-Schlüsselbund</span>
+      <span class="pill"><i></i>Kein Konto, keine Registrierung</span>
+      <span class="pill"><i></i>Keine Analyse, keine Werbung</span>
+      <span class="pill"><i></i>Synchronisierung optional über dein eigenes Supabase oder iCloud</span>
+      <span class="pill"><i></i>Quelloffene Stellenquellen, kein Scraping</span>
+    </div>
+    <div class="grid g2" style="margin-top:36px">
+      <div class="feat">
+        <h3>Bring deine eigene KI mit</h3>
+        <p>Du entscheidest, welches Modell deine Bewerbungsunterlagen sieht: dein eigener API-Schlüssel bei einem Anbieter deiner Wahl, ein lokales Modell über LM Studio oder Ollama — oder Apple Intelligence direkt auf dem Gerät, ganz ohne Internet. Für uns bedeutet das: Wir zahlen keine KI-Kosten. Für dich: Wir können deine Texte gar nicht lesen.</p>
+      </div>
+      <div class="feat">
+        <h3>Warum das den Preis senkt</h3>
+        <p>Andere Anbieter müssen Server, Datenbanken und KI-Tokens für jeden Nutzer bezahlen — deshalb kostet dort alles monatlich, für immer. cockpit hat diese Kosten strukturell nicht. Deshalb kannst du die App einmal kaufen, statt sie ewig zu mieten.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="preise">
+  <div class="wrap center">
+    <div class="eyebrow">Preise</div>
+    <h2>Ehrlich gerechnet.</h2>
+    <p class="lead">Die Grundfunktionen bleiben dauerhaft kostenlos — inklusive unbegrenzter KI mit deinem eigenen Schlüssel.</p>
+
+    <div class="prices">
+      <div class="plan">
+        <div class="nm">Kostenlos</div>
+        <div class="pr">0 <small>€</small></div>
+        <div class="note">Zum Ausprobieren und für gelegentliche Suchen.</div>
+        <a href="#download" class="btn btn-s">Herunterladen</a>
+        <ul>
+          <li>Bis 10 aktive Bewerbungen</li>
+          <li>Pipeline, Kalender, Erinnerungen</li>
+          <li>Stellensuche über alle Quellen</li>
+          <li>KI-Anschreiben mit eigenem Schlüssel</li>
+          <li>Lebenslauf einlesen</li>
+          <li class="no">Auto-Modus</li>
+          <li class="no">Posteingang mit KI</li>
+          <li class="no">Interview-Training</li>
+        </ul>
+      </div>
+
+      <div class="plan hi">
+        <div class="flag">Beliebteste Wahl</div>
+        <div class="nm">Pro — einmalig</div>
+        <div class="old">89 €</div>
+        <div class="pr">59 <small>€ einmalig</small></div>
+        <div class="note"><b>Startpreis für die ersten 100 Käufe.</b> Alle Aktualisierungen der Version 1.x inklusive.</div>
+        <!-- ▼ ERSETZEN: Lifetime-Variant -->
+        <a href="https://DEIN-STORE.lemonsqueezy.com/buy/PRODUKT-UUID-LIFETIME?embed=1&media=0" class="btn btn-p lemonsqueezy-button">Jetzt kaufen</a>
+        <ul>
+          <li><b>Unbegrenzte Bewerbungen</b></li>
+          <li>Auto-Modus (Anschreiben in Serie)</li>
+          <li>Posteingang mit KI-Zusammenfassung</li>
+          <li>Interview-Training mit Bewertung</li>
+          <li>Alle Lebenslauf-Vorlagen (DE/EN)</li>
+          <li>Synchronisierung über 3 Geräte</li>
+          <li>Kein Abo. Keine Verlängerung.</li>
+        </ul>
+      </div>
+
+      <div class="plan">
+        <div class="nm">Pro — jährlich</div>
+        <div class="pr">39 <small>€ / Jahr</small></div>
+        <div class="note">Wenn du lieber klein anfängst. Jederzeit kündbar, auch alle künftigen Hauptversionen inklusive.</div>
+        <!-- ▼ ERSETZEN: Jahresabo-Variant -->
+        <a href="https://DEIN-STORE.lemonsqueezy.com/buy/PRODUKT-UUID-JAHR?embed=1&media=0" class="btn btn-s lemonsqueezy-button">Abo starten</a>
+        <ul>
+          <li>Alles aus Pro</li>
+          <li>Auch Version 2.x und später</li>
+          <li>Monatlich für 4,99 € verfügbar</li>
+          <li>Studierende: 50 % Rabatt auf Anfrage</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="vat">Alle Preise inkl. gesetzlicher Umsatzsteuer. Abwicklung über Lemon Squeezy als Verkäufer (Merchant of Record) — Rechnung und Umsatzsteuer werden dort korrekt ausgewiesen. Zahlung per Karte, PayPal, Apple&nbsp;Pay und Google&nbsp;Pay.</p>
+    <p class="vat"><b>30 Tage Geld zurück.</b> Eine Mail genügt, keine Begründung nötig.</p>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap center">
+    <div class="eyebrow">Herunterladen</div>
+    <h2>Kostenlos starten, später freischalten.</h2>
+    <p class="lead">Lade die App herunter und nutze sie sofort. Der Lizenzschlüssel aus deiner Bestätigungsmail schaltet Pro in den Einstellungen frei — auch offline.</p>
+    <div class="cta" style="margin-top:26px">
+      <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-windows-setup.exe" class="btn btn-s">Windows (.exe)</a>
+      <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-macos-universal.dmg" class="btn btn-s">macOS (.dmg)</a>
+      <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-linux-x86_64.AppImage" class="btn btn-s">Linux (.AppImage)</a>
+      <a href="https://github.com/Stacktor/cockpit-releases/releases/latest" class="btn btn-s">Alle Pakete &amp; Prüfsummen</a>
+    </div>
+    <div class="warnbox" style="max-width:640px;margin:26px auto 0;text-align:left"><b>Hinweis zur Installation:</b> Windows und macOS zeigen bei nicht signierten Programmen eine Warnung. Unter Windows auf „Weitere Informationen → Trotzdem ausführen", unter macOS Rechtsklick auf die App → „Öffnen". Jede Datei ist mit einer SHA-256-Prüfsumme veröffentlicht — die Liste findest du unter „Alle Pakete &amp; Prüfsummen".</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Fragen</div>
+    <h2>Was Käufer meistens wissen wollen</h2>
+    <div style="margin-top:26px">
+      <details open><summary>Brauche ich einen kostenpflichtigen KI-Zugang?</summary>
+        <p>Nein. Du hast drei Wege: einen eigenen API-Schlüssel bei einem Anbieter deiner Wahl (kostet meist wenige Euro im Monat und du zahlst nur, was du nutzt), ein lokales Modell über LM Studio oder Ollama (komplett kostenlos, läuft auf deinem Rechner), oder Apple Intelligence auf neueren Apple-Geräten. Die App funktioniert auch ganz ohne KI — dann eben ohne generierte Anschreiben.</p></details>
+      <details><summary>Was passiert mit meinen Daten?</summary>
+        <p>Sie bleiben in einer SQLite-Datei auf deinem Gerät, Zugangsdaten im System-Schlüsselbund. Es gibt keinen Server von uns, der sie empfangen könnte. Wenn du zwischen Geräten synchronisieren willst, richtest du dafür dein eigenes Supabase-Projekt oder iCloud ein — die Daten laufen dann über deine Infrastruktur, nicht über unsere.</p></details>
+      <details><summary>Einmalkauf oder Abo — was ist besser für mich?</summary>
+        <p>Wenn du gerade suchst und in absehbarer Zeit fertig sein willst: Einmalkauf. Du zahlst 59 €, bekommst alle Aktualisierungen der Version 1.x und nie wieder eine Rechnung. Das Jahresabo lohnt sich, wenn du dauerhaft alle künftigen Hauptversionen mitnehmen willst.</p></details>
+      <details><summary>Auf wie vielen Geräten darf ich die Lizenz nutzen?</summary>
+        <p>Auf drei. Du kannst ein Gerät in den Einstellungen abmelden und den Platz auf einem neuen Gerät wieder verwenden.</p></details>
+      <details><summary>Muss die App online sein, um die Lizenz zu prüfen?</summary>
+        <p>Nur einmal beim Freischalten. Danach prüft sie im Hintergrund gelegentlich nach — bleibt aber auch dann voll nutzbar, wenn du 30 Tage offline bist. Eine App, die ohne Internet den Dienst verweigert, wäre das Gegenteil von dem, wofür cockpit steht.</p></details>
+      <details><summary>Bekomme ich eine ordentliche Rechnung?</summary>
+        <p>Ja. Die Abwicklung läuft über Lemon Squeezy als Verkäufer, du bekommst automatisch eine Rechnung mit korrekt ausgewiesener Umsatzsteuer. Als Unternehmen kannst du im Bestellvorgang deine Umsatzsteuer-Identifikationsnummer angeben.</p></details>
+      <details><summary>Was, wenn es mir nicht gefällt?</summary>
+        <p>30 Tage lang eine formlose Mail an <a href="mailto:Kontakt@mesco.cc">Kontakt@mesco.cc</a>, Geld zurück. Keine Rückfragen, keine Begründung. Einzelheiten in der <a href="/widerruf.html">Widerrufsbelehrung</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="plain">
+  <div class="wrap">
+    <div class="mail">
+      <h2>Version 2 kommt. Sag Bescheid, wenn du es wissen willst.</h2>
+      <p>Etwa eine Mail im Monat: was neu ist, was als Nächstes kommt. Kein Marketing-Geschwätz, Abmeldung mit einem Klick.</p>
+      <form class="mailform" id="mailform">
+        <input type="email" id="mailinput" placeholder="deine@mailadresse.de" required aria-label="E-Mail-Adresse">
+        <button type="submit">Eintragen</button>
+      </form>
+      <div id="mailmsg" role="status"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+      <a href="/widerruf.html">Widerruf</a>
+      <a href="/lizenzbedingungen.html">Lizenzbedingungen</a>
+      <a href="mailto:Kontakt@mesco.cc">Kontakt</a>
+    </div>
+    <div>© 2026 cockpit · Hergestellt in Deutschland</div>
+  </div>
+</footer>
+
+<script>
+/* E-Mail-Warteliste.
+   Standardmäßig nur lokal gespeichert, damit die Seite ohne Backend funktioniert.
+   Zum Scharfschalten: ENDPOINT auf dein Formular-Ziel setzen
+   (z. B. Listmonk, Buttondown, MailerLite, Formspree). */
+const ENDPOINT = null;
+
+document.getElementById('mailform').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = document.getElementById('mailinput');
+  const msg   = document.getElementById('mailmsg');
+  const mail  = input.value.trim();
+  if (!mail) return;
+
+  if (ENDPOINT) {
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+        body: JSON.stringify({ email: mail })
+      });
+      if (!r.ok) throw new Error(r.status);
+      msg.textContent = 'Eingetragen. Danke!';
+      input.value = '';
+    } catch (err) {
+      msg.textContent = 'Hat nicht geklappt — schreib mir einfach direkt eine Mail.';
+    }
+    return;
+  }
+
+  // Fallback ohne Backend: lokal merken, damit nichts verloren geht
+  try {
+    const list = JSON.parse(localStorage.getItem('warteliste') || '[]');
+    if (!list.includes(mail)) list.push(mail);
+    localStorage.setItem('warteliste', JSON.stringify(list));
+  } catch (_) {}
+  msg.textContent = 'Eingetragen. Danke!';
+  input.value = '';
+});
+
+/* Kaufabsicht messbar machen, sobald du eine Statistik einbindest
+   (z. B. Plausible oder Umami — beide DSGVO-freundlich und cookiefrei). */
+document.querySelectorAll('.lemonsqueezy-button').forEach(b => {
+  b.addEventListener('click', () => {
+    if (window.plausible) window.plausible('Checkout geöffnet');
+  });
+});
+</script>
+</body>
+</html>
