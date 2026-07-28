@@ -9,7 +9,8 @@
  * Einstellungen im Pages-Projekt (Settings → Variables and Secrets):
  *
  *   RESEND_API_KEY   Secret     PFLICHT   API-Schlüssel von resend.com (beginnt mit re_)
- *   RESEND_AUDIENCE  Variable   empfohlen ID der Kontaktliste in Resend — das ist „die Liste"
+ *   RESEND_AUDIENCE  Variable   optional  ID der Kontaktliste. Fehlt sie, wird die
+ *                                        erste Liste des Kontos automatisch verwendet.
  *   MAIL_VON         Variable   empfohlen z. B. "Bewerbungs-Cockpit <alpha@mesco.cc>"
  *   MAIL_AN          Variable   empfohlen z. B. "Kontakt@mesco.cc"
  *
@@ -94,9 +95,11 @@ export async function onRequestPost({ request, env }) {
 
     // ── In die Kontaktliste bei Resend eintragen ──────────────────────
     // Das ist „die Liste": in Resend unter Audiences einsehbar und exportierbar.
-    if (env.RESEND_API_KEY && env.RESEND_AUDIENCE) {
+    if (env.RESEND_API_KEY) {
+      const liste = env.RESEND_AUDIENCE || (await ersteListe(env.RESEND_API_KEY));
+      if (liste) {
       const [vorname, ...rest] = name.split(/\s+/);
-      await fetch(`https://api.resend.com/audiences/${env.RESEND_AUDIENCE}/contacts`, {
+      await fetch(`https://api.resend.com/audiences/${liste}/contacts`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${env.RESEND_API_KEY}`,
@@ -109,6 +112,7 @@ export async function onRequestPost({ request, env }) {
           unsubscribed: false,
         }),
       }).catch(() => {}); // Liste ist wichtig, aber nicht wichtiger als die Anmeldung
+      }
     }
 
     // ── Mails ─────────────────────────────────────────────────────────
@@ -156,6 +160,27 @@ function antwort(status, fehler, koerper) {
       "cache-control": "no-store",
     },
   });
+}
+
+/**
+ * Ermittelt die erste Kontaktliste des Resend-Kontos.
+ * Spart eine Einstellung: Wer nur den API-Schlüssel hinterlegt, bekommt
+ * die Liste automatisch. Das Ergebnis wird für den Lauf gemerkt.
+ */
+let listeGemerkt = null;
+async function ersteListe(schluessel) {
+  if (listeGemerkt !== null) return listeGemerkt;
+  try {
+    const r = await fetch("https://api.resend.com/audiences", {
+      headers: { Authorization: `Bearer ${schluessel}` },
+    });
+    if (!r.ok) return (listeGemerkt = "");
+    const j = await r.json();
+    listeGemerkt = (j.data && j.data[0] && j.data[0].id) || "";
+  } catch (_) {
+    listeGemerkt = "";
+  }
+  return listeGemerkt;
 }
 
 async function senden(schluessel, nachricht) {
