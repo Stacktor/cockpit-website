@@ -4,257 +4,594 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Mesco · Portal</title>
+<title>Mesco Portal</title>
 <style>
 :root{
-  --bg:#0e1218; --karte:#161c24; --karte2:#1b222c; --linie:#262f3b;
-  --text:#e8edf4; --leise:#8b98a9; --akzent:#5b8cff; --akzent-w:#1b2740;
-  --ok:#3ddc97; --ok-w:#122c22; --warn:#ffb454; --warn-w:#2e2415;
-  --bad:#ff6b6b; --bad-w:#2e1a1a; --r:12px;
+  --bg:#0b0e13; --flaeche:#12171f; --flaeche2:#171d27; --rand:#212a36; --rand2:#2c3746;
+  --text:#e9eef6; --leise:#8593a6; --leiser:#5d6a7c;
+  --akz:#5b8cff; --akz2:#3f6fe8; --akzw:#141f38;
+  --ok:#42d392; --okw:#0f2a20; --warn:#ffb454; --warnw:#2b2214;
+  --bad:#ff6b6b; --badw:#2b1717; --lila:#a78bfa; --lilaw:#1e1830;
+  --r:14px; --seite:236px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-     background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;padding-bottom:60px}
-a{color:var(--akzent);text-decoration:none}
+html{color-scheme:dark}
+body{font:14.5px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 480px at 82% -12%,rgba(91,140,255,.10),transparent 62%),
+                   radial-gradient(700px 400px at 8% 4%,rgba(167,139,250,.07),transparent 60%);
+  background-attachment:fixed}
+a{color:var(--akz);text-decoration:none}
 a:hover{text-decoration:underline}
-.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+::selection{background:rgba(91,140,255,.3)}
 
-header{border-bottom:1px solid var(--linie);position:sticky;top:0;z-index:20;
-  background:rgba(14,18,24,.88);backdrop-filter:blur(12px)}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:14px}
-.logo{font-weight:700;font-size:17px;letter-spacing:-.3px}
-.logo span{color:var(--akzent)}
-.kopfrechts{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--leise)}
-.knopf{padding:8px 15px;border-radius:8px;border:1px solid var(--linie);background:var(--karte);
-  color:var(--text);font:inherit;font-size:13.5px;font-weight:550;cursor:pointer;transition:.18s}
-.knopf:hover{border-color:#3a4757;transform:translateY(-1px)}
-.knopf:active{transform:none}
-.knopf.pri{background:var(--akzent);border-color:var(--akzent);color:#fff}
+/* ─── Gerüst ─── */
+.huelle{display:flex;min-height:100vh}
+.seite{width:var(--seite);flex:0 0 var(--seite);border-right:1px solid var(--rand);
+  padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:rgba(11,14,19,.7);backdrop-filter:blur(14px)}
+.marke{display:flex;align-items:center;gap:10px;padding:4px 10px 22px}
+.marke .zeichen{width:30px;height:30px;border-radius:9px;flex:0 0 auto;
+  background:linear-gradient(140deg,var(--akz),var(--lila));display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:14px;color:#fff;
+  box-shadow:0 5px 16px -6px rgba(91,140,255,.75)}
+.marke b{font-size:15px;letter-spacing:-.25px;display:block;line-height:1.25}
+.marke small{color:var(--leiser);font-size:11.5px;letter-spacing:.3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;
+  color:var(--leise);font-size:14px;font-weight:520;transition:.16s;position:relative}
+.nav a:hover{background:var(--flaeche);color:var(--text);text-decoration:none}
+.nav a.an{background:var(--akzw);color:#a9c4ff;font-weight:620}
+.nav a.an::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--akz)}
+.nav .pkt{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;flex:0 0 auto}
+.nav .anzahl{margin-left:auto;font-size:11.5px;color:var(--leiser);
+  background:var(--flaeche2);padding:1px 7px;border-radius:20px;font-variant-numeric:tabular-nums}
+.seitefuss{margin-top:auto;padding:12px 11px 0;border-top:1px solid var(--rand);
+  font-size:11.5px;color:var(--leiser);line-height:1.55}
+.seitefuss b{color:var(--leise);display:block;font-weight:600}
 
-h1{font-size:26px;letter-spacing:-.5px;margin:34px 0 4px}
-.unter{color:var(--leise);font-size:14px;margin-bottom:26px}
-h2{font-size:16px;letter-spacing:-.2px;margin-bottom:14px;display:flex;align-items:center;gap:9px}
-h2 .zahl{font-size:12px;font-weight:600;color:var(--leise);background:var(--karte2);
-  padding:2px 8px;border-radius:20px}
+.inhalt{flex:1;min-width:0;padding:26px 30px 70px;max-width:1280px}
+.kopf{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+h1{font-size:24px;letter-spacing:-.5px;font-weight:660}
+.kopf .unter{color:var(--leise);font-size:13.5px;margin-top:3px}
+.werkzeuge{display:flex;gap:8px;align-items:center}
 
-.raster{display:grid;gap:16px;margin-bottom:26px}
-.k4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.k2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+/* ─── Bausteine ─── */
+.knopf{padding:8px 14px;border-radius:9px;border:1px solid var(--rand2);background:var(--flaeche);
+  color:var(--text);font:inherit;font-size:13.5px;font-weight:560;cursor:pointer;transition:.16s;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.knopf:hover:not(:disabled){border-color:#3c4a5c;background:var(--flaeche2);transform:translateY(-1px)}
+.knopf:active:not(:disabled){transform:none}
+.knopf:disabled{opacity:.45;cursor:not-allowed}
+.knopf.pri{background:linear-gradient(180deg,var(--akz),var(--akz2));border-color:transparent;color:#fff}
+.knopf.mini{padding:5px 10px;font-size:12.5px;border-radius:7px}
+.knopf.gefahr{color:var(--bad);border-color:#3d2222}
+.knopf.gefahr:hover:not(:disabled){background:var(--badw);border-color:#5a2f2f}
 
-.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);padding:20px;
-  animation:auf .5s cubic-bezier(.22,.61,.36,1) both}
-@keyframes auf{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.karte:nth-child(2){animation-delay:.05s}.karte:nth-child(3){animation-delay:.1s}
-.karte:nth-child(4){animation-delay:.15s}.karte:nth-child(5){animation-delay:.2s}
+.karte{background:var(--flaeche);border:1px solid var(--rand);border-radius:var(--r);
+  animation:auf .45s cubic-bezier(.22,.61,.36,1) both}
+.karte.polster{padding:20px}
+@keyframes auf{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.karte:nth-child(2){animation-delay:.04s}.karte:nth-child(3){animation-delay:.08s}
+.karte:nth-child(4){animation-delay:.12s}.karte:nth-child(5){animation-delay:.16s}
 
-.kpi .lab{font-size:12px;color:var(--leise);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
-.kpi .val{font-size:30px;font-weight:660;letter-spacing:-1.2px;font-variant-numeric:tabular-nums}
-.kpi .sub{font-size:12.5px;color:var(--leise);margin-top:5px}
-.val.ok{color:var(--ok)}.val.warn{color:var(--warn)}.val.bad{color:var(--bad)}
+.kartenkopf{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:15px 20px;border-bottom:1px solid var(--rand)}
+.kartenkopf h2{font-size:14.5px;font-weight:640;letter-spacing:-.1px;display:flex;align-items:center;gap:9px}
+.kartenkopf .zahl{font-size:11.5px;font-weight:640;color:var(--leise);background:var(--flaeche2);
+  padding:2px 8px;border-radius:20px;font-variant-numeric:tabular-nums}
 
+.raster{display:grid;gap:14px}
+.k4{grid-template-columns:repeat(auto-fit,minmax(216px,1fr))}
+.k2{grid-template-columns:repeat(auto-fit,minmax(400px,1fr))}
+
+/* Kennzahlen */
+.kpi{padding:18px 20px;position:relative;overflow:hidden}
+.kpi .kopfz{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.kpi .sym{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex:0 0 auto}
+.kpi .lab{font-size:11.5px;color:var(--leise);text-transform:uppercase;letter-spacing:.6px;font-weight:620}
+.kpi .val{font-size:29px;font-weight:680;letter-spacing:-1.1px;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .sub{font-size:12.5px;color:var(--leiser);margin-top:6px}
+.kpi .strich{position:absolute;inset:auto 0 0 0;height:2px;background:linear-gradient(90deg,var(--akz),transparent)}
+
+/* Tabellen */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--leise);
-   padding:0 10px 9px;font-weight:600;border-bottom:1px solid var(--linie)}
-td{padding:10px;border-bottom:1px solid var(--linie);vertical-align:top}
-tr:last-child td{border-bottom:0}
-tbody tr{transition:background .15s}
-tbody tr:hover{background:var(--karte2)}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+thead th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--leiser);padding:11px 16px;font-weight:680;background:var(--flaeche2);
+  border-bottom:1px solid var(--rand);position:sticky;top:0;z-index:2}
+td{padding:11px 16px;border-bottom:1px solid var(--rand);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background .14s}
+tbody tr:hover{background:var(--flaeche2)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;letter-spacing:-.2px}
+.rollen{max-height:460px;overflow:auto}
+.rollen::-webkit-scrollbar{width:9px}
+.rollen::-webkit-scrollbar-thumb{background:var(--rand2);border-radius:9px}
 
-.marke{display:inline-block;padding:2.5px 9px;border-radius:20px;font-size:11.5px;font-weight:620;white-space:nowrap}
-.m-ok{background:var(--ok-w);color:var(--ok)}
-.m-warn{background:var(--warn-w);color:var(--warn)}
-.m-bad{background:var(--bad-w);color:var(--bad)}
-.m-leise{background:var(--karte2);color:var(--leise)}
+.marke2{display:inline-flex;align-items:center;gap:5px;padding:2.5px 9px;border-radius:20px;
+  font-size:11.5px;font-weight:640;white-space:nowrap}
+.m-ok{background:var(--okw);color:var(--ok)}
+.m-warn{background:var(--warnw);color:var(--warn)}
+.m-bad{background:var(--badw);color:var(--bad)}
+.m-leise{background:var(--flaeche2);color:var(--leise)}
+.m-lila{background:var(--lilaw);color:var(--lila)}
 
-.hinweis{background:var(--warn-w);border:1px solid #4a3a1e;color:var(--warn);
-  border-radius:10px;padding:14px 16px;font-size:13.5px}
-.fehler{background:var(--bad-w);border:1px solid #4a2020;color:var(--bad);
-  border-radius:10px;padding:14px 16px;font-size:13.5px}
-.hinweis b,.fehler b{display:block;margin-bottom:3px}
+/* Fortschritt */
+.balkenklein{height:5px;border-radius:5px;background:var(--flaeche2);overflow:hidden;width:64px;display:inline-block;vertical-align:-1px}
+.balkenklein>i{display:block;height:100%;background:var(--ok);border-radius:5px;transition:width .5s}
+.balkenklein>i.warn{background:var(--warn)} .balkenklein>i.bad{background:var(--bad)}
 
-.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.links a{display:flex;align-items:center;gap:10px;padding:13px 15px;border:1px solid var(--linie);
-  border-radius:10px;background:var(--karte2);color:var(--text);font-size:14px;font-weight:530;
-  transition:.2s;text-decoration:none}
-.links a:hover{border-color:var(--akzent);transform:translateY(-2px);
-  box-shadow:0 10px 24px -14px rgba(91,140,255,.55);text-decoration:none}
-.links .pkt{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+/* Diagramm */
+.saeulen{display:flex;gap:3px;align-items:flex-end;height:96px;padding:0 2px}
+.saeulen i{flex:1;border-radius:3px 3px 0 0;min-height:3px;background:linear-gradient(180deg,var(--akz),rgba(91,140,255,.18));
+  transition:height .7s cubic-bezier(.22,.61,.36,1),filter .15s;cursor:default}
+.saeulen i:hover{filter:brightness(1.5)}
+.achse{display:flex;justify-content:space-between;font-size:11px;color:var(--leiser);margin-top:9px}
 
-.balken{display:flex;gap:3px;align-items:flex-end;height:52px;margin-top:12px}
-.balken i{flex:1;background:var(--akzent-w);border-radius:2px 2px 0 0;min-height:2px;
-  transition:height .6s cubic-bezier(.22,.61,.36,1),background .2s}
-.balken i:hover{background:var(--akzent)}
+/* Meldungen */
+.meld{border-radius:11px;padding:14px 17px;font-size:13.5px;display:flex;gap:12px;align-items:flex-start}
+.meld .sym{font-size:15px;flex:0 0 auto;margin-top:1px}
+.m-hinweis{background:var(--warnw);border:1px solid #423318;color:#e5b978}
+.m-fehler{background:var(--badw);border:1px solid #452424;color:#ef9a9a}
+.m-gut{background:var(--okw);border:1px solid #1c4436;color:#7ee2b8}
+.meld b{display:block;margin-bottom:2px;font-weight:640}
 
-.leer{text-align:center;padding:34px 16px;color:var(--leise);font-size:14px}
-.laden{display:inline-block;width:15px;height:15px;border:2px solid var(--linie);
-  border-top-color:var(--akzent);border-radius:50%;animation:dreh .7s linear infinite;vertical-align:-2px}
+.leer{text-align:center;padding:44px 20px;color:var(--leiser)}
+.leer .sym{font-size:30px;opacity:.3;display:block;margin-bottom:12px}
+.leer b{display:block;color:var(--leise);font-weight:600;margin-bottom:4px;font-size:14px}
+
+/* Schnellzugriff */
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:9px;padding:16px 20px 20px}
+.links a{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--rand);
+  border-radius:10px;background:var(--flaeche2);color:var(--text);font-size:13.5px;font-weight:540;
+  transition:.18s;text-decoration:none}
+.links a:hover{border-color:var(--akz);transform:translateY(-2px);text-decoration:none;
+  box-shadow:0 12px 26px -16px rgba(91,140,255,.8)}
+.links .pkt{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.links .pfeil{margin-left:auto;color:var(--leiser);font-size:13px}
+
+/* Overlay */
+.schleier{position:fixed;inset:0;background:rgba(6,9,13,.72);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;padding:24px;z-index:60}
+.dialog{background:var(--flaeche);border:1px solid var(--rand2);border-radius:16px;padding:24px;
+  width:100%;max-width:440px;box-shadow:0 30px 70px -24px rgba(0,0,0,.8);
+  animation:auf .3s cubic-bezier(.22,.61,.36,1) both}
+.dialog h3{font-size:17px;margin-bottom:6px;font-weight:650}
+.dialog p{color:var(--leise);font-size:13.5px;margin-bottom:18px}
+.dialog label{display:block;font-size:12px;font-weight:640;color:var(--leise);margin-bottom:6px}
+.dialog input{width:100%;padding:10px 12px;border:1px solid var(--rand2);border-radius:9px;
+  background:var(--bg);color:var(--text);font:inherit;font-size:14px;margin-bottom:16px}
+.dialog input:focus{outline:none;border-color:var(--akz);box-shadow:0 0 0 3px rgba(91,140,255,.18)}
+.dialogfuss{display:flex;gap:9px;justify-content:flex-end}
+
+.dreh{width:14px;height:14px;border:2px solid var(--rand2);border-top-color:var(--akz);
+  border-radius:50%;animation:dreh .65s linear infinite;display:inline-block;vertical-align:-2px}
 @keyframes dreh{to{transform:rotate(360deg)}}
 
+.abschnitt{display:none}
+.abschnitt.an{display:block}
+
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
-@media(max-width:640px){.kpi .val{font-size:25px}h1{font-size:22px}}
+@media(max-width:900px){
+  .huelle{flex-direction:column}
+  .seite{width:auto;flex:none;height:auto;position:static;flex-direction:row;align-items:center;
+    gap:6px;overflow-x:auto;padding:10px 14px;border-right:0;border-bottom:1px solid var(--rand)}
+  .marke,.seitefuss{display:none}
+  .nav{flex-direction:row}
+  .nav a.an::before{display:none}
+  .inhalt{padding:20px 16px 60px}
+}
 </style>
 </head>
 <body>
+<div class="huelle">
 
-<header><div class="wrap">
-  <div class="logo">Mesco · <span>Portal</span></div>
-  <div class="kopfrechts">
-    <span id="benutzer"></span>
-    <button class="knopf" id="neu">Aktualisieren</button>
-  </div>
-</div></header>
-
-<div class="wrap">
-  <h1>Übersicht</h1>
-  <div class="unter" id="stand"><span class="laden"></span> Daten werden geladen …</div>
-
-  <div id="warnung"></div>
-
-  <!-- Kennzahlen -->
-  <div class="raster k4" id="kpis"></div>
-
-  <!-- Alpha -->
-  <h2>Alpha-Anmeldungen <span class="zahl" id="alphaZahl">–</span></h2>
-  <div class="karte" style="padding:0;overflow:hidden"><div id="alpha"></div></div>
-
-  <!-- Zwei Spalten -->
-  <div class="raster k2" style="margin-top:26px">
-    <div>
-      <h2>Zuletzt versendete Mails</h2>
-      <div class="karte" style="padding:0;overflow:hidden"><div id="mails"></div></div>
+  <!-- ─── Seitenleiste ─── -->
+  <nav class="seite">
+    <div class="marke">
+      <div class="zeichen">M</div>
+      <div><b>Mesco</b><small>Portal</small></div>
     </div>
-    <div>
-      <h2>Lizenzen</h2>
-      <div class="karte" style="padding:0;overflow:hidden"><div id="lizenzen"></div></div>
+    <div class="nav" id="nav">
+      <a href="#uebersicht" class="an"><span class="pkt"></span>Übersicht</a>
+      <a href="#alpha"><span class="pkt"></span>Alpha<span class="anzahl" id="navAlpha">–</span></a>
+      <a href="#lizenzen"><span class="pkt"></span>Lizenzen<span class="anzahl" id="navLiz">–</span></a>
+      <a href="#mails"><span class="pkt"></span>Mails<span class="anzahl" id="navMail">–</span></a>
+      <a href="#zugriffe"><span class="pkt"></span>Zugriffe</a>
+      <a href="#dienste"><span class="pkt"></span>Dienste</a>
     </div>
-  </div>
-
-  <!-- Zugriffe -->
-  <h2 style="margin-top:26px">Zugriffe · 30 Tage</h2>
-  <div class="karte" id="zugriffe"></div>
-
-  <!-- Schnellzugriff -->
-  <h2 style="margin-top:26px">Schnellzugriff</h2>
-  <div class="karte">
-    <div class="links">
-      <a href="https://resend.com/emails" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Mails</a>
-      <a href="https://resend.com/audience" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Kontakte</a>
-      <a href="https://resend.com/metrics" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Metriken</a>
-      <a href="https://app.lemonsqueezy.com/orders" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Bestellungen</a>
-      <a href="https://app.lemonsqueezy.com/licenses" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Lizenzen</a>
-      <a href="https://app.lemonsqueezy.com/products" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Produkte</a>
-      <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · Pages</a>
-      <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · KV-Speicher</a>
-      <a href="https://github.com/Stacktor/Bewerbungs-Cockpit/actions" target="_blank" rel="noopener"><span class="pkt" style="background:#8b98a9"></span>GitHub · Builds</a>
-      <a href="https://github.com/Stacktor/cockpit-website" target="_blank" rel="noopener"><span class="pkt" style="background:#8b98a9"></span>GitHub · Website</a>
-      <a href="https://mail.proton.me" target="_blank" rel="noopener"><span class="pkt" style="background:#3ddc97"></span>Proton · Kontakt@mesco.cc</a>
-      <a href="https://cockpit.mesco.cc" target="_blank" rel="noopener"><span class="pkt" style="background:#3ddc97"></span>Website ansehen</a>
+    <div class="seitefuss">
+      <b id="benutzer">–</b>
+      <span id="standFuss">wird geladen …</span>
     </div>
-  </div>
+  </nav>
+
+  <!-- ─── Inhalt ─── -->
+  <main class="inhalt">
+    <div class="kopf">
+      <div>
+        <h1 id="titel">Übersicht</h1>
+        <div class="unter" id="untertitel"><span class="dreh"></span> Daten werden geladen …</div>
+      </div>
+      <div class="werkzeuge">
+        <button class="knopf" id="neu">Aktualisieren</button>
+      </div>
+    </div>
+
+    <div id="warnung" style="margin-bottom:20px"></div>
+
+    <!-- Übersicht -->
+    <section class="abschnitt an" id="s-uebersicht">
+      <div class="raster k4" id="kpis" style="margin-bottom:16px"></div>
+      <div class="raster k2">
+        <div class="karte">
+          <div class="kartenkopf"><h2>Neueste Alpha-Anmeldungen</h2>
+            <button class="knopf mini" data-geh="alpha">Alle ansehen</button></div>
+          <div id="alphaKurz"></div>
+        </div>
+        <div class="karte">
+          <div class="kartenkopf"><h2>Zuletzt versendete Mails</h2>
+            <button class="knopf mini" data-geh="mails">Alle ansehen</button></div>
+          <div id="mailsKurz"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alpha -->
+    <section class="abschnitt" id="s-alpha">
+      <div class="karte">
+        <div class="kartenkopf"><h2>Alpha-Anmeldungen <span class="zahl" id="alphaZahl">–</span></h2>
+          <div id="alphaSysteme" style="display:flex;gap:6px"></div></div>
+        <div class="rollen" id="alpha"></div>
+      </div>
+    </section>
+
+    <!-- Lizenzen -->
+    <section class="abschnitt" id="s-lizenzen">
+      <div class="karte">
+        <div class="kartenkopf">
+          <h2>Lizenzverwaltung <span class="zahl" id="lizZahl">–</span></h2>
+          <div style="display:flex;gap:6px" id="lizStatus"></div>
+        </div>
+        <div class="rollen" id="lizenzen"></div>
+      </div>
+      <div class="meld m-hinweis" style="margin-top:14px">
+        <span class="sym">!</span>
+        <div><b>Änderungen wirken sofort</b>
+        Sperren deaktiviert die Lizenz bei der nächsten Prüfung in der App —
+        der Kunde fällt binnen drei Tagen auf die kostenlose Version zurück, behält aber
+        alle Daten. Verlängern und Gerätezahl greifen unmittelbar.</div>
+      </div>
+    </section>
+
+    <!-- Mails -->
+    <section class="abschnitt" id="s-mails">
+      <div class="karte">
+        <div class="kartenkopf"><h2>Versendete Mails</h2>
+          <div id="mailStatus" style="display:flex;gap:6px"></div></div>
+        <div class="rollen" id="mails"></div>
+      </div>
+      <div class="karte" style="margin-top:14px">
+        <div class="kartenkopf"><h2>Domains &amp; Kontaktlisten</h2></div>
+        <div id="resendMeta" style="padding:16px 20px"></div>
+      </div>
+    </section>
+
+    <!-- Zugriffe -->
+    <section class="abschnitt" id="s-zugriffe">
+      <div class="karte polster" id="zugriffe"></div>
+    </section>
+
+    <!-- Dienste -->
+    <section class="abschnitt" id="s-dienste">
+      <div class="karte">
+        <div class="kartenkopf"><h2>Schnellzugriff</h2></div>
+        <div class="links">
+          <a href="https://resend.com/emails" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Mails<span class="pfeil">↗</span></a>
+          <a href="https://resend.com/audience" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Kontakte<span class="pfeil">↗</span></a>
+          <a href="https://resend.com/metrics" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Metriken<span class="pfeil">↗</span></a>
+          <a href="https://resend.com/domains" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Domains<span class="pfeil">↗</span></a>
+          <a href="https://app.lemonsqueezy.com/orders" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Bestellungen<span class="pfeil">↗</span></a>
+          <a href="https://app.lemonsqueezy.com/licenses" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Lizenzen<span class="pfeil">↗</span></a>
+          <a href="https://app.lemonsqueezy.com/products" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Produkte<span class="pfeil">↗</span></a>
+          <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · Pages<span class="pfeil">↗</span></a>
+          <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · KV<span class="pfeil">↗</span></a>
+          <a href="https://one.dash.cloudflare.com/" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · Zero Trust<span class="pfeil">↗</span></a>
+          <a href="https://github.com/Stacktor/Bewerbungs-Cockpit/actions" target="_blank" rel="noopener"><span class="pkt" style="background:#8593a6"></span>GitHub · Builds<span class="pfeil">↗</span></a>
+          <a href="https://github.com/Stacktor/cockpit-website" target="_blank" rel="noopener"><span class="pkt" style="background:#8593a6"></span>GitHub · Website<span class="pfeil">↗</span></a>
+          <a href="https://mail.proton.me" target="_blank" rel="noopener"><span class="pkt" style="background:#42d392"></span>Proton · Postfach<span class="pfeil">↗</span></a>
+          <a href="https://cockpit.mesco.cc" target="_blank" rel="noopener"><span class="pkt" style="background:#42d392"></span>Website<span class="pfeil">↗</span></a>
+          <a href="#" id="discordLink" target="_blank" rel="noopener"><span class="pkt" style="background:#a78bfa"></span>Discord · Community<span class="pfeil">↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script>
-const $ = (id) => document.getElementById(id);
+const $  = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const datum = (s) => { if(!s) return "–"; const d=new Date(s);
-  return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}); };
+const zeit = (s) => { if(!s) return "–"; const d = new Date(s);
+  return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"}) + " " +
+         d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}); };
+const tag = (s) => s ? new Date(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"}) : "–";
 
-const kachelHinweis = (q) => q && q.art === "hinweis"
-  ? `<div class="hinweis" style="margin:16px"><b>Noch nicht eingerichtet</b>${esc(q.text)}</div>`
-  : `<div class="fehler" style="margin:16px"><b>Abruf fehlgeschlagen</b>${esc(q && q.text || "unbekannt")}</div>`;
+/* Token: einmal aus der Adresszeile holen, dann dort entfernen und
+   nur noch als Kopfzeile mitschicken — so steht er nicht im Verlauf. */
+let TOKEN = "";
+(function(){
+  const p = new URLSearchParams(location.search);
+  const t = p.get("token");
+  if (t) {
+    TOKEN = t;
+    try { sessionStorage.setItem("mesco_token", t); } catch(_) {}
+    history.replaceState(null, "", location.pathname + location.hash);
+  } else {
+    try { TOKEN = sessionStorage.getItem("mesco_token") || ""; } catch(_) {}
+  }
+})();
+const kopf = () => TOKEN ? { "X-Admin-Token": TOKEN } : {};
 
-async function laden() {
-  $("stand").innerHTML = '<span class="laden"></span> Daten werden geladen …';
-  const token = new URLSearchParams(location.search).get("token");
+let DATEN = null;
+
+/* ─── Navigation ─── */
+const titel = { uebersicht:"Übersicht", alpha:"Alpha-Anmeldungen", lizenzen:"Lizenzverwaltung",
+                mails:"Mailversand", zugriffe:"Zugriffe", dienste:"Dienste" };
+function geheZu(ziel){
+  document.querySelectorAll(".abschnitt").forEach(s => s.classList.toggle("an", s.id === "s"+"-"+ziel));
+  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("an", a.hash === "#"+ziel));
+  $("titel").textContent = titel[ziel] || "Portal";
+  if (location.hash !== "#"+ziel) history.replaceState(null,"","#"+ziel);
+  scrollTo({top:0,behavior:"instant"});
+}
+document.querySelectorAll("#nav a").forEach(a =>
+  a.addEventListener("click", e => { e.preventDefault(); geheZu(a.hash.slice(1)); }));
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-geh]"); if (b) geheZu(b.dataset.geh);
+});
+
+/* ─── Laden ─── */
+async function laden(){
+  $("untertitel").innerHTML = '<span class="dreh"></span> Daten werden geladen …';
   let d;
   try {
-    const r = await fetch("/api/admin/uebersicht" + (token ? "?token=" + encodeURIComponent(token) : ""),
-                          { cache: "no-store" });
+    const r = await fetch("/api/admin/uebersicht", { cache:"no-store", headers: kopf() });
     d = await r.json();
     if (!r.ok) {
-      $("warnung").innerHTML = `<div class="fehler" style="margin-bottom:22px"><b>Kein Zugriff</b>${esc(d.fehler || r.status)}</div>`;
-      $("stand").textContent = "";
+      $("warnung").innerHTML =
+        `<div class="meld m-fehler"><span class="sym">✕</span><div><b>Kein Zugriff</b>${esc(d.fehler||r.status)}</div></div>`;
+      $("untertitel").textContent = "";
       return;
     }
-  } catch (e) {
-    $("warnung").innerHTML = `<div class="fehler" style="margin-bottom:22px"><b>Keine Verbindung</b>${esc(e)}</div>`;
-    $("stand").textContent = "";
-    return;
+  } catch(e){
+    $("warnung").innerHTML =
+      `<div class="meld m-fehler"><span class="sym">✕</span><div><b>Keine Verbindung</b>${esc(e)}</div></div>`;
+    $("untertitel").textContent = ""; return;
   }
-
+  DATEN = d;
   $("warnung").innerHTML = "";
-  $("benutzer").textContent = d.benutzer || "";
-  $("stand").textContent = "Stand: " + datum(d.stand);
+  $("benutzer").textContent = d.benutzer || "–";
+  $("standFuss").textContent = "Stand " + zeit(d.stand);
+  $("untertitel").textContent = "Zuletzt aktualisiert " + zeit(d.stand);
+  zeichne(d);
+}
 
-  // ── Kennzahlen ──
-  const a = d.alpha, r_ = d.resend, l = d.lemon, z = d.aufrufe;
-  const kpi = (lab, val, sub, klasse) =>
-    `<div class="karte kpi"><div class="lab">${lab}</div>
-     <div class="val ${klasse||""}">${val}</div><div class="sub">${sub||""}</div></div>`;
+function hinweis(q){
+  const fehler = q && q.art === "fehler";
+  return `<div style="padding:18px 20px"><div class="meld ${fehler?"m-fehler":"m-hinweis"}">
+    <span class="sym">${fehler?"✕":"!"}</span>
+    <div><b>${fehler?"Abruf fehlgeschlagen":"Noch nicht eingerichtet"}</b>${esc(q&&q.text||"unbekannt")}</div></div></div>`;
+}
+const leer = (sym, t, u) =>
+  `<div class="leer"><span class="sym">${sym}</span><b>${t}</b>${u||""}</div>`;
+
+function zeichne(d){
+  const a=d.alpha, r=d.resend, l=d.lemon, z=d.aufrufe;
+
+  /* Navigation-Zähler */
+  $("navAlpha").textContent = a.ok ? a.gesamt : "–";
+  $("navLiz").textContent   = l.ok ? l.lizenzenGesamt : "–";
+  $("navMail").textContent  = r.ok ? r.gesendet : "–";
+
+  /* Kennzahlen */
+  const kpi = (sym,farbe,lab,val,sub,klasse) =>
+   `<div class="karte kpi">
+      <div class="kopfz"><span class="sym" style="background:${farbe.w};color:${farbe.f}">${sym}</span>
+        <span class="lab">${lab}</span></div>
+      <div class="val" style="${klasse?`color:${klasse}`:""}">${val}</div>
+      <div class="sub">${sub||""}</div><span class="strich"></span></div>`;
+  const blau={w:"var(--akzw)",f:"var(--akz)"}, gruen={w:"var(--okw)",f:"var(--ok)"},
+        gelb={w:"var(--warnw)",f:"var(--warn)"}, lila={w:"var(--lilaw)",f:"var(--lila)"};
+
   $("kpis").innerHTML = [
-    kpi("Alpha-Plätze frei", a.ok ? a.frei : "–", a.ok ? `${a.gesamt} von ${a.plaetze} vergeben` : "KV nicht verbunden",
-        a.ok ? (a.frei > 10 ? "ok" : a.frei > 0 ? "warn" : "bad") : ""),
-    kpi("Anmeldungen · 7 Tage", a.ok ? a.letzte7Tage : "–", "neue Bewerbungen", "ok"),
-    kpi("Mails zugestellt", r_.ok ? r_.zugestellt : "–",
-        r_.ok ? `${r_.fehlgeschlagen} fehlgeschlagen` : "Resend nicht verbunden",
-        r_.ok && r_.fehlgeschlagen > 0 ? "warn" : "ok"),
-    kpi("Umsatz · 30 Tage", l.ok ? l.umsatz30Tage + " €" : "–",
-        l.ok ? `${l.lizenzenGesamt} Lizenzen insgesamt` : "Lemon Squeezy nicht verbunden"),
+    kpi("◷",blau,"Alpha-Plätze frei", a.ok?a.frei:"–",
+        a.ok?`${a.gesamt} von ${a.plaetze} vergeben`:"KV nicht verbunden",
+        a.ok?(a.frei>10?"var(--ok)":a.frei>0?"var(--warn)":"var(--bad)"):""),
+    kpi("↗",gruen,"Neu · 7 Tage", a.ok?a.letzte7Tage:"–","Anmeldungen"),
+    kpi("✉",lila,"Mails zugestellt", r.ok?r.zugestellt:"–",
+        r.ok?`${r.fehlgeschlagen} fehlgeschlagen`:"Resend nicht verbunden",
+        r.ok&&r.fehlgeschlagen>0?"var(--warn)":""),
+    kpi("€",gelb,"Umsatz · 30 Tage", l.ok?l.umsatz30Tage+" €":"–",
+        l.ok?`${l.lizenzenGesamt} Lizenzen · ${l.umsatzGesamt} € gesamt`:"Lemon Squeezy nicht verbunden"),
   ].join("");
 
-  // ── Alpha ──
-  $("alphaZahl").textContent = a.ok ? a.gesamt : "–";
-  $("alpha").innerHTML = !a.ok ? kachelHinweis(a)
-    : !a.eintraege.length ? '<div class="leer">Noch keine Anmeldungen.</div>'
-    : `<table><thead><tr><th>Name</th><th>E-Mail</th><th>System</th><th>Warum</th><th>Wann</th></tr></thead><tbody>` +
-      a.eintraege.map(e => `<tr>
-        <td><b>${esc(e.name)}</b></td>
-        <td><a href="mailto:${esc(e.mail)}">${esc(e.mail)}</a></td>
-        <td><span class="marke m-leise">${esc(e.os)}</span></td>
-        <td style="max-width:340px;color:var(--leise)">${esc(e.grund).slice(0,140)}</td>
-        <td class="mono" style="color:var(--leise);white-space:nowrap">${datum(e.zeit)}</td>
-      </tr>`).join("") + "</tbody></table>";
+  /* Alpha */
+  const alphaZeilen = (liste) => liste.map(e => `<tr>
+      <td><b>${esc(e.name)}</b><div style="color:var(--leiser);font-size:12px">${esc(e.mail)}</div></td>
+      <td><span class="marke2 m-leise">${esc(e.os)}</span></td>
+      <td style="max-width:400px;color:var(--leise)">${esc(e.grund).slice(0,150)}</td>
+      <td class="mono" style="color:var(--leiser);white-space:nowrap">${zeit(e.zeit)}</td></tr>`).join("");
 
-  // ── Mails ──
-  $("mails").innerHTML = !r_.ok ? kachelHinweis(r_)
-    : !r_.letzte.length ? '<div class="leer">Noch keine Mails versendet.</div>'
-    : `<table><thead><tr><th>An</th><th>Betreff</th><th>Stand</th></tr></thead><tbody>` +
-      r_.letzte.map(m => {
-        const k = m.status === "delivered" ? "m-ok"
-                : /bounce|fail|complain/.test(m.status||"") ? "m-bad" : "m-warn";
-        return `<tr><td>${esc(m.an)}</td>
-          <td style="color:var(--leise)">${esc(m.betreff).slice(0,52)}</td>
-          <td><span class="marke ${k}">${esc(m.status)}</span></td></tr>`;
-      }).join("") + "</tbody></table>";
+  if (!a.ok){ $("alpha").innerHTML = hinweis(a); $("alphaKurz").innerHTML = hinweis(a); }
+  else if (!a.eintraege.length){
+    $("alpha").innerHTML = leer("◷","Noch keine Anmeldungen","Sobald sich jemand über das Formular meldet, steht er hier.");
+    $("alphaKurz").innerHTML = leer("◷","Noch keine Anmeldungen");
+  } else {
+    $("alphaZahl").textContent = a.gesamt;
+    $("alphaSysteme").innerHTML = Object.entries(a.proSystem)
+      .map(([k,v])=>`<span class="marke2 m-leise">${esc(k)} ${v}</span>`).join("");
+    $("alpha").innerHTML = `<table><thead><tr><th>Person</th><th>System</th><th>Warum</th><th>Wann</th></tr></thead>
+      <tbody>${alphaZeilen(a.eintraege)}</tbody></table>`;
+    $("alphaKurz").innerHTML = `<table><tbody>${a.eintraege.slice(0,5).map(e=>`<tr>
+      <td><b>${esc(e.name)}</b><div style="color:var(--leiser);font-size:12px">${esc(e.mail)}</div></td>
+      <td style="text-align:right"><span class="marke2 m-leise">${esc(e.os)}</span>
+        <div style="color:var(--leiser);font-size:11.5px;margin-top:3px">${zeit(e.zeit)}</div></td></tr>`).join("")}</tbody></table>`;
+  }
 
-  // ── Lizenzen ──
-  $("lizenzen").innerHTML = !l.ok ? kachelHinweis(l)
-    : !l.letzteLizenzen.length ? '<div class="leer">Noch keine Lizenzen ausgegeben.</div>'
-    : `<table><thead><tr><th>Schlüssel</th><th>Kunde</th><th>Geräte</th><th>Status</th></tr></thead><tbody>` +
-      l.letzteLizenzen.map(x => `<tr>
-        <td class="mono">${esc(x.schluessel)}</td>
-        <td style="color:var(--leise)">${esc(x.kunde || "–")}</td>
-        <td class="mono">${x.genutzt}/${x.limit}</td>
-        <td><span class="marke ${x.status==="active"?"m-ok":x.status==="expired"?"m-bad":"m-warn"}">${esc(x.status)}</span></td>
-      </tr>`).join("") + "</tbody></table>";
-
-  // ── Zugriffe ──
-  if (!z.ok) $("zugriffe").innerHTML = kachelHinweis(z).replace(/margin:16px/,"margin:0");
+  /* Lizenzen */
+  if (!l.ok) $("lizenzen").innerHTML = hinweis(l);
+  else if (!l.letzteLizenzen.length)
+    $("lizenzen").innerHTML = leer("◈","Noch keine Lizenzen","Sobald der Verkauf startet, erscheinen sie hier — mit Sperren, Verlängern und Gerätezahl.");
   else {
-    const max = Math.max(1, ...z.proTag.map(t => t.anfragen));
+    $("lizZahl").textContent = l.lizenzenGesamt;
+    $("lizStatus").innerHTML = Object.entries(l.lizenzenNachStatus)
+      .map(([k,v])=>`<span class="marke2 ${k==="active"?"m-ok":k==="expired"?"m-bad":"m-warn"}">${esc(k)} ${v}</span>`).join("");
+    $("lizenzen").innerHTML = `<table><thead><tr>
+        <th>Schlüssel</th><th>Kunde</th><th>Geräte</th><th>Läuft ab</th><th>Status</th><th style="text-align:right">Aktionen</th>
+      </tr></thead><tbody>${l.letzteLizenzen.map(x=>{
+        const q = x.limit ? x.genutzt/x.limit : 0;
+        const k = q>=1?"bad":q>=.7?"warn":"";
+        const gesperrt = x.deaktiviert || x.status==="disabled";
+        return `<tr data-liz="${esc(x.id)}" data-ablauf="${esc(x.laeuftAb||"")}">
+          <td class="mono">${esc(x.schluessel)}</td>
+          <td>${esc(x.kundenName||"–")}<div style="color:var(--leiser);font-size:12px">${esc(x.kunde||"")}</div></td>
+          <td><span class="balkenklein"><i class="${k}" style="width:${Math.min(100,q*100)}%"></i></span>
+              <span class="mono" style="margin-left:7px;color:var(--leise)">${x.genutzt}/${x.limit}</span></td>
+          <td class="mono" style="color:var(--leise)">${x.laeuftAb?tag(x.laeuftAb):"unbefristet"}</td>
+          <td><span class="marke2 ${gesperrt?"m-bad":x.status==="active"?"m-ok":x.status==="expired"?"m-bad":"m-warn"}">
+              ${gesperrt?"gesperrt":esc(x.status)}</span></td>
+          <td style="text-align:right;white-space:nowrap">
+            ${gesperrt
+              ? `<button class="knopf mini" data-akt="entsperren" data-id="${esc(x.id)}">Freigeben</button>`
+              : `<button class="knopf mini" data-akt="verlaengern" data-id="${esc(x.id)}">Verlängern</button>
+                 <button class="knopf mini" data-akt="geraete" data-id="${esc(x.id)}">Geräte</button>
+                 <button class="knopf mini gefahr" data-akt="sperren" data-id="${esc(x.id)}">Sperren</button>`}
+          </td></tr>`;}).join("")}</tbody></table>`;
+  }
+
+  /* Mails */
+  const mailZeilen = (liste) => liste.map(m=>{
+    const k = m.status==="delivered" ? "m-ok"
+            : /bounce|fail|complain/.test(m.status||"") ? "m-bad" : "m-warn";
+    return `<tr><td>${esc(m.an)}</td>
+      <td style="color:var(--leise)">${esc(m.betreff).slice(0,58)}</td>
+      <td><span class="marke2 ${k}">${esc(m.status)}</span></td>
+      <td class="mono" style="color:var(--leiser);white-space:nowrap">${zeit(m.zeit)}</td></tr>`;}).join("");
+
+  if (!r.ok){ $("mails").innerHTML = hinweis(r); $("mailsKurz").innerHTML = hinweis(r); $("resendMeta").innerHTML = ""; }
+  else if (!r.letzte.length){
+    $("mails").innerHTML = leer("✉","Noch keine Mails versendet");
+    $("mailsKurz").innerHTML = leer("✉","Noch keine Mails versendet");
+  } else {
+    $("mailStatus").innerHTML = Object.entries(r.nachStatus)
+      .map(([k,v])=>`<span class="marke2 ${k==="delivered"?"m-ok":/bounce|fail/.test(k)?"m-bad":"m-warn"}">${esc(k)} ${v}</span>`).join("");
+    $("mails").innerHTML = `<table><thead><tr><th>An</th><th>Betreff</th><th>Stand</th><th>Wann</th></tr></thead>
+      <tbody>${mailZeilen(r.letzte)}</tbody></table>`;
+    $("mailsKurz").innerHTML = `<table><tbody>${r.letzte.slice(0,5).map(m=>`<tr>
+      <td>${esc(m.an)}<div style="color:var(--leiser);font-size:12px">${esc(m.betreff).slice(0,42)}</div></td>
+      <td style="text-align:right"><span class="marke2 ${m.status==="delivered"?"m-ok":"m-warn"}">${esc(m.status)}</span></td>
+      </tr>`).join("")}</tbody></table>`;
+    $("resendMeta").innerHTML =
+      `<div style="display:flex;gap:26px;flex-wrap:wrap">
+        <div><div style="font-size:11.5px;color:var(--leiser);text-transform:uppercase;letter-spacing:.6px;font-weight:640;margin-bottom:7px">Domains</div>
+          ${r.domains.map(x=>`<div style="margin-bottom:5px"><span class="marke2 ${x.status==="verified"?"m-ok":"m-warn"}">${esc(x.status)}</span>
+            <span style="margin-left:7px">${esc(x.name)}</span>
+            <span style="color:var(--leiser);font-size:12px;margin-left:6px">${esc(x.region||"")}</span></div>`).join("") || "<span style='color:var(--leiser)'>keine</span>"}</div>
+        <div><div style="font-size:11.5px;color:var(--leiser);text-transform:uppercase;letter-spacing:.6px;font-weight:640;margin-bottom:7px">Kontaktlisten</div>
+          ${r.listen.map(x=>`<div style="margin-bottom:5px">${esc(x.name)}
+            <span class="mono" style="color:var(--leiser);margin-left:7px">${esc(x.id).slice(0,8)}…</span></div>`).join("") || "<span style='color:var(--leiser)'>keine</span>"}</div>
+      </div>`;
+  }
+
+  /* Zugriffe */
+  if (!z.ok) $("zugriffe").innerHTML = hinweis(z);
+  else {
+    const max = Math.max(1, ...z.proTag.map(t=>t.anfragen));
     $("zugriffe").innerHTML = `
-      <div class="kpi"><div class="lab">Anfragen gesamt</div>
-        <div class="val">${z.gesamt30Tage.toLocaleString("de-DE")}</div></div>
-      <div class="balken">${z.proTag.map(t =>
-        `<i style="height:${Math.round(t.anfragen/max*100)}%" title="${t.tag}: ${t.anfragen}"></i>`).join("")}</div>
-      <div class="sub" style="font-size:12.5px;color:var(--leise);margin-top:10px">${esc(z.hinweis)}</div>`;
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+        <div><div class="lab" style="font-size:11.5px;color:var(--leise);text-transform:uppercase;letter-spacing:.6px;font-weight:640">Anfragen gesamt</div>
+          <div class="val" style="font-size:31px;font-weight:680;letter-spacing:-1.1px">${z.gesamt30Tage.toLocaleString("de-DE")}</div></div>
+        <div style="color:var(--leiser);font-size:12.5px">letzte 30 Tage</div>
+      </div>
+      <div class="saeulen">${z.proTag.map(t=>
+        `<i style="height:${Math.max(3,Math.round(t.anfragen/max*100))}%" title="${t.tag}: ${t.anfragen}"></i>`).join("")}</div>
+      <div class="achse"><span>${z.proTag[0]?tag(z.proTag[0].tag):""}</span>
+        <span>${z.proTag.length?tag(z.proTag[z.proTag.length-1].tag):""}</span></div>
+      <div style="font-size:12.5px;color:var(--leiser);margin-top:14px;line-height:1.6">${esc(z.hinweis)}</div>`;
   }
 }
 
+/* ─── Lizenzaktionen ─── */
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-akt]");
+  if (!b) return;
+  const id = b.dataset.id, akt = b.dataset.akt;
+  const zeile = b.closest("tr");
+  const ablauf = zeile ? zeile.dataset.ablauf : "";
+
+  if (akt === "sperren") {
+    if (!confirm("Diese Lizenz sperren?\n\nDer Kunde verliert bei der nächsten Prüfung den Pro-Zugang. Seine Daten bleiben erhalten. Rückgängig machbar.")) return;
+    await aktion(b, { id, aktion:"sperren" });
+  }
+  else if (akt === "entsperren") await aktion(b, { id, aktion:"entsperren" });
+  else if (akt === "verlaengern") frage("Lizenz verlängern", "Um wie viele Tage?", "365",
+      (w) => aktion(b, { id, aktion:"verlaengern", tage:Number(w), bisherAblauf:ablauf }));
+  else if (akt === "geraete") frage("Gerätezahl ändern", "Wie viele Geräte gleichzeitig?", "3",
+      (w) => aktion(b, { id, aktion:"geraete", limit:Number(w) }));
+});
+
+async function aktion(knopf, koerper){
+  const alt = knopf.innerHTML;
+  knopf.disabled = true; knopf.innerHTML = '<span class="dreh"></span>';
+  try{
+    const r = await fetch("/api/admin/lizenz", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", ...kopf() },
+      body: JSON.stringify(koerper)
+    });
+    const d = await r.json();
+    if (!r.ok || !d.ok) {
+      $("warnung").innerHTML = `<div class="meld m-fehler"><span class="sym">✕</span><div><b>Nicht ausgeführt</b>${esc(d.fehler||r.status)}</div></div>`;
+      knopf.disabled = false; knopf.innerHTML = alt;
+      scrollTo({top:0,behavior:"smooth"});
+      return;
+    }
+    $("warnung").innerHTML = `<div class="meld m-gut"><span class="sym">✓</span><div><b>Erledigt</b>${esc(d.meldung)}</div></div>`;
+    setTimeout(()=>{ $("warnung").innerHTML=""; }, 5000);
+    await laden(); geheZu("lizenzen");
+  } catch(err){
+    knopf.disabled = false; knopf.innerHTML = alt;
+    $("warnung").innerHTML = `<div class="meld m-fehler"><span class="sym">✕</span><div><b>Keine Verbindung</b>${esc(err)}</div></div>`;
+  }
+}
+
+function frage(titelText, label, vorgabe, dann){
+  const w = document.createElement("div");
+  w.className = "schleier";
+  w.innerHTML = `<div class="dialog">
+    <h3>${esc(titelText)}</h3><p>Die Änderung wird sofort bei Lemon Squeezy wirksam.</p>
+    <label for="dlgW">${esc(label)}</label>
+    <input id="dlgW" type="number" value="${esc(vorgabe)}" min="1">
+    <div class="dialogfuss"><button class="knopf" data-x>Abbrechen</button>
+      <button class="knopf pri" data-ok>Übernehmen</button></div></div>`;
+  document.body.appendChild(w);
+  const feld = w.querySelector("#dlgW");
+  feld.focus(); feld.select();
+  const zu = () => w.remove();
+  w.querySelector("[data-x]").onclick = zu;
+  w.onclick = (e) => { if (e.target === w) zu(); };
+  w.querySelector("[data-ok]").onclick = () => { const v = feld.value; zu(); if (v) dann(v); };
+  feld.onkeydown = (e) => { if (e.key === "Enter") w.querySelector("[data-ok]").click();
+                            if (e.key === "Escape") zu(); };
+}
+
+/* ─── Start ─── */
 $("neu").addEventListener("click", laden);
+if (location.hash) geheZu(location.hash.slice(1));
 laden();
-setInterval(laden, 120000); // alle zwei Minuten von selbst
+setInterval(laden, 120000);
 </script>
 </body>
 </html>
