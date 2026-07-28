@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mesco · Portal</title>
+<style>
+:root{
+  --bg:#0e1218; --karte:#161c24; --karte2:#1b222c; --linie:#262f3b;
+  --text:#e8edf4; --leise:#8b98a9; --akzent:#5b8cff; --akzent-w:#1b2740;
+  --ok:#3ddc97; --ok-w:#122c22; --warn:#ffb454; --warn-w:#2e2415;
+  --bad:#ff6b6b; --bad-w:#2e1a1a; --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;padding-bottom:60px}
+a{color:var(--akzent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+header{border-bottom:1px solid var(--linie);position:sticky;top:0;z-index:20;
+  background:rgba(14,18,24,.88);backdrop-filter:blur(12px)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:14px}
+.logo{font-weight:700;font-size:17px;letter-spacing:-.3px}
+.logo span{color:var(--akzent)}
+.kopfrechts{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--leise)}
+.knopf{padding:8px 15px;border-radius:8px;border:1px solid var(--linie);background:var(--karte);
+  color:var(--text);font:inherit;font-size:13.5px;font-weight:550;cursor:pointer;transition:.18s}
+.knopf:hover{border-color:#3a4757;transform:translateY(-1px)}
+.knopf:active{transform:none}
+.knopf.pri{background:var(--akzent);border-color:var(--akzent);color:#fff}
+
+h1{font-size:26px;letter-spacing:-.5px;margin:34px 0 4px}
+.unter{color:var(--leise);font-size:14px;margin-bottom:26px}
+h2{font-size:16px;letter-spacing:-.2px;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+h2 .zahl{font-size:12px;font-weight:600;color:var(--leise);background:var(--karte2);
+  padding:2px 8px;border-radius:20px}
+
+.raster{display:grid;gap:16px;margin-bottom:26px}
+.k4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.k2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+
+.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);padding:20px;
+  animation:auf .5s cubic-bezier(.22,.61,.36,1) both}
+@keyframes auf{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.karte:nth-child(2){animation-delay:.05s}.karte:nth-child(3){animation-delay:.1s}
+.karte:nth-child(4){animation-delay:.15s}.karte:nth-child(5){animation-delay:.2s}
+
+.kpi .lab{font-size:12px;color:var(--leise);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+.kpi .val{font-size:30px;font-weight:660;letter-spacing:-1.2px;font-variant-numeric:tabular-nums}
+.kpi .sub{font-size:12.5px;color:var(--leise);margin-top:5px}
+.val.ok{color:var(--ok)}.val.warn{color:var(--warn)}.val.bad{color:var(--bad)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--leise);
+   padding:0 10px 9px;font-weight:600;border-bottom:1px solid var(--linie)}
+td{padding:10px;border-bottom:1px solid var(--linie);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--karte2)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+
+.marke{display:inline-block;padding:2.5px 9px;border-radius:20px;font-size:11.5px;font-weight:620;white-space:nowrap}
+.m-ok{background:var(--ok-w);color:var(--ok)}
+.m-warn{background:var(--warn-w);color:var(--warn)}
+.m-bad{background:var(--bad-w);color:var(--bad)}
+.m-leise{background:var(--karte2);color:var(--leise)}
+
+.hinweis{background:var(--warn-w);border:1px solid #4a3a1e;color:var(--warn);
+  border-radius:10px;padding:14px 16px;font-size:13.5px}
+.fehler{background:var(--bad-w);border:1px solid #4a2020;color:var(--bad);
+  border-radius:10px;padding:14px 16px;font-size:13.5px}
+.hinweis b,.fehler b{display:block;margin-bottom:3px}
+
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.links a{display:flex;align-items:center;gap:10px;padding:13px 15px;border:1px solid var(--linie);
+  border-radius:10px;background:var(--karte2);color:var(--text);font-size:14px;font-weight:530;
+  transition:.2s;text-decoration:none}
+.links a:hover{border-color:var(--akzent);transform:translateY(-2px);
+  box-shadow:0 10px 24px -14px rgba(91,140,255,.55);text-decoration:none}
+.links .pkt{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+
+.balken{display:flex;gap:3px;align-items:flex-end;height:52px;margin-top:12px}
+.balken i{flex:1;background:var(--akzent-w);border-radius:2px 2px 0 0;min-height:2px;
+  transition:height .6s cubic-bezier(.22,.61,.36,1),background .2s}
+.balken i:hover{background:var(--akzent)}
+
+.leer{text-align:center;padding:34px 16px;color:var(--leise);font-size:14px}
+.laden{display:inline-block;width:15px;height:15px;border:2px solid var(--linie);
+  border-top-color:var(--akzent);border-radius:50%;animation:dreh .7s linear infinite;vertical-align:-2px}
+@keyframes dreh{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:640px){.kpi .val{font-size:25px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="logo">Mesco · <span>Portal</span></div>
+  <div class="kopfrechts">
+    <span id="benutzer"></span>
+    <button class="knopf" id="neu">Aktualisieren</button>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <h1>Übersicht</h1>
+  <div class="unter" id="stand"><span class="laden"></span> Daten werden geladen …</div>
+
+  <div id="warnung"></div>
+
+  <!-- Kennzahlen -->
+  <div class="raster k4" id="kpis"></div>
+
+  <!-- Alpha -->
+  <h2>Alpha-Anmeldungen <span class="zahl" id="alphaZahl">–</span></h2>
+  <div class="karte" style="padding:0;overflow:hidden"><div id="alpha"></div></div>
+
+  <!-- Zwei Spalten -->
+  <div class="raster k2" style="margin-top:26px">
+    <div>
+      <h2>Zuletzt versendete Mails</h2>
+      <div class="karte" style="padding:0;overflow:hidden"><div id="mails"></div></div>
+    </div>
+    <div>
+      <h2>Lizenzen</h2>
+      <div class="karte" style="padding:0;overflow:hidden"><div id="lizenzen"></div></div>
+    </div>
+  </div>
+
+  <!-- Zugriffe -->
+  <h2 style="margin-top:26px">Zugriffe · 30 Tage</h2>
+  <div class="karte" id="zugriffe"></div>
+
+  <!-- Schnellzugriff -->
+  <h2 style="margin-top:26px">Schnellzugriff</h2>
+  <div class="karte">
+    <div class="links">
+      <a href="https://resend.com/emails" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Mails</a>
+      <a href="https://resend.com/audience" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Kontakte</a>
+      <a href="https://resend.com/metrics" target="_blank" rel="noopener"><span class="pkt" style="background:#5b8cff"></span>Resend · Metriken</a>
+      <a href="https://app.lemonsqueezy.com/orders" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Bestellungen</a>
+      <a href="https://app.lemonsqueezy.com/licenses" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Lizenzen</a>
+      <a href="https://app.lemonsqueezy.com/products" target="_blank" rel="noopener"><span class="pkt" style="background:#ffb454"></span>Lemon Squeezy · Produkte</a>
+      <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · Pages</a>
+      <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces" target="_blank" rel="noopener"><span class="pkt" style="background:#f6821f"></span>Cloudflare · KV-Speicher</a>
+      <a href="https://github.com/Stacktor/Bewerbungs-Cockpit/actions" target="_blank" rel="noopener"><span class="pkt" style="background:#8b98a9"></span>GitHub · Builds</a>
+      <a href="https://github.com/Stacktor/cockpit-website" target="_blank" rel="noopener"><span class="pkt" style="background:#8b98a9"></span>GitHub · Website</a>
+      <a href="https://mail.proton.me" target="_blank" rel="noopener"><span class="pkt" style="background:#3ddc97"></span>Proton · Kontakt@mesco.cc</a>
+      <a href="https://cockpit.mesco.cc" target="_blank" rel="noopener"><span class="pkt" style="background:#3ddc97"></span>Website ansehen</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const datum = (s) => { if(!s) return "–"; const d=new Date(s);
+  return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}); };
+
+const kachelHinweis = (q) => q && q.art === "hinweis"
+  ? `<div class="hinweis" style="margin:16px"><b>Noch nicht eingerichtet</b>${esc(q.text)}</div>`
+  : `<div class="fehler" style="margin:16px"><b>Abruf fehlgeschlagen</b>${esc(q && q.text || "unbekannt")}</div>`;
+
+async function laden() {
+  $("stand").innerHTML = '<span class="laden"></span> Daten werden geladen …';
+  const token = new URLSearchParams(location.search).get("token");
+  let d;
+  try {
+    const r = await fetch("/api/admin/uebersicht" + (token ? "?token=" + encodeURIComponent(token) : ""),
+                          { cache: "no-store" });
+    d = await r.json();
+    if (!r.ok) {
+      $("warnung").innerHTML = `<div class="fehler" style="margin-bottom:22px"><b>Kein Zugriff</b>${esc(d.fehler || r.status)}</div>`;
+      $("stand").textContent = "";
+      return;
+    }
+  } catch (e) {
+    $("warnung").innerHTML = `<div class="fehler" style="margin-bottom:22px"><b>Keine Verbindung</b>${esc(e)}</div>`;
+    $("stand").textContent = "";
+    return;
+  }
+
+  $("warnung").innerHTML = "";
+  $("benutzer").textContent = d.benutzer || "";
+  $("stand").textContent = "Stand: " + datum(d.stand);
+
+  // ── Kennzahlen ──
+  const a = d.alpha, r_ = d.resend, l = d.lemon, z = d.aufrufe;
+  const kpi = (lab, val, sub, klasse) =>
+    `<div class="karte kpi"><div class="lab">${lab}</div>
+     <div class="val ${klasse||""}">${val}</div><div class="sub">${sub||""}</div></div>`;
+  $("kpis").innerHTML = [
+    kpi("Alpha-Plätze frei", a.ok ? a.frei : "–", a.ok ? `${a.gesamt} von ${a.plaetze} vergeben` : "KV nicht verbunden",
+        a.ok ? (a.frei > 10 ? "ok" : a.frei > 0 ? "warn" : "bad") : ""),
+    kpi("Anmeldungen · 7 Tage", a.ok ? a.letzte7Tage : "–", "neue Bewerbungen", "ok"),
+    kpi("Mails zugestellt", r_.ok ? r_.zugestellt : "–",
+        r_.ok ? `${r_.fehlgeschlagen} fehlgeschlagen` : "Resend nicht verbunden",
+        r_.ok && r_.fehlgeschlagen > 0 ? "warn" : "ok"),
+    kpi("Umsatz · 30 Tage", l.ok ? l.umsatz30Tage + " €" : "–",
+        l.ok ? `${l.lizenzenGesamt} Lizenzen insgesamt` : "Lemon Squeezy nicht verbunden"),
+  ].join("");
+
+  // ── Alpha ──
+  $("alphaZahl").textContent = a.ok ? a.gesamt : "–";
+  $("alpha").innerHTML = !a.ok ? kachelHinweis(a)
+    : !a.eintraege.length ? '<div class="leer">Noch keine Anmeldungen.</div>'
+    : `<table><thead><tr><th>Name</th><th>E-Mail</th><th>System</th><th>Warum</th><th>Wann</th></tr></thead><tbody>` +
+      a.eintraege.map(e => `<tr>
+        <td><b>${esc(e.name)}</b></td>
+        <td><a href="mailto:${esc(e.mail)}">${esc(e.mail)}</a></td>
+        <td><span class="marke m-leise">${esc(e.os)}</span></td>
+        <td style="max-width:340px;color:var(--leise)">${esc(e.grund).slice(0,140)}</td>
+        <td class="mono" style="color:var(--leise);white-space:nowrap">${datum(e.zeit)}</td>
+      </tr>`).join("") + "</tbody></table>";
+
+  // ── Mails ──
+  $("mails").innerHTML = !r_.ok ? kachelHinweis(r_)
+    : !r_.letzte.length ? '<div class="leer">Noch keine Mails versendet.</div>'
+    : `<table><thead><tr><th>An</th><th>Betreff</th><th>Stand</th></tr></thead><tbody>` +
+      r_.letzte.map(m => {
+        const k = m.status === "delivered" ? "m-ok"
+                : /bounce|fail|complain/.test(m.status||"") ? "m-bad" : "m-warn";
+        return `<tr><td>${esc(m.an)}</td>
+          <td style="color:var(--leise)">${esc(m.betreff).slice(0,52)}</td>
+          <td><span class="marke ${k}">${esc(m.status)}</span></td></tr>`;
+      }).join("") + "</tbody></table>";
+
+  // ── Lizenzen ──
+  $("lizenzen").innerHTML = !l.ok ? kachelHinweis(l)
+    : !l.letzteLizenzen.length ? '<div class="leer">Noch keine Lizenzen ausgegeben.</div>'
+    : `<table><thead><tr><th>Schlüssel</th><th>Kunde</th><th>Geräte</th><th>Status</th></tr></thead><tbody>` +
+      l.letzteLizenzen.map(x => `<tr>
+        <td class="mono">${esc(x.schluessel)}</td>
+        <td style="color:var(--leise)">${esc(x.kunde || "–")}</td>
+        <td class="mono">${x.genutzt}/${x.limit}</td>
+        <td><span class="marke ${x.status==="active"?"m-ok":x.status==="expired"?"m-bad":"m-warn"}">${esc(x.status)}</span></td>
+      </tr>`).join("") + "</tbody></table>";
+
+  // ── Zugriffe ──
+  if (!z.ok) $("zugriffe").innerHTML = kachelHinweis(z).replace(/margin:16px/,"margin:0");
+  else {
+    const max = Math.max(1, ...z.proTag.map(t => t.anfragen));
+    $("zugriffe").innerHTML = `
+      <div class="kpi"><div class="lab">Anfragen gesamt</div>
+        <div class="val">${z.gesamt30Tage.toLocaleString("de-DE")}</div></div>
+      <div class="balken">${z.proTag.map(t =>
+        `<i style="height:${Math.round(t.anfragen/max*100)}%" title="${t.tag}: ${t.anfragen}"></i>`).join("")}</div>
+      <div class="sub" style="font-size:12.5px;color:var(--leise);margin-top:10px">${esc(z.hinweis)}</div>`;
+  }
+}
+
+$("neu").addEventListener("click", laden);
+laden();
+setInterval(laden, 120000); // alle zwei Minuten von selbst
+</script>
+</body>
+</html>
