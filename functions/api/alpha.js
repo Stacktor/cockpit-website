@@ -17,6 +17,10 @@
  *
  * Jeder Baustein ist einzeln abschaltbar. Fehlt etwas, läuft der Rest weiter —
  * eine fehlende Konfiguration darf niemals eine Anmeldung verschlucken.
+ *
+ * Ausnahme: Fehlen KV UND Resend, antwortet die Funktion mit 503 und einem
+ * Hinweis auf die E-Mail-Adresse — statt eine Anmeldung stillschweigend
+ * zu verlieren.
  */
 
 const PLAETZE = 30;
@@ -44,6 +48,17 @@ export async function onRequestPost({ request, env }) {
       return antwort(422, "Bitte wähle dein Betriebssystem.");
     if (grund.length < 10)
       return antwort(422, "Schreib bitte ein, zwei Sätze — das hilft mir bei der Auswahl.");
+
+    // ── Notbremse: Nirgends speicherbar? Dann ehrlich sein. ───────────
+    // Ohne KV UND ohne Resend würde die Anmeldung ins Leere laufen. Lieber
+    // eine klare Fehlermeldung als ein Häkchen, hinter dem nichts passiert.
+    if (!env.ALPHA && !env.RESEND_API_KEY) {
+      return antwort(
+        503,
+        "Die Anmeldung ist gerade noch nicht scharfgeschaltet. " +
+          "Schreib mir bitte kurz an Kontakt@mesco.cc — ich trage dich von Hand ein."
+      );
+    }
 
     // ── Doppelanmeldung abfangen ──────────────────────────────────────
     const schluessel = "alpha:" + mail;
