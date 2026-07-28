@@ -59,7 +59,11 @@ function pruefeZugang(request, env) {
   if (mail) return { erlaubt: true, benutzer: mail };
 
   if (env.ADMIN_TOKEN) {
-    const gegeben = new URL(request.url).searchParams.get("token") || "";
+    // Kopfzeile bevorzugt — steht dann nicht im Browserverlauf oder in Protokollen
+    const gegeben =
+      request.headers.get("X-Admin-Token") ||
+      new URL(request.url).searchParams.get("token") ||
+      "";
     if (zeitgleich(gegeben, env.ADMIN_TOKEN))
       return { erlaubt: true, benutzer: "Token-Zugang" };
     return { erlaubt: false, status: 401, grund: "Zugang verweigert." };
@@ -217,13 +221,18 @@ async function holeLemon(env) {
         .filter((o) => new Date(o.attributes.created_at).getTime() > grenze)
         .reduce((s, o) => s + (o.attributes.total || 0), 0) / 100
     ).toFixed(2),
-    letzteLizenzen: lz.slice(0, 15).map((l) => ({
-      schluessel: (l.attributes.key || "").slice(0, 8) + "…",
+    letzteLizenzen: lz.slice(0, 60).map((l) => ({
+      id: l.id,
+      schluessel: l.attributes.key_short || (l.attributes.key || "").slice(0, 8) + "…",
       status: l.attributes.status,
+      deaktiviert: !!l.attributes.disabled,
       genutzt: l.attributes.activation_usage,
       limit: l.attributes.activation_limit,
       kunde: l.attributes.user_email,
+      kundenName: l.attributes.user_name,
+      produkt: l.attributes.product_name,
       erstellt: l.attributes.created_at,
+      laeuftAb: l.attributes.expires_at,
     })),
   };
 }
