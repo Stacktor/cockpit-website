@@ -116,25 +116,66 @@ export async function onRequestPost({ request, env }) {
 // ───────────────────────── geteilt mit uebersicht.js ─────────────────────────
 
 function pruefeZugang(request, env) {
-  const mail = request.headers.get("Cf-Access-Authenticated-User-Email");
-  if (mail) return { erlaubt: true, benutzer: mail };
+  const url = new URL(request.url);
 
+  // ── Weg A: Cloudflare Access ──────────────────────────────────────
+  // Neuere Access-Versionen schicken statt der E-Mail-Kopfzeile ein JWT.
+  // Beide Varianten werden akzeptiert.
+  //
+  // Wichtig gegen Umgehung: Access schützt nur die eigene Domain. Über die
+  // *.pages.dev-Adresse käme man daran vorbei — deshalb wird der Access-Weg
+  // ausschließlich auf der geschützten Domain akzeptiert.
+  const eigeneDomain =
+    url.hostname === (env.ADMIN_DOMAIN || "cockpit.mesco.cc");
+
+  if (eigeneDomain) {
+    const mail = request.headers.get("Cf-Access-Authenticated-User-Email");
+    if (mail) return { erlaubt: true, benutzer: mail };
+
+    const jwt = request.headers.get("Cf-Access-Jwt-Assertion");
+    if (jwt) {
+      // Die Richtlinie hat Cloudflare bereits am Rand durchgesetzt — hier wird
+      // der Inhalt nur noch gelesen, um zu wissen, wer angemeldet ist.
+      return { erlaubt: true, benutzer: mailAusJwt(jwt) || "Access-Zugang" };
+    }
+  }
+
+  // ── Weg B: ADMIN_TOKEN ────────────────────────────────────────────
   if (env.ADMIN_TOKEN) {
-    const url = new URL(request.url);
     const gegeben =
       request.headers.get("X-Admin-Token") || url.searchParams.get("token") || "";
     if (zeitgleich(gegeben, env.ADMIN_TOKEN))
       return { erlaubt: true, benutzer: "Token-Zugang" };
-    return { erlaubt: false, status: 401, grund: "Zugang verweigert." };
+    return {
+      erlaubt: false,
+      status: 401,
+      grund:
+        "Zugang verweigert. Bist du über Cloudflare Access angemeldet? " +
+        "Sonst einmal mit ?token=… aufrufen.",
+    };
   }
 
   return {
     erlaubt: false,
     status: 503,
     grund:
-      "Das Portal ist ungeschützt und führt deshalb keine Änderungen aus. " +
-      "Richte Cloudflare Access ein oder hinterlege ADMIN_TOKEN.",
+      "Das Portal ist noch ungeschützt und liefert deshalb keine Daten aus. " +
+      "Richte Cloudflare Access ein — oder hinterlege das Secret ADMIN_TOKEN.",
   };
+}
+
+/** Liest die E-Mail aus dem Access-JWT. Reines Auslesen, keine Prüfung — die
+ *  hat Cloudflare bereits erledigt, bevor die Anfrage hier ankommt. */
+function mailAusJwt(jwt) {
+  try {
+    const teil = jwt.split(".")[1];
+    if (!teil) return null;
+    const roh = atob(teil.replace(/-/g, "+").replace(/_/g, "/"));
+    const daten = JSON.parse(decodeURIComponent(escape(roh)));
+    return daten.email || daten.common_name || null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function zeitgleich(a, b) {
