@@ -147,6 +147,64 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 footer a{color:var(--muted);text-decoration:none;margin-right:18px}
 footer a:hover{color:var(--ink);text-decoration:underline}
 .warnbox{background:var(--gold-soft);border:1px solid #e8d9ac;color:var(--gold);border-radius:9px;padding:13px 16px;font-size:13.5px;margin-top:26px}
+
+/* ── Bewegung: erst wenn sichtbar, und nur wenn gewünscht ── */
+@media (prefers-reduced-motion: no-preference){
+  .rv{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+  .rv.an{opacity:1;transform:none}
+  .rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+  .rv.d4{transition-delay:.32s}.rv.d5{transition-delay:.40s}
+  .feat,.plan{transition:transform .25s cubic-bezier(.22,.61,.36,1),box-shadow .25s,border-color .25s}
+  .feat:hover{transform:translateY(-3px);box-shadow:0 12px 28px -14px rgba(14,18,24,.22)}
+  .plan:hover{transform:translateY(-4px);box-shadow:0 18px 40px -18px rgba(14,18,24,.26)}
+  .btn{transition:transform .18s cubic-bezier(.22,.61,.36,1),background .18s,border-color .18s,box-shadow .18s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .tile{transition:transform .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s}
+  .shot:hover .tile{transform:translateY(-1px)}
+  @keyframes pulsering{0%{box-shadow:0 0 0 0 rgba(31,94,255,.30)}70%{box-shadow:0 0 0 12px rgba(31,94,255,0)}100%{box-shadow:0 0 0 0 rgba(31,94,255,0)}}
+  .alphaband{animation:pulsering 2.8s ease-out 1.2s 3}
+  @keyframes haken{from{stroke-dashoffset:44}to{stroke-dashoffset:0}}
+  @keyframes hoch{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .fertig{animation:hoch .5s cubic-bezier(.22,.61,.36,1) both}
+  .fertig svg path{stroke-dasharray:44;animation:haken .6s cubic-bezier(.65,0,.45,1) .15s both}
+  @keyframes dreh{to{transform:rotate(360deg)}}
+  .spin{animation:dreh .7s linear infinite}
+}
+
+/* ── Anmeldeformular ── */
+.karte{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;
+  max-width:560px;margin:34px auto 0;text-align:left;box-shadow:0 14px 38px -22px rgba(14,18,24,.25)}
+.karte h3{font-size:19px;margin-bottom:5px}
+.karte .sub2{color:var(--muted);font-size:14px;margin-bottom:22px}
+.feld{margin-bottom:16px}
+.feld label{display:block;font-size:12.5px;font-weight:650;color:var(--muted);margin-bottom:6px}
+.feld input[type=text],.feld input[type=email],.feld textarea{width:100%;padding:11px 13px;
+  border:1px solid var(--line);border-radius:9px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+.feld textarea{min-height:96px;resize:vertical;line-height:1.55}
+.feld input:focus,.feld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.feld .hint2{font-size:12.5px;color:var(--muted);margin-top:5px}
+.os{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.os label{display:block;margin:0;cursor:pointer}
+.os input{position:absolute;opacity:0;pointer-events:none}
+.os span{display:block;text-align:center;padding:11px 6px;border:1px solid var(--line);border-radius:9px;
+  font-size:14px;font-weight:550;color:var(--ink);background:#fff}
+.os input:checked + span{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:680}
+.os input:focus-visible + span{box-shadow:0 0 0 3px var(--accent-soft)}
+.honig{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.fehler{background:#fdeaea;border:1px solid #f2c4c4;color:#c02626;border-radius:9px;
+  padding:11px 14px;font-size:14px;margin-bottom:16px}
+.zaehler{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);margin-top:14px}
+.zaehler b{color:var(--ink)}
+.punkt{width:7px;height:7px;border-radius:50%;background:var(--ok);display:block}
+.fertig{text-align:center;padding:14px 0}
+.fertig .kreis{width:64px;height:64px;border-radius:50%;background:var(--ok-soft);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.fertig h3{font-size:22px;margin-bottom:8px}
+.fertig p{color:var(--muted);font-size:15px;max-width:380px;margin:0 auto}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  border-radius:50%;display:inline-block;vertical-align:-3px;margin-right:8px}
+@media(max-width:560px){.karte{padding:22px}.os{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -166,22 +224,22 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 
 <div class="hero" id="top">
   <div class="wrap">
-    <h1>Bewerbungen organisieren, ohne deinen Lebenslauf an fremde Server zu geben.</h1>
-    <p class="lead">cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App — die alles auf <b>deinem Gerät</b> speichert. Kein Konto, keine Cloud, kein Abo-Zwang.</p>
-    <div class="alphaband">Geschlossene Alpha · Zugang nur auf Anfrage</div>
-    <div class="cta">
+    <h1 class="rv an">Bewerbungen organisieren, ohne deinen Lebenslauf an fremde Server zu geben.</h1>
+    <p class="lead rv an d1">cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App — die alles auf <b>deinem Gerät</b> speichert. Kein Konto, keine Cloud, kein Abo-Zwang.</p>
+    <div class="alphaband rv an d2">Geschlossene Alpha · Zugang nur auf Anfrage</div>
+    <div class="cta rv an d3">
       <a href="mailto:Kontakt@mesco.cc?subject=Alpha-Zugang%20Bewerbungs-Cockpit&body=Hallo%20Thomas%2C%0A%0Aich%20m%C3%B6chte%20die%20Alpha%20testen.%0A%0ABetriebssystem%3A%20%0AWarum%20ich%20gerade%20suche%3A%20%0A%0AViele%20Gr%C3%BC%C3%9Fe%0A" class="btn btn-p">Alpha-Zugang anfragen</a>
       <a href="#preise" class="btn btn-s">Preise ansehen</a>
     </div>
     <p class="micro">30 Plätze · kostenlos · Tester bekommen die Vollversion dauerhaft geschenkt</p>
 
-    <div class="trust">
+    <div class="trust rv an d4">
       <span><b>0</b> Server, die deine Daten sehen</span>
       <span><b>0 €</b> KI-Kosten (eigener Schlüssel)</span>
       <span><b>Kein</b> Konto nötig</span>
     </div>
 
-    <div class="shot" aria-hidden="true">
+    <div class="shot rv d2" aria-hidden="true">
       <div class="bar"><i></i><i></i><i></i></div>
       <div class="body">
         <div class="sb">
@@ -212,39 +270,39 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 
 <section id="problem">
   <div class="wrap">
-    <div class="eyebrow">Das Problem</div>
+    <div class="eyebrow rv">Das Problem</div>
     <h2>Bewerben ist Projektarbeit — nur ohne Werkzeug.</h2>
     <p class="lead">Fünf Portale, drei Postfächer, eine Excel-Tabelle, die niemand pflegt. Und ein Anschreiben, das 45 Minuten kostet und trotzdem generisch klingt.</p>
     <div class="grid g3">
-      <div class="feat"><div class="ic">1</div><h3>Kein Überblick</h3><p>Wo hast du dich beworben? Wann war das? Wer hat sich nie gemeldet? Nach der zwanzigsten Bewerbung weiß das niemand mehr.</p></div>
-      <div class="feat"><div class="ic">2</div><h3>Anschreiben fressen Zeit</h3><p>30 bis 60 Minuten pro Stück. ChatGPT hilft — aber du kopierst deinen Werdegang jedes Mal neu hinein.</p></div>
-      <div class="feat"><div class="ic">3</div><h3>Deine Daten auf fremden Servern</h3><p>Gehalt, Kündigungsgründe, Absagen, aktueller Arbeitgeber. Die bestehenden Tools laden all das in eine US-Cloud.</p></div>
+      <div class="feat rv"><div class="ic">1</div><h3>Kein Überblick</h3><p>Wo hast du dich beworben? Wann war das? Wer hat sich nie gemeldet? Nach der zwanzigsten Bewerbung weiß das niemand mehr.</p></div>
+      <div class="feat rv"><div class="ic">2</div><h3>Anschreiben fressen Zeit</h3><p>30 bis 60 Minuten pro Stück. ChatGPT hilft — aber du kopierst deinen Werdegang jedes Mal neu hinein.</p></div>
+      <div class="feat rv"><div class="ic">3</div><h3>Deine Daten auf fremden Servern</h3><p>Gehalt, Kündigungsgründe, Absagen, aktueller Arbeitgeber. Die bestehenden Tools laden all das in eine US-Cloud.</p></div>
     </div>
   </div>
 </section>
 
 <section id="funktionen">
   <div class="wrap">
-    <div class="eyebrow">Die Lösung</div>
+    <div class="eyebrow rv">Die Lösung</div>
     <h2>Alles an einem Ort. Auf deinem Gerät.</h2>
     <p class="lead">Sieben Werkzeuge, ein gemeinsamer Kern — nativ auf Desktop und iPhone.</p>
     <div class="grid g3">
-      <div class="feat"><div class="ic">◧</div><h3>Pipeline</h3><p>Kanban von „Entwurf" bis „Zusage". Erinnerungen, Kalender, automatische Nachfass-Vorschläge, wenn sich zwei Wochen nichts tut.</p></div>
-      <div class="feat"><div class="ic">⌕</div><h3>Stellen finden</h3><p>Bundesagentur für Arbeit, Arbeitnow, Adzuna und RSS-Feeds in einer Liste — von der KI danach sortiert, wie gut sie zu deinem Profil passen. Nur offizielle Schnittstellen, kein Scraping.</p></div>
-      <div class="feat"><div class="ic">✎</div><h3>KI-Anschreiben</h3><p>Aus deinem Profil und der Stellenanzeige, in deinem Ton. Der Auto-Modus bereitet gleich mehrere auf einmal vor.</p></div>
-      <div class="feat"><div class="ic">✉</div><h3>Posteingang mit KI</h3><p>Eingehende Mails werden zusammengefasst und einsortiert, Antwortentwürfe stehen bereit. Versand nur mit ausdrücklicher Bestätigung.</p></div>
-      <div class="feat"><div class="ic">◑</div><h3>Interview-Training</h3><p>Simuliertes Gespräch mit Rückmeldung, Musterantworten und Bewertung — bevor es ernst wird.</p></div>
-      <div class="feat"><div class="ic">▤</div><h3>Lebenslauf</h3><p>PDF einlesen und daraus dein Profil bauen, oder aus dem Profil einen sauberen Lebenslauf erzeugen — deutsch und englisch.</p></div>
+      <div class="feat rv"><div class="ic">◧</div><h3>Pipeline</h3><p>Kanban von „Entwurf" bis „Zusage". Erinnerungen, Kalender, automatische Nachfass-Vorschläge, wenn sich zwei Wochen nichts tut.</p></div>
+      <div class="feat rv"><div class="ic">⌕</div><h3>Stellen finden</h3><p>Bundesagentur für Arbeit, Arbeitnow, Adzuna und RSS-Feeds in einer Liste — von der KI danach sortiert, wie gut sie zu deinem Profil passen. Nur offizielle Schnittstellen, kein Scraping.</p></div>
+      <div class="feat rv"><div class="ic">✎</div><h3>KI-Anschreiben</h3><p>Aus deinem Profil und der Stellenanzeige, in deinem Ton. Der Auto-Modus bereitet gleich mehrere auf einmal vor.</p></div>
+      <div class="feat rv"><div class="ic">✉</div><h3>Posteingang mit KI</h3><p>Eingehende Mails werden zusammengefasst und einsortiert, Antwortentwürfe stehen bereit. Versand nur mit ausdrücklicher Bestätigung.</p></div>
+      <div class="feat rv"><div class="ic">◑</div><h3>Interview-Training</h3><p>Simuliertes Gespräch mit Rückmeldung, Musterantworten und Bewertung — bevor es ernst wird.</p></div>
+      <div class="feat rv"><div class="ic">▤</div><h3>Lebenslauf</h3><p>PDF einlesen und daraus dein Profil bauen, oder aus dem Profil einen sauberen Lebenslauf erzeugen — deutsch und englisch.</p></div>
     </div>
   </div>
 </section>
 
 <section id="vergleich">
   <div class="wrap">
-    <div class="eyebrow">Vergleich</div>
+    <div class="eyebrow rv">Vergleich</div>
     <h2>Warum nicht einfach Teal, Huntr oder Excel?</h2>
     <p class="lead">Die anderen Werkzeuge sind gut. Sie sind nur für einen anderen Markt und ein anderes Datenschutzverständnis gebaut.</p>
-    <table class="cmp">
+    <table class="cmp rv">
       <thead><tr><th>&nbsp;</th><th class="me">cockpit</th><th>Teal / Huntr</th><th>ChatGPT</th><th>Excel</th></tr></thead>
       <tbody>
         <tr><td>Daten bleiben auf deinem Gerät</td><td class="me y">Ja</td><td class="n">Nein</td><td class="n">Nein</td><td class="y">Ja</td></tr>
@@ -263,7 +321,7 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 
 <section class="priv" id="datenschutz">
   <div class="wrap">
-    <div class="eyebrow">Datenschutz</div>
+    <div class="eyebrow rv">Datenschutz</div>
     <h2>Das ist keine Funktion. Das ist die Architektur.</h2>
     <p class="lead">Bewerbungsdaten sind mit das Sensibelste, was du digital besitzt: aktueller Arbeitgeber, Wunschgehalt, jede Absage. cockpit ist so gebaut, dass diese Daten dein Gerät nie verlassen — nicht weil wir es versprechen, sondern weil es technisch keinen Server gibt, der sie entgegennehmen könnte.</p>
     <div style="margin-top:26px">
@@ -289,12 +347,12 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 
 <section id="preise">
   <div class="wrap center">
-    <div class="eyebrow">Preise</div>
+    <div class="eyebrow rv">Preise</div>
     <h2>Ehrlich gerechnet.</h2>
     <p class="lead">Die Grundfunktionen bleiben dauerhaft kostenlos — inklusive unbegrenzter KI mit deinem eigenen Schlüssel.</p>
 
     <div class="prices">
-      <div class="plan">
+      <div class="plan rv">
         <div class="nm">Kostenlos</div>
         <div class="pr">0 <small>€</small></div>
         <div class="note">Dauerhaft kostenlos. Für gelegentliche Suchen.</div>
@@ -311,7 +369,7 @@ footer a:hover{color:var(--ink);text-decoration:underline}
         </ul>
       </div>
 
-      <div class="plan hi">
+      <div class="plan hi rv d1">
         <div class="flag">Für Alpha-Tester geschenkt</div>
         <div class="nm">Founder</div>
         <div class="old">69 €</div>
@@ -331,7 +389,7 @@ footer a:hover{color:var(--ink);text-decoration:underline}
         </ul>
       </div>
 
-      <div class="plan">
+      <div class="plan rv">
         <div class="soon">Ab Launch</div>
         <div class="nm">Pro</div>
         <div class="pr">69 <small>€ einmalig</small></div>
@@ -358,37 +416,99 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 
 <section id="alpha">
   <div class="wrap center">
-    <div class="eyebrow">Geschlossene Alpha</div>
-    <h2>30 Plätze. Kostenlos. Und du behältst sie.</h2>
-    <p class="lead">Die App ist fertig, aber noch nie von jemand anderem als mir installiert
+    <div class="eyebrow rv">Geschlossene Alpha</div>
+    <h2 class="rv d1">30 Plätze. Kostenlos. Und du behältst sie.</h2>
+    <p class="lead rv d2">Die App ist fertig, aber noch nie von jemand anderem als mir installiert
        worden. Bevor sie verkauft wird, soll sie auf fremden Rechnern funktionieren —
        dafür suche ich dreißig Leute, die gerade wirklich auf Jobsuche sind.</p>
 
     <div class="grid g3" style="text-align:left">
-      <div class="feat"><div class="ic">✓</div><h3>Was du bekommst</h3>
+      <div class="feat rv d1"><div class="ic">✓</div><h3>Was du bekommst</h3>
         <p>Vollzugang zu allen Pro-Funktionen. Wenn du am Ende einmal ehrlich schreibst, was
            gut und was schlecht war, behältst du die <b>Vollversion dauerhaft geschenkt</b> —
            inklusive aller künftigen Aktualisierungen.</p></div>
-      <div class="feat"><div class="ic">?</div><h3>Was ich brauche</h3>
+      <div class="feat rv d2"><div class="ic">?</div><h3>Was ich brauche</h3>
         <p>Vier Wochen Nutzung im Alltag und eine ehrliche Rückmeldung. Keine Formulare,
            keine Umfragen — eine Mail mit dem, was dir aufgefallen ist.</p></div>
-      <div class="feat"><div class="ic">!</div><h3>Was du wissen musst</h3>
+      <div class="feat rv d3"><div class="ic">!</div><h3>Was du wissen musst</h3>
         <p>Es ist eine Alpha. Es wird Fehler geben. Der Windows-Installer wird gerade
            repariert — macOS und Linux sind sofort verfügbar. Sichere deine Daten über die
            eingebaute Exportfunktion.</p></div>
     </div>
 
-    <div class="cta" style="margin-top:36px">
-      <a href="mailto:Kontakt@mesco.cc?subject=Alpha-Zugang%20Bewerbungs-Cockpit&body=Hallo%20Thomas%2C%0A%0Aich%20m%C3%B6chte%20die%20Alpha%20testen.%0A%0ABetriebssystem%3A%20%0AWarum%20ich%20gerade%20suche%3A%20%0A%0AViele%20Gr%C3%BC%C3%9Fe%0A" class="btn btn-p">Alpha-Zugang anfragen</a>
+    <div class="karte rv d2" id="karte">
+      <div id="formular">
+        <h3>Für die Alpha anmelden</h3>
+        <p class="sub2">Dauert eine Minute. Ich antworte persönlich, meist innerhalb eines Tages.</p>
+
+        <div class="fehler" id="fehler" style="display:none" role="alert"></div>
+
+        <form id="alphaform" novalidate>
+          <div class="feld">
+            <label for="f-name">Wie heißt du?</label>
+            <input type="text" id="f-name" name="name" autocomplete="name" placeholder="Vor- und Nachname" required>
+          </div>
+
+          <div class="feld">
+            <label for="f-mail">E-Mail-Adresse</label>
+            <input type="email" id="f-mail" name="mail" autocomplete="email" placeholder="du@beispiel.de" required>
+            <div class="hint2">Nur für die Alpha. Kein Newsletter, keine Weitergabe.</div>
+          </div>
+
+          <div class="feld">
+            <label>Womit arbeitest du?</label>
+            <div class="os">
+              <label><input type="radio" name="os" value="windows" required><span>Windows</span></label>
+              <label><input type="radio" name="os" value="macos"><span>macOS</span></label>
+              <label><input type="radio" name="os" value="linux"><span>Linux</span></label>
+            </div>
+            <div class="hint2">Windows-Installer ist gerade in Reparatur — melde dich trotzdem,
+              du kommst dann in die zweite Runde.</div>
+          </div>
+
+          <div class="feld">
+            <label for="f-grund">Warum suchst du gerade?</label>
+            <textarea id="f-grund" name="grund" placeholder="Ein, zwei Sätze genügen. Zum Beispiel: Ich wechsle aus einem Job heraus und will nicht, dass mein Arbeitgeber davon mitbekommt." required></textarea>
+            <div class="hint2">Hilft mir bei der Auswahl — ich nehme Leute, die das Werkzeug wirklich brauchen.</div>
+          </div>
+
+          <div class="honig" aria-hidden="true">
+            <label for="f-web">Website (bitte frei lassen)</label>
+            <input type="text" id="f-web" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" class="btn btn-p" id="senden" style="width:100%;margin-top:4px">
+            Anmeldung abschicken
+          </button>
+
+          <p class="hint2" style="margin-top:12px">Mit dem Absenden stimmst du zu, dass ich deine
+            Angaben zur Auswahl der Alpha-Teilnehmenden verwende. Einzelheiten in der
+            <a href="/datenschutz.html#alphateilnahme">Datenschutzerklärung</a>.</p>
+        </form>
+
+        <div class="zaehler" id="zaehler" style="display:none">
+          <span class="punkt"></span><span id="zaehlertext"></span>
+        </div>
+      </div>
+
+      <div class="fertig" id="fertig" style="display:none">
+        <div class="kreis">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 12.5l5.2 5.2L20 7" stroke="#0f8a5f" stroke-width="2.6"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 id="fertig-titel">Angekommen.</h3>
+        <p id="fertig-text">Du bekommst gleich eine Bestätigung per Mail. Ich melde mich in den
+           nächsten Tagen persönlich bei dir.</p>
+      </div>
     </div>
-    <p class="micro">Schreib kurz, mit welchem Betriebssystem du arbeitest und warum du
-       gerade suchst. Ich antworte persönlich, meist innerhalb eines Tages.</p>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <div class="eyebrow">Fragen</div>
+    <div class="eyebrow rv">Fragen</div>
     <h2>Was Käufer meistens wissen wollen</h2>
     <div style="margin-top:26px">
       <details open><summary>Brauche ich einen kostenpflichtigen KI-Zugang?</summary>
@@ -444,46 +564,110 @@ footer a:hover{color:var(--ink);text-decoration:underline}
 </footer>
 
 <script>
-/* E-Mail-Warteliste.
-   Standardmäßig nur lokal gespeichert, damit die Seite ohne Backend funktioniert.
-   Zum Scharfschalten: ENDPOINT auf dein Formular-Ziel setzen
-   (z. B. Listmonk, Buttondown, MailerLite, Formspree). */
-const ENDPOINT = null;
-
-document.getElementById('mailform').addEventListener('submit', async e => {
-  e.preventDefault();
-  const input = document.getElementById('mailinput');
-  const msg   = document.getElementById('mailmsg');
-  const mail  = input.value.trim();
-  if (!mail) return;
-
-  if (ENDPOINT) {
-    try {
-      const r = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json', 'Accept':'application/json'},
-        body: JSON.stringify({ email: mail })
-      });
-      if (!r.ok) throw new Error(r.status);
-      msg.textContent = 'Eingetragen. Danke!';
-      input.value = '';
-    } catch (err) {
-      msg.textContent = 'Hat nicht geklappt — schreib mir einfach direkt eine Mail.';
-    }
+/* ───────────────── Einblenden beim Scrollen ─────────────────
+   Nur wenn der Browser Bewegung erlaubt. Wer „Bewegung reduzieren"
+   eingestellt hat, sieht alles sofort — ohne Ruckeln, ohne Wartezeit. */
+(function () {
+  const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const teile = document.querySelectorAll(".rv");
+  if (ruhig || !("IntersectionObserver" in window)) {
+    teile.forEach(t => t.classList.add("an"));
     return;
   }
+  const beobachter = new IntersectionObserver((eintraege) => {
+    eintraege.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("an");
+        beobachter.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  teile.forEach(t => { if (!t.classList.contains("an")) beobachter.observe(t); });
+})();
 
-  // Fallback ohne Backend: lokal merken, damit nichts verloren geht
+/* ───────────────── Freie Plätze anzeigen ───────────────── */
+(async function () {
   try {
-    const list = JSON.parse(localStorage.getItem('warteliste') || '[]');
-    if (!list.includes(mail)) list.push(mail);
-    localStorage.setItem('warteliste', JSON.stringify(list));
-  } catch (_) {}
-  msg.textContent = 'Eingetragen. Danke!';
-  input.value = '';
-});
+    const r = await fetch("/api/alpha", { cache: "no-store" });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (typeof d.frei !== "number") return;
+    const z = document.getElementById("zaehler");
+    const t = document.getElementById("zaehlertext");
+    if (!z || !t) return;
+    t.innerHTML = d.frei > 0
+      ? `Noch <b>${d.frei}</b> von ${d.plaetze} Plätzen frei`
+      : `Alle Plätze vergeben — melde dich trotzdem, es rücken Leute nach`;
+    z.style.display = "inline-flex";
+  } catch (_) { /* Zähler ist Beiwerk, Fehler bleiben stumm */ }
+})();
 
+/* ───────────────── Anmeldeformular ───────────────── */
+(function () {
+  const form   = document.getElementById("alphaform");
+  const knopf  = document.getElementById("senden");
+  const fehler = document.getElementById("fehler");
+  const rumpf  = document.getElementById("formular");
+  const fertig = document.getElementById("fertig");
+  if (!form) return;
 
+  const zeigeFehler = (text) => {
+    fehler.textContent = text;
+    fehler.style.display = "block";
+    fehler.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    fehler.style.display = "none";
+
+    const daten = {
+      name:    form.name.value.trim(),
+      mail:    form.mail.value.trim(),
+      os:      (form.querySelector('input[name="os"]:checked') || {}).value || "",
+      grund:   form.grund.value.trim(),
+      website: form.website.value
+    };
+
+    // Vorprüfung im Browser — spart einen Rundweg und erklärt besser
+    if (daten.name.length < 2)              return zeigeFehler("Bitte gib deinen Namen an.");
+    if (!/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(daten.mail))
+                                            return zeigeFehler("Diese E-Mail-Adresse sieht nicht gültig aus.");
+    if (!daten.os)                          return zeigeFehler("Bitte wähle dein Betriebssystem.");
+    if (daten.grund.length < 10)            return zeigeFehler("Schreib bitte ein, zwei Sätze — das hilft mir bei der Auswahl.");
+
+    knopf.disabled = true;
+    knopf.innerHTML = '<span class="spin"></span>Wird gesendet …';
+
+    try {
+      const r = await fetch("/api/alpha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(daten)
+      });
+      const d = await r.json().catch(() => ({}));
+
+      if (!r.ok || !d.ok) {
+        knopf.disabled = false;
+        knopf.textContent = "Anmeldung abschicken";
+        return zeigeFehler(d.fehler || "Das hat nicht geklappt. Schreib mir gern direkt an Kontakt@mesco.cc.");
+      }
+
+      if (d.doppelt) {
+        document.getElementById("fertig-titel").textContent = "Schon dabei.";
+        document.getElementById("fertig-text").textContent  = d.nachricht;
+      }
+      rumpf.style.display  = "none";
+      fertig.style.display = "block";
+      document.getElementById("karte").scrollIntoView({ behavior: "smooth", block: "center" });
+
+    } catch (_) {
+      knopf.disabled = false;
+      knopf.textContent = "Anmeldung abschicken";
+      zeigeFehler("Keine Verbindung. Bitte versuch es gleich noch einmal — oder schreib an Kontakt@mesco.cc.");
+    }
+  });
+})();
 </script>
 </body>
 </html>

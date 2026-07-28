@@ -49,10 +49,10 @@ a{color:var(--accent)}
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
-  Die App cockpit speichert deine Bewerbungsdaten ausschließlich auf deinem eigenen
-  Gerät. Es gibt keinen Server von uns, der sie empfangen könnte. Diese Erklärung
-  betrifft daher fast ausschließlich den Besuch <i>dieser Website</i>, nicht die
-  Nutzung der App.
+  Die App Bewerbungs-Cockpit speichert deine Bewerbungsdaten ausschließlich auf deinem
+  eigenen Gerät. Es gibt keinen Server von uns, der sie empfangen könnte. Diese Erklärung
+  betrifft daher überwiegend den Besuch <i>dieser Website</i> und die freiwillige
+  Anmeldung zur Alpha-Phase — nicht die Nutzung der App selbst.
 </div>
 
 <h2>1 · Verantwortlicher</h2>
@@ -87,7 +87,8 @@ a{color:var(--accent)}
 <h3>Cookies</h3>
 <p>
   Diese Website setzt <b>keine</b> Cookies zu Analyse-, Werbe- oder Trackingzwecken.
-  Ein Einwilligungsbanner ist deshalb nicht erforderlich.
+  Ein Einwilligungsbanner ist deshalb nicht erforderlich. Auch das Anmeldeformular
+  arbeitet ohne Cookies.
 </p>
 
 <h3>Reichweitenmessung</h3>
@@ -124,15 +125,51 @@ a{color:var(--accent)}
     <a href="https://www.lemonsqueezy.com/privacy" rel="noopener" target="_blank">lemonsqueezy.com/privacy</a></li>
 </ul>
 
-<h2 id="alphateilnahme">3a · Teilnahme an der Alpha</h2>
+<h2 id="alphateilnahme">3a · Anmeldung zur Alpha</h2>
 <p>
-  Bewirbst du dich per E-Mail um einen Alpha-Platz, verarbeiten wir die von dir
-  mitgeteilten Angaben (Name, E-Mail-Adresse, Betriebssystem, Freitext) ausschließlich
-  zur Auswahl der Teilnehmenden und zur Betreuung während der Testphase.
-  Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Nach Abschluss der Alpha-Phase
-  werden die Bewerbungsdaten gelöscht, sofern du nicht in die weitere Kontaktaufnahme
-  eingewilligt hast.
+  Über das Formular auf der Startseite kannst du dich für die geschlossene Alpha-Phase
+  bewerben. Dabei werden folgende Angaben verarbeitet:
 </p>
+<table>
+  <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
+  <tbody>
+    <tr><td>Name</td><td>persönliche Ansprache und Auswahl</td><td>Cloudflare Workers KV (EU/global verteilt)</td></tr>
+    <tr><td>E-Mail-Adresse</td><td>Rückmeldung und Zusendung des Zugangs</td><td>Cloudflare Workers KV, Resend</td></tr>
+    <tr><td>Betriebssystem</td><td>Zuordnung zur passenden Testgruppe</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Freitext zur Suchsituation</td><td>Auswahl geeigneter Teilnehmender</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Ländercode, Zeitpunkt, verweisende Seite</td><td>Missbrauchserkennung</td><td>Cloudflare Workers KV</td></tr>
+  </tbody>
+</table>
+<ul style="margin-top:14px">
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO — Durchführung vorvertraglicher
+    Maßnahmen auf deine Anfrage hin.</li>
+  <li><b>Speicherdauer:</b> Die Angaben werden spätestens <b>drei Monate nach Ende der
+    Alpha-Phase gelöscht</b>, sofern kein Vertragsverhältnis entsteht. Du kannst die
+    Löschung jederzeit formlos verlangen.</li>
+  <li><b>Keine Weitergabe</b> an Dritte über die unten genannten Auftragsverarbeiter hinaus.
+    Kein Newsletter, keine Werbung, kein Profiling.</li>
+</ul>
+
+<h3>Eingesetzte Dienste bei der Anmeldung</h3>
+<p>
+  <b>Cloudflare, Inc.</b> — Die Verarbeitung des Formulars erfolgt als serverlose Funktion
+  in der Cloudflare-Infrastruktur; die Anmeldungen liegen in Cloudflare Workers KV.
+  Cloudflare ist ein US-Unternehmen; die Übermittlung stützt sich auf
+  Standardvertragsklauseln und die Zertifizierung unter dem EU-US Data Privacy Framework.
+</p>
+<p>
+  <b>Resend (Plus Five Five, Inc.)</b> — Für den Versand der Bestätigungsmail und der
+  Benachrichtigung an uns setzen wir Resend ein. Übermittelt werden dabei deine
+  E-Mail-Adresse, dein Name sowie der Inhalt der Nachricht. Auch Resend ist ein
+  US-Unternehmen; die Übermittlung stützt sich auf Standardvertragsklauseln.
+  <a href="https://resend.com/legal/privacy-policy" rel="noopener" target="_blank">Datenschutzerklärung von Resend</a>
+</p>
+
+<div class="box hi">
+  <b>Was wir bewusst nicht tun</b>
+  Keine Cookies, kein Tracking, keine Weitergabe zu Werbezwecken, keine automatisierte
+  Entscheidungsfindung. Über die Aufnahme in die Alpha entscheidet ein Mensch.
+</div>
 
 <h2>4 · Lizenzprüfung in der App</h2>
 <p>
