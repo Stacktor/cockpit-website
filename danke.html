@@ -40,6 +40,7 @@ p,li{color:#232b36}
 .btn{display:inline-block;padding:11px 19px;border-radius:9px;font-weight:600;font-size:14.5px;
      text-decoration:none;border:1px solid var(--line);color:var(--ink);background:#fff}
 .btn:hover{border-color:#c3ccd8}
+.btn.aus,.btn.aus:hover{opacity:.55;cursor:default;border-color:var(--line)}
 .btn.p{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn.p:hover{background:#1747cc}
 
@@ -81,9 +82,9 @@ a{color:var(--accent)}
       <b>App herunterladen und öffnen</b>
       <span>Falls noch nicht geschehen:</span>
       <div class="dl">
-        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest" class="btn">Windows (in Arbeit)</a>
-        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-macos-universal.dmg" class="btn">macOS</a>
+        <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-windows-setup.exe" class="btn">Windows</a>
         <a href="https://github.com/Stacktor/cockpit-releases/releases/latest/download/cockpit-linux-x86_64.AppImage" class="btn">Linux</a>
+        <span class="btn aus" aria-disabled="true" title="Die Mac-Version ist noch in Arbeit">macOS (in Arbeit)</span>
         <a href="https://github.com/Stacktor/cockpit-releases/releases/latest" class="btn">Alle Pakete</a>
       </div>
     </li>

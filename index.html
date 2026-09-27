@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bewerbungs-Cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto.</title>
-<meta name="description" content="Der Bewerbungsmanager, der deine Daten auf deinem Gerät lässt. KI-Anschreiben mit deinem eigenen Schlüssel. Einmal kaufen statt ewig abonnieren. Für Windows, macOS, Linux, iPhone und iPad.">
+<meta name="description" content="Der Bewerbungsmanager, der deine Daten auf deinem Gerät lässt. KI-Anschreiben mit deinem eigenen Schlüssel. Einmal kaufen statt ewig abonnieren. Für Windows und Linux — macOS, iPhone und iPad sind in Arbeit.">
 <meta property="og:title" content="Bewerbungs-Cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto.">
 <meta property="og:description" content="Deine Bewerbungsdaten bleiben auf deinem Gerät. KI mit eigenem Schlüssel. Einmal kaufen, für immer nutzen.">
 <meta property="og:type" content="website">
@@ -48,6 +48,7 @@ nav a:hover{color:var(--ink)}
 .btn-s{background:#fff;color:var(--ink);border-color:var(--line)}
 .btn-s:hover{border-color:#c3ccd8}
 .btn-sm{padding:9px 17px;font-size:14px}
+.wip{display:inline-block;padding:1px 7px;border-radius:999px;background:#fff4d6;color:#8a5a00;border:1px solid #f3d27a;font-size:.78em;font-weight:650;letter-spacing:.2px;vertical-align:1px}
 nav .btn{margin-left:22px}
 
 /* Hero */
@@ -307,6 +308,7 @@ header.klein{box-shadow:0 1px 16px -6px rgba(14,18,24,.22)}
       <a href="#preise" class="btn btn-s">Preise ansehen</a>
     </div>
     <p class="micro">30 Plätze · kostenlos · Tester bekommen die Vollversion dauerhaft geschenkt</p>
+    <p class="micro">Für <b>Windows</b> und <b>Linux</b> · macOS, iPhone &amp; iPad: <span class="wip">in Arbeit</span></p>
 
     <div class="trust rv an d4">
       <span><b>0</b> Server, die deine Daten sehen</span>
@@ -360,7 +362,7 @@ header.klein{box-shadow:0 1px 16px -6px rgba(14,18,24,.22)}
   <div class="wrap">
     <div class="eyebrow rv">Die Lösung</div>
     <h2>Alles an einem Ort. Auf deinem Gerät.</h2>
-    <p class="lead">Sieben Werkzeuge, ein gemeinsamer Kern — nativ auf Desktop und iPhone.</p>
+    <p class="lead">Sieben Werkzeuge, ein gemeinsamer Kern — heute für Windows und Linux. macOS, iPhone und iPad sind <span class="wip">in Arbeit</span>.</p>
     <div class="grid g3">
       <div class="feat rv"><div class="ic">◧</div><h3>Pipeline</h3><p>Kanban von „Entwurf" bis „Zusage". Erinnerungen, Kalender, automatische Nachfass-Vorschläge, wenn sich zwei Wochen nichts tut.</p></div>
       <div class="feat rv"><div class="ic">⌕</div><h3>Stellen finden</h3><p>Bundesagentur für Arbeit, Arbeitnow, Adzuna und RSS-Feeds in einer Liste — von der KI danach sortiert, wie gut sie zu deinem Profil passen. Nur offizielle Schnittstellen, kein Scraping.</p></div>
@@ -506,9 +508,9 @@ header.klein{box-shadow:0 1px 16px -6px rgba(14,18,24,.22)}
         <p>Vier Wochen Nutzung im Alltag und eine ehrliche Rückmeldung. Keine Formulare,
            keine Umfragen — eine Mail mit dem, was dir aufgefallen ist.</p></div>
       <div class="feat rv d3"><div class="ic">!</div><h3>Was du wissen musst</h3>
-        <p>Es ist eine Alpha. Es wird Fehler geben. Der Windows-Installer wird gerade
-           repariert — macOS und Linux sind sofort verfügbar. Sichere deine Daten über die
-           eingebaute Exportfunktion.</p></div>
+        <p>Es ist eine Alpha. Es wird Fehler geben. Die App gibt es für Windows und Linux —
+           macOS ist noch in Arbeit, weil ich es gerade nicht testen kann. Sichere deine Daten
+           über die eingebaute Exportfunktion.</p></div>
     </div>
 
     <div class="karte rv d2" id="karte">
@@ -534,11 +536,11 @@ header.klein{box-shadow:0 1px 16px -6px rgba(14,18,24,.22)}
             <label>Womit arbeitest du?</label>
             <div class="os">
               <label><input type="radio" name="os" value="windows" required><span>Windows</span></label>
-              <label><input type="radio" name="os" value="macos"><span>macOS</span></label>
+              <label><input type="radio" name="os" value="macos"><span>macOS <b class="wip">WIP</b></span></label>
               <label><input type="radio" name="os" value="linux"><span>Linux</span></label>
             </div>
-            <div class="hint2">Windows-Installer ist gerade in Reparatur — melde dich trotzdem,
-              du kommst dann in die zweite Runde.</div>
+            <div class="hint2">macOS ist noch in Arbeit — melde dich trotzdem, du kommst auf die
+              Warteliste und hörst von mir, sobald es eine getestete Mac-Version gibt.</div>
           </div>
 
           <div class="feld">
