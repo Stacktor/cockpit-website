@@ -150,6 +150,29 @@ a{color:var(--accent)}
     Kein Newsletter, keine Werbung, kein Profiling.</li>
 </ul>
 
+<h2 id="preisumfrage">3b · Preis-Umfrage</h2>
+<p>
+  Unter <a href="/umfrage.html">/umfrage.html</a> kannst du freiwillig angeben, was dir
+  cockpit Pro wert wäre. Dabei werden folgende Angaben verarbeitet:
+</p>
+<table>
+  <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
+  <tbody>
+    <tr><td>E-Mail-Adresse</td><td>Zuordnung zu deiner Alpha-Anmeldung, nur eine Antwort je Person</td><td>Cloudflare Workers KV, Resend (Benachrichtigung an mich)</td></tr>
+    <tr><td>Preisangaben, bevorzugtes Bezahlmodell</td><td>Festlegung von Preis und Lizenzmodell</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Freitext (optional), Zeitpunkt</td><td>Einordnung der Antworten</td><td>Cloudflare Workers KV</td></tr>
+  </tbody>
+</table>
+<ul style="margin-top:14px">
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. a DSGVO — deine Einwilligung durch das
+    freiwillige Absenden. Du kannst sie jederzeit per Mail widerrufen; deine Antwort wird
+    dann gelöscht.</li>
+  <li><b>Speicherdauer:</b> Die Antworten werden spätestens <b>drei Monate nach Festlegung
+    des Preises gelöscht</b>. Veröffentlicht werden höchstens zusammengefasste Werte, nie
+    einzelne Antworten.</li>
+  <li><b>Keine Weitergabe</b> an Dritte über die unten genannten Auftragsverarbeiter hinaus.</li>
+</ul>
+
 <h3>Eingesetzte Dienste bei der Anmeldung</h3>
 <p>
   <b>Cloudflare, Inc.</b> — Die Verarbeitung des Formulars erfolgt als serverlose Funktion

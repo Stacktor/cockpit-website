@@ -197,6 +197,7 @@ tbody tr:hover{background:var(--flaeche2)}
     <div class="nav" id="nav">
       <a href="#uebersicht" class="an"><span class="pkt"></span>Übersicht</a>
       <a href="#alpha"><span class="pkt"></span>Alpha<span class="anzahl" id="navAlpha">–</span></a>
+      <a href="#preise"><span class="pkt"></span>Preis-Umfrage<span class="anzahl" id="navUmfrage">–</span></a>
       <a href="#lizenzen"><span class="pkt"></span>Lizenzen<span class="anzahl" id="navLiz">–</span></a>
       <a href="#mails"><span class="pkt"></span>Mails<span class="anzahl" id="navMail">–</span></a>
       <a href="#zugriffe"><span class="pkt"></span>Zugriffe</a>
@@ -246,6 +247,22 @@ tbody tr:hover{background:var(--flaeche2)}
           <div id="alphaSysteme" style="display:flex;gap:6px"></div></div>
         <div class="rollen" id="alpha"></div>
       </div>
+    </section>
+
+    <!-- Preis-Umfrage -->
+    <section class="abschnitt" id="s-preise">
+      <div class="raster k4" id="umfrageKpis" style="margin-bottom:16px"></div>
+      <div class="karte">
+        <div class="kartenkopf"><h2>Antworten <span class="zahl" id="umfrageZahl">–</span></h2>
+          <div id="umfrageModelle" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+        <div class="rollen" id="umfrage"></div>
+      </div>
+      <div class="meld m-hinweis" style="margin-top:14px"><span class="sym">i</span><div>
+        <b>So liest du das</b>Die vier Preisfragen folgen der Van-Westendorp-Methode. „Optimal" ist der
+        Preis, bei dem gleich viele ihn zu billig wie zu teuer finden; der Akzeptanzbereich ist die
+        Spanne, die die Mehrheit noch mitgeht. Nur Antworten mit aufsteigenden Preisen zählen dafür.
+        Mit wenigen Antworten sind das Richtwerte — belastbar ab etwa 20. Link für Tester:
+        <span class="mono">cockpit.mesco.cc/umfrage.html</span></div></div>
     </section>
 
     <!-- Lizenzen -->
@@ -337,7 +354,7 @@ const kopf = () => TOKEN ? { "X-Admin-Token": TOKEN } : {};
 let DATEN = null;
 
 /* ─── Navigation ─── */
-const titel = { uebersicht:"Übersicht", alpha:"Alpha-Anmeldungen", lizenzen:"Lizenzverwaltung",
+const titel = { uebersicht:"Übersicht", alpha:"Alpha-Anmeldungen", preise:"Preis-Umfrage", lizenzen:"Lizenzverwaltung",
                 mails:"Mailversand", zugriffe:"Zugriffe", dienste:"Dienste" };
 function geheZu(ziel){
   document.querySelectorAll(".abschnitt").forEach(s => s.classList.toggle("an", s.id === "s"+"-"+ziel));
@@ -438,6 +455,42 @@ function zeichne(d){
       <td><b>${esc(e.name)}</b><div style="color:var(--leiser);font-size:12px">${esc(e.mail)}</div></td>
       <td style="text-align:right"><span class="marke2 m-leise">${esc(e.os)}</span>
         <div style="color:var(--leiser);font-size:11.5px;margin-top:3px">${zeit(e.zeit)}</div></td></tr>`).join("")}</tbody></table>`;
+  }
+
+  /* Preis-Umfrage */
+  const u = d.umfrage || { ok:false, art:"hinweis", text:"Keine Umfragedaten." };
+  $("navUmfrage").textContent = u.ok ? u.gesamt : "–";
+  const euro = (x) => x === null || x === undefined ? "–" : (Math.round(x*10)/10).toLocaleString("de-DE") + " €";
+  const modellName = { einmalig:"Einmalkauf", jahresabo:"Jahresabo", monatsabo:"Monatsabo", egal:"egal" };
+  if (!u.ok){ $("umfrageKpis").innerHTML = ""; $("umfrage").innerHTML = hinweis(u); }
+  else {
+    const pp = u.preispunkte;
+    const beliebt = Object.entries(u.modelle).sort((x,y)=>y[1]-x[1])[0];
+    $("umfrageKpis").innerHTML = [
+      kpi("✎",blau,"Antworten", u.gesamt, `${u.ausAlpha} aus der Alpha · ${u.stimmig} auswertbar`),
+      kpi("◎",gruen,"Optimaler Preis", pp ? euro(pp.optimal) : "–",
+          pp ? "Einmalkauf, Van Westendorp" : "ab 3 auswertbaren Antworten"),
+      kpi("↔",gelb,"Akzeptanzbereich", pp ? `${euro(pp.untereGrenze)} – ${euro(pp.obereGrenze)}` : "–",
+          `Median: gut ${euro(u.median.guenstig)} · teuer ${euro(u.median.teuer)}`),
+      kpi("↻",lila,"Beliebtestes Modell", u.gesamt ? modellName[beliebt[0]] : "–",
+          `Abo fair: ${euro(u.median.monatlich)} / Monat (Median)`),
+    ].join("");
+    $("umfrageZahl").textContent = u.gesamt;
+    $("umfrageModelle").innerHTML = Object.entries(u.modelle)
+      .map(([k,v])=>`<span class="marke2 m-leise">${esc(modellName[k]||k)} ${v}</span>`).join("");
+    $("umfrage").innerHTML = !u.eintraege.length
+      ? leer("✎","Noch keine Antworten","Schick Alpha-Testern den Link cockpit.mesco.cc/umfrage.html.")
+      : `<table><thead><tr><th>Person</th><th>Zu billig</th><th>Gut</th><th>Teuer</th><th>Zu teuer</th>
+          <th>Modell</th><th>Abo/Monat</th><th>Kommentar</th><th>Wann</th></tr></thead><tbody>${
+        u.eintraege.map(e=>`<tr>
+          <td>${esc(e.mail)}${e.alphaTeilnehmer?' <span class="marke2 m-ok">Alpha</span>':""}${e.stimmig?"":' <span class="marke2 m-warn" title="Preise nicht aufsteigend — nicht in den Preisgrenzen">?</span>'}</td>
+          <td class="mono">${euro(e.zuBillig)}</td><td class="mono">${euro(e.guenstig)}</td>
+          <td class="mono">${euro(e.teuer)}</td><td class="mono">${euro(e.zuTeuer)}</td>
+          <td><span class="marke2 m-leise">${esc(modellName[e.modell]||e.modell)}</span></td>
+          <td class="mono">${euro(e.monatlich)}</td>
+          <td style="max-width:320px;color:var(--leise)">${esc(e.kommentar||"").slice(0,200)}</td>
+          <td class="mono" style="color:var(--leiser);white-space:nowrap">${zeit(e.zeit)}</td></tr>`).join("")
+      }</tbody></table>`;
   }
 
   /* Lizenzen */

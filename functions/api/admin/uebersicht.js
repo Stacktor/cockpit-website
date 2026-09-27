@@ -34,7 +34,7 @@
  *   LEMONSQUEEZY_API_KEY  Lizenzen, Bestellungen, Umsatz
  *   CF_ANALYTICS_TOKEN    Seitenaufrufe (API-Token mit Analytics-Leserecht)
  *   CF_ACCOUNT_ID         Konto-ID für die Analytics-Abfrage
- *   ALPHA (KV)            Alpha-Anmeldungen
+ *   ALPHA (KV)            Alpha-Anmeldungen und Preis-Umfrage
  */
 
 export async function onRequestGet({ request, env }) {
@@ -43,8 +43,9 @@ export async function onRequestGet({ request, env }) {
   if (!wache.erlaubt) return json(wache.status, { fehler: wache.grund });
 
   // Jede Quelle einzeln — eine kaputte darf die anderen nicht mitreißen
-  const [alpha, resend, lemon, aufrufe] = await Promise.all([
+  const [alpha, umfrage, resend, lemon, aufrufe] = await Promise.all([
     holeAlpha(env).catch((e) => fehlerKachel(e)),
+    holeUmfrage(env).catch((e) => fehlerKachel(e)),
     holeResend(env).catch((e) => fehlerKachel(e)),
     holeLemon(env).catch((e) => fehlerKachel(e)),
     holeAufrufe(env).catch((e) => fehlerKachel(e)),
@@ -54,6 +55,7 @@ export async function onRequestGet({ request, env }) {
     stand: new Date().toISOString(),
     benutzer: wache.benutzer,
     alpha,
+    umfrage,
     resend,
     lemon,
     aufrufe,
@@ -234,6 +236,101 @@ async function holeAlpha(env) {
     letzte7Tage: eintraege.filter((e) => new Date(e.zeit).getTime() > grenze).length,
     proSystem,
     eintraege: eintraege.slice(0, 50),
+  };
+}
+
+// ───────────────────────── Preis-Umfrage ─────────────────────────
+
+/**
+ * Wertet die Preis-Umfrage (/umfrage.html) aus. Die vier Preisfragen folgen
+ * Van Westendorp; daraus ergeben sich der „optimale" Preis und der Bereich,
+ * den die Befragten noch akzeptieren. Mit wenigen Antworten sind das
+ * Richtwerte — belastbar wird es ab etwa 20 Antworten.
+ */
+async function holeUmfrage(env) {
+  if (!env.ALPHA)
+    return hinweisKachel("KV-Namespace ALPHA nicht verbunden — keine Umfrage-Antworten.");
+
+  const liste = await env.ALPHA.list({ prefix: "umfrage:", limit: 500 });
+  const eintraege = (
+    await Promise.all(
+      liste.keys.map(async (k) => {
+        try {
+          return JSON.parse((await env.ALPHA.get(k.name)) || "null");
+        } catch (_) {
+          return null;
+        }
+      })
+    )
+  ).filter(Boolean);
+  eintraege.sort((a, b) => String(b.zeit).localeCompare(String(a.zeit)));
+
+  const modelle = { einmalig: 0, jahresabo: 0, monatsabo: 0, egal: 0 };
+  eintraege.forEach((e) => {
+    if (e.modell in modelle) modelle[e.modell]++;
+  });
+
+  // Nur in sich stimmige Antworten (aufsteigende Preise) gehen in die Preisgrenzen ein.
+  const stimmig = eintraege.filter((e) => e.stimmig);
+  const monatlich = eintraege.map((e) => e.monatlich).filter((x) => typeof x === "number");
+
+  return {
+    ok: true,
+    gesamt: eintraege.length,
+    stimmig: stimmig.length,
+    ausAlpha: eintraege.filter((e) => e.alphaTeilnehmer).length,
+    median: {
+      zuBillig: median(stimmig.map((e) => e.zuBillig)),
+      guenstig: median(stimmig.map((e) => e.guenstig)),
+      teuer: median(stimmig.map((e) => e.teuer)),
+      zuTeuer: median(stimmig.map((e) => e.zuTeuer)),
+      monatlich: median(monatlich),
+    },
+    preispunkte: vanWestendorp(stimmig),
+    modelle,
+    eintraege: eintraege.slice(0, 100),
+  };
+}
+
+function median(werte) {
+  if (!werte.length) return null;
+  const w = [...werte].sort((a, b) => a - b);
+  const m = Math.floor(w.length / 2);
+  return w.length % 2 ? w[m] : (w[m - 1] + w[m]) / 2;
+}
+
+/**
+ * Klassische Van-Westendorp-Schnittpunkte über alle ganzen Euro-Beträge:
+ *   optimal   „zu billig" (fallend)  ∩ „zu teuer" (steigend)
+ *   untere    „zu billig" (fallend)  ∩ „nicht günstig" (steigend)
+ *   obere     „zu teuer" (steigend)  ∩ „nicht teuer" (fallend)
+ * `null`, solange es zu wenige Antworten gibt.
+ */
+function vanWestendorp(antworten) {
+  const n = antworten.length;
+  if (n < 3) return null;
+  const max = Math.ceil(Math.max(...antworten.map((e) => e.zuTeuer), 1));
+  const anteil = (bedingung) => antworten.filter(bedingung).length / n;
+  const schnitt = (f, g) => {
+    let bester = 0;
+    let abstand = Infinity;
+    for (let p = 0; p <= max; p++) {
+      const d = Math.abs(f(p) - g(p));
+      if (d < abstand) {
+        abstand = d;
+        bester = p;
+      }
+    }
+    return bester;
+  };
+  const zuBillig = (p) => anteil((e) => e.zuBillig >= p);
+  const zuTeuer = (p) => anteil((e) => e.zuTeuer <= p);
+  const nichtGuenstig = (p) => anteil((e) => e.guenstig < p);
+  const nichtTeuer = (p) => anteil((e) => e.teuer > p);
+  return {
+    optimal: schnitt(zuBillig, zuTeuer),
+    untereGrenze: schnitt(zuBillig, nichtGuenstig),
+    obereGrenze: schnitt(zuTeuer, nichtTeuer),
   };
 }
 

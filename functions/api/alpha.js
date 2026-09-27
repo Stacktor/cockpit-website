@@ -125,7 +125,7 @@ export async function onRequestPost({ request, env }) {
           from: von,
           to: [mail],
           subject: "Deine Anmeldung zur Alpha von Bewerbungs-Cockpit",
-          html: mailAnBewerber(name, platz),
+          html: mailAnBewerber(name, platz, mail),
         }),
         senden(env.RESEND_API_KEY, {
           from: von,
@@ -214,7 +214,7 @@ ${inhalt}
 </td></tr>
 </table></td></tr></table></body></html>`;
 
-const mailAnBewerber = (name, platz) =>
+const mailAnBewerber = (name, platz, mail) =>
   RAHMEN(`
   <h1 style="font-size:21px;margin:0 0 12px;letter-spacing:-.4px;color:#0e1218;">Danke, ${escape_(name)}.</h1>
   <p style="margin:0 0 14px;">Deine Anmeldung für die geschlossene Alpha ist angekommen${
@@ -229,7 +229,12 @@ const mailAnBewerber = (name, platz) =>
     einmal ehrlich schreibst, was gut und was schlecht war, behältst du die Vollversion
     dauerhaft — inklusive aller künftigen Aktualisierungen.</span>
   </div>
-  <p style="margin:0 0 14px;">Bis dahin: Diese Mail brauchst du nicht aufzubewahren, und du musst
+  <p style="margin:0 0 14px;">Eine kleine Bitte, wenn du zwei Minuten hast: Der Preis für
+  cockpit Pro steht noch nicht fest, und ich lege ihn gemeinsam mit euch fest. Sag mir in
+  fünf kurzen Fragen, was dir die App wert wäre:</p>
+  <p style="margin:0 0 18px;"><a href="https://cockpit.mesco.cc/umfrage.html?mail=${encodeURIComponent(mail)}"
+    style="display:inline-block;background:#1f5eff;color:#fff;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:8px;">Zur Preis-Umfrage</a></p>
+  <p style="margin:0 0 14px;">Ansonsten: Diese Mail brauchst du nicht aufzubewahren, und du musst
   nichts weiter tun.</p>
   <p style="margin:0;">Viele Grüße<br>Thomas</p>
   <p style="margin:18px 0 0;font-size:13px;color:#5b6675;">Du bekommst diese Mail, weil du dich auf
