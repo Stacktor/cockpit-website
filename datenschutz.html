@@ -173,6 +173,30 @@ a{color:var(--accent)}
   <li><b>Keine Weitergabe</b> an Dritte über die unten genannten Auftragsverarbeiter hinaus.</li>
 </ul>
 
+<h2 id="appfeedback">3c · Umfragen und Fehlerberichte aus der App (Alpha)</h2>
+<p>
+  Als Alpha-Tester kannst du in der App Umfragen beantworten und über „Fehler melden“
+  Probleme schicken. Übertragen wird nur, was du aktiv absendest — es gibt keine
+  automatische Nutzungsauswertung (keine Telemetrie).
+</p>
+<table>
+  <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
+  <tbody>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Prüfung, dass die Anfrage von einem Alpha-Tester kommt (bei Lemon Squeezy); gespeichert wird nur die Lizenz-ID, nie der Schlüssel</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>E-Mail-Adresse und Name aus deiner Lizenz</td><td>Rückfragen zu deiner Antwort oder deinem Fehlerbericht</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Antworten auf Umfragen</td><td>Verbesserung der App, Festlegung von Preis und Lizenzmodell</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Fehlerbeschreibung, optional technisches Protokoll (App-Version, Betriebssystem, letzte Fehlermeldungen, keine Bewerbungsdaten)</td><td>Fehlerbehebung</td><td>Cloudflare Workers KV, Resend (Benachrichtigung an mich)</td></tr>
+  </tbody>
+</table>
+<ul style="margin-top:14px">
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. a DSGVO — Einwilligung durch das aktive
+    Absenden. Das Protokoll siehst du vor dem Senden vollständig und kannst es weglassen.</li>
+  <li><b>Speicherdauer:</b> spätestens drei Monate nach Ende der Alpha-Phase gelöscht; auf
+    Wunsch jederzeit früher.</li>
+  <li><b>Wann die App fragt</b> (z. B. nach drei Tagen), entscheidet sie anhand von Zählern,
+    die nur auf deinem Gerät liegen und nicht übertragen werden.</li>
+</ul>
+
 <h3>Eingesetzte Dienste bei der Anmeldung</h3>
 <p>
   <b>Cloudflare, Inc.</b> — Die Verarbeitung des Formulars erfolgt als serverlose Funktion
