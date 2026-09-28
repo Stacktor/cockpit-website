@@ -1,0 +1,107 @@
+---
+/**
+ * Rechtstexte werden unverändert aus src/legal/*.html übernommen und hier nur
+ * in das Layout der Website gesetzt.
+ */
+interface Props {
+  html: string;
+}
+const { html } = Astro.props;
+---
+
+<section class="rechtstext">
+  <div class="wrap eng" set:html={html} />
+</section>
+
+<style>
+  .rechtstext {
+    padding: clamp(48px, 7vw, 80px) 0 90px;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .rechtstext :global(h1) {
+    font-size: clamp(28px, 4vw, 36px);
+    margin-bottom: 8px;
+  }
+  .rechtstext :global(.upd) {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+  .rechtstext :global(h2) {
+    font-size: 20px;
+    margin: 38px 0 10px;
+    scroll-margin-top: 90px;
+  }
+  .rechtstext :global(h3) {
+    font-size: 16.5px;
+    margin: 22px 0 6px;
+  }
+  .rechtstext :global(p),
+  .rechtstext :global(li) {
+    color: var(--ink-2);
+  }
+  .rechtstext :global(p + p) {
+    margin-top: 10px;
+  }
+  .rechtstext :global(ul),
+  .rechtstext :global(ol) {
+    margin: 8px 0 0 20px;
+  }
+  .rechtstext :global(li) {
+    margin-bottom: 5px;
+  }
+  .rechtstext :global(.box),
+  .rechtstext :global(.hi),
+  .rechtstext :global(.todo) {
+    border-radius: var(--r-sm);
+    padding: 15px 17px;
+    font-size: 14.5px;
+    margin: 20px 0;
+  }
+  .rechtstext :global(.hi) {
+    background: var(--ok-soft);
+    border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent);
+  }
+  .rechtstext :global(.todo) {
+    background: var(--warn-soft);
+    border: 1px solid var(--warn-line);
+    color: var(--warn);
+  }
+  .rechtstext :global(.hi b),
+  .rechtstext :global(.todo b) {
+    display: block;
+    margin-bottom: 4px;
+  }
+  .rechtstext :global(.ph) {
+    background: var(--warn-soft);
+    border-bottom: 2px solid var(--warn-line);
+    padding: 0 3px;
+    font-weight: 600;
+  }
+  .rechtstext :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 14.5px;
+    display: block;
+    overflow-x: auto;
+  }
+  .rechtstext :global(th),
+  .rechtstext :global(td) {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .rechtstext :global(th) {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .rechtstext :global(code) {
+    font-family: var(--mono);
+    font-size: 0.88em;
+  }
+</style>

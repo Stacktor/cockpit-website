@@ -1,0 +1,22 @@
+{
+  "name": "cockpit-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test:api": "node tests/api.test.mjs",
+    "audit": "node scripts/audit.mjs"
+  },
+  "dependencies": {
+    "@lucide/astro": "^1.48.0",
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "playwright-core": "^1.61.1",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,9 @@
+---
+import Base from "../layouts/Base.astro";
+import Rechtstext from "../components/Rechtstext.astro";
+import html from "../legal/impressum.html?raw";
+---
+
+<Base title="Impressum" description="Anbieterkennzeichnung von cockpit.mesco.cc." noindex>
+  <Rechtstext html={html} />
+</Base>

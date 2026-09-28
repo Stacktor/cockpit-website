@@ -1,0 +1,40 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+---
+
+<Base title="Seite nicht gefunden" description="Diese Seite gibt es nicht (mehr)." noindex>
+  <section class="abschnitt center">
+    <div class="wrap eng">
+      <p class="code">404</p>
+      <h1>Diese Seite gibt es nicht (mehr).</h1>
+      <p class="lead" style="margin:14px auto 28px">Vielleicht hilft einer dieser Wege weiter:</p>
+      <div class="wege">
+        <a href="/" class="btn btn-p"><Icon name="arrow-right" size={16} /> Zur Startseite</a>
+        <a href="/funktionen/" class="btn btn-s">Funktionen</a>
+        <a href="/hilfe/" class="btn btn-s">Hilfe-Center</a>
+        <a href="/alpha/" class="btn btn-s">Alpha-Zugang</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .code {
+    font-size: clamp(80px, 16vw, 150px);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 40%, #7dd3fc));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+  }
+  .wege {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

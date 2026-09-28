@@ -1,0 +1,68 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Seitenkopf from "../../components/Seitenkopf.astro";
+import Icon from "../../components/Icon.astro";
+
+const beitraege = (await getCollection("blog")).sort((a, b) => +b.data.datum - +a.data.datum || a.data.titel.localeCompare(b.data.titel));
+const datum = (d: Date) => d.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" });
+---
+
+<Base title="Blog" description="Neuigkeiten zu cockpit, Hintergründe zu local-first und Datenschutz, praktische Tipps für die Jobsuche.">
+  <Seitenkopf eyebrow="Blog" titel="Neuigkeiten, Hintergründe, Tipps" lead="Was sich an cockpit ändert, warum es so gebaut ist — und was bei der Jobsuche hilft." krumen={[["Blog", "/blog/"]]}>
+    <p class="micro rv" style="--d:3;margin-top:16px"><a href="/blog/rss.xml">RSS-Feed abonnieren</a></p>
+  </Seitenkopf>
+  <section class="abschnitt">
+    <div class="wrap eng">
+      <ol class="beitraege">
+        {
+          beitraege.map((b, i) => (
+            <li class="rv" style={`--d:${i}`}>
+              <a href={`/blog/${b.id}/`} class="karte">
+                <p class="micro">
+                  <time datetime={b.data.datum.toISOString()}>{datum(b.data.datum)}</time> · {b.data.lesezeit} Min. Lesezeit
+                </p>
+                <h2>{b.data.titel}</h2>
+                <p>{b.data.beschreibung}</p>
+                <div class="tags">
+                  {b.data.tags.map((t) => (
+                    <span class="chip">{t}</span>
+                  ))}
+                  <span class="mehr">
+                    Lesen <Icon name="arrow-right" size={15} />
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .beitraege {
+    list-style: none;
+    display: grid;
+    gap: 18px;
+  }
+  .beitraege h2 {
+    font-size: 21px;
+    margin: 6px 0 8px;
+  }
+  .tags {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .tags .chip {
+    padding: 3px 11px;
+    font-size: 12.5px;
+  }
+  .tags .mehr {
+    margin: 0 0 0 auto;
+  }
+</style>

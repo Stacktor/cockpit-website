@@ -1,0 +1,144 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Seitenkopf from "../../components/Seitenkopf.astro";
+import Icon from "../../components/Icon.astro";
+import Screen from "../../components/Screen.astro";
+
+const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const extras = [
+  { icon: "bot", titel: "KI-Assistent", text: "Fragt nach deinen Bewerbungen, fasst zusammen, schlägt nächste Schritte vor — mit dem Kontext der Ansicht, in der du gerade bist." },
+  { icon: "bell", titel: "Erinnerungen", text: "Gespräche, Fristen, Nachfassen: cockpit erinnert dich, auch als Systembenachrichtigung." },
+  { icon: "search", titel: "Befehlspalette", text: "Strg+K öffnet jede Ansicht und jede Bewerbung mit ein paar Buchstaben." },
+  { icon: "hard-drive", titel: "Sicherung", text: "Alle Daten als Datei sichern und auf einem anderen Rechner wieder einlesen." },
+  { icon: "download", titel: "Automatische Updates", text: "Die App meldet neue Versionen und installiert sie auf Klick." },
+  { icon: "moon", titel: "Hell und Dunkel", text: "Ein ruhiges Design, das sich nach deinem System richtet — oder nach dir." },
+];
+---
+
+<Base title="Funktionen" description="Alle Funktionen von cockpit: Pipeline, Stellensuche, KI-Anschreiben, Auto-Modus, Inbox, Interview-Training, Lebenslauf, Skill-Test und Analyse.">
+  <Seitenkopf
+    eyebrow="Funktionen"
+    titel="Alles, was eine Jobsuche braucht."
+    lead="Acht Werkzeuge mit einem gemeinsamen Kern — dein Profil. Einmal gepflegt, arbeiten Suche, Anschreiben und Training damit."
+    krumen={[["Funktionen", "/funktionen/"]]}
+  />
+
+  <section class="abschnitt">
+    <div class="wrap liste">
+      {
+        funktionen.map((f, i) => (
+          <article class:list={["zeile", { dreh: i % 2 === 1 }]}>
+            <div class="text rv">
+              <div class="ic">
+                <Icon name={f.data.icon} />
+              </div>
+              <h2>{f.data.titel}</h2>
+              <p class="lead">{f.data.kurz}</p>
+              <ul class="punkte">
+                {f.data.punkte.slice(0, 3).map((p) => (
+                  <li>
+                    <Icon name="check" size={17} /> {p}
+                  </li>
+                ))}
+              </ul>
+              <a href={`/funktionen/${f.id}/`} class="btn btn-s">
+                Mehr zu {f.data.titel} <Icon name="arrow-right" size={16} />
+              </a>
+            </div>
+            <a href={`/funktionen/${f.id}/`} class="bild rv" style="--d:2" tabindex="-1" aria-hidden="true">
+              <Screen id={f.data.screen} alt="" sizes="(min-width: 960px) 560px, 100vw" />
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Und außerdem</div>
+        <h2 class="rv" style="--d:1">Die kleinen Dinge, die den Alltag leichter machen</h2>
+      </div>
+      <div class="raster r3">
+        {
+          extras.map((e, i) => (
+            <div class="karte rv" style={`--d:${i % 3}`}>
+              <div class="ic">
+                <Icon name={e.icon} />
+              </div>
+              <h3>{e.titel}</h3>
+              <p>{e.text}</p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="center" style="margin-top:44px">
+        <a href="/alpha/" class="btn btn-p btn-lg">Alpha-Zugang anfragen <Icon name="arrow-right" size={17} /></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .liste {
+    display: grid;
+    gap: clamp(56px, 8vw, 96px);
+  }
+  .zeile {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+  .zeile.dreh .text {
+    order: 2;
+  }
+  .zeile h2 {
+    margin-bottom: 8px;
+  }
+  .zeile .lead {
+    font-size: 17px;
+    margin-bottom: 18px;
+  }
+  .punkte {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    margin-bottom: 24px;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .punkte li {
+    display: flex;
+    gap: 10px;
+  }
+  .punkte :global(svg) {
+    color: var(--ok);
+    flex: none;
+    margin-top: 3px;
+  }
+  .bild {
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-2);
+    transition:
+      transform 0.4s var(--ease),
+      box-shadow 0.4s;
+  }
+  .bild:hover {
+    transform: translateY(-4px) rotate(-0.4deg);
+    box-shadow: var(--shadow-3);
+  }
+  @media (max-width: 900px) {
+    .zeile {
+      grid-template-columns: 1fr;
+    }
+    .zeile.dreh .text {
+      order: 0;
+    }
+  }
+</style>

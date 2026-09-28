@@ -1,0 +1,122 @@
+---
+/**
+ * Waagerechte Kartenreihe mit Scroll-Snap und Pfeilknöpfen. Auf Touch einfach
+ * wischen, mit Maus die Pfeile; Ränder blenden weich aus.
+ */
+import Icon from "./Icon.astro";
+
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<div class="rail" data-rail>
+  <div class="rail-kopf">
+    <slot name="kopf" />
+    <div class="rail-knoepfe">
+      <button type="button" class="rund" data-links aria-label="Zurückblättern"><Icon name="chevron-left" size={18} /></button>
+      <button type="button" class="rund" data-rechts aria-label="Weiterblättern"><Icon name="chevron-right" size={18} /></button>
+    </div>
+  </div>
+  <ul class="rail-spur rv" style="--d:2" aria-label={label} tabindex="0">
+    <slot />
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-rail]").forEach((rail) => {
+    const spur = rail.querySelector<HTMLElement>(".rail-spur")!;
+    const links = rail.querySelector<HTMLButtonElement>("[data-links]")!;
+    const rechts = rail.querySelector<HTMLButtonElement>("[data-rechts]")!;
+    const schritt = () => {
+      const karte = spur.querySelector<HTMLElement>(":scope > li");
+      return karte ? karte.getBoundingClientRect().width + 18 : spur.clientWidth * 0.8;
+    };
+    const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const aktualisiere = () => {
+      const max = spur.scrollWidth - spur.clientWidth - 2;
+      links.disabled = spur.scrollLeft <= 2;
+      rechts.disabled = spur.scrollLeft >= max;
+      rail.classList.toggle("am-anfang", spur.scrollLeft <= 2);
+      rail.classList.toggle("am-ende", spur.scrollLeft >= max);
+    };
+    links.addEventListener("click", () => spur.scrollBy({ left: -schritt(), behavior: ruhig ? "auto" : "smooth" }));
+    rechts.addEventListener("click", () => spur.scrollBy({ left: schritt(), behavior: ruhig ? "auto" : "smooth" }));
+    spur.addEventListener("scroll", aktualisiere, { passive: true });
+    addEventListener("resize", aktualisiere);
+    aktualisiere();
+  });
+</script>
+
+<style>
+  .rail-kopf {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .rail-knoepfe {
+    display: flex;
+    gap: 8px;
+    flex: none;
+  }
+  .rund {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--card);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--ink);
+    transition:
+      opacity 0.2s,
+      border-color 0.2s,
+      transform 0.2s var(--ease);
+  }
+  .rund:hover:not(:disabled) {
+    border-color: var(--line-strong);
+    transform: translateY(-1px);
+  }
+  .rund:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .rail-spur {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(270px, 320px);
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    padding: 6px 2px 18px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 60px), transparent);
+  }
+  .rail-spur::-webkit-scrollbar {
+    display: none;
+  }
+  .rail:global(.am-ende) .rail-spur {
+    mask-image: none;
+  }
+  .rail-spur > :global(li) {
+    scroll-snap-align: start;
+    display: flex;
+  }
+  .rail-spur > :global(li) > :global(*) {
+    flex: 1;
+  }
+  @media (max-width: 640px) {
+    .rail-knoepfe {
+      display: none;
+    }
+    .rail-spur {
+      grid-auto-columns: 82%;
+    }
+  }
+</style>

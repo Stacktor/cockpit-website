@@ -1,51 +1,5 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Datenschutzerklärung — cockpit</title>
-<style>
-:root{--ink:#0e1218;--muted:#5b6675;--line:#e4e8ee;--accent:#1f5eff;--warn:#8a6d1f;--warnbg:#fdf6e3;--ok:#0f8a5f;--okbg:#e7f6ef}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
-.wrap{max-width:720px;margin:0 auto;padding:0 22px}
-header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
-.logo{font-weight:700;font-size:19px;letter-spacing:-.03em;text-decoration:none;color:var(--ink)}
-.logo span{color:var(--accent)}
-header a.back{font-size:14.5px;color:var(--muted);text-decoration:none}
-main{padding:52px 0 80px}
-h1{font-size:31px;letter-spacing:-.02em;margin-bottom:8px}
-.upd{color:var(--muted);font-size:14px;margin-bottom:30px}
-h2{font-size:19px;margin:36px 0 10px;letter-spacing:-.01em}
-h3{font-size:16px;margin:22px 0 6px}
-p,li{color:#232b36}
-ul{margin:8px 0 0 20px}
-li{margin-bottom:5px}
-.box{border-radius:9px;padding:15px 17px;font-size:14.5px;margin:20px 0}
-.hi{background:var(--okbg);border:1px solid #b9e3cd;color:#0b5f43}
-.todo{background:var(--warnbg);border:1px solid #e8d9ac;color:var(--warn)}
-.todo b,.hi b{display:block;margin-bottom:4px}
-.ph{background:#fff4d6;border-bottom:2px solid #e0c273;padding:0 3px;font-weight:600}
-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14.5px}
-th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-footer{border-top:1px solid var(--line);padding:32px 0;font-size:14px;color:var(--muted)}
-footer a{color:var(--muted);margin-right:18px;text-decoration:none}
-footer a:hover{color:var(--ink);text-decoration:underline}
-a{color:var(--accent)}
-</style>
-</head>
-<body>
-<header><div class="wrap">
-  <a href="/" class="logo">cock<span>pit</span></a>
-  <a href="/" class="back">← Zurück zur Startseite</a>
-</div></header>
-
-<main><div class="wrap">
 <h1>Datenschutzerklärung</h1>
-<p class="upd">Stand: 01.08.2026</p>
+<p class="upd">Stand: 28.09.2026</p>
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
@@ -91,6 +45,14 @@ a{color:var(--accent)}
   arbeitet ohne Cookies.
 </p>
 
+<h3>Speicher im Browser</h3>
+<p>
+  Wählst du oben das Farbschema (Hell, Dunkel, System), merkt sich dein Browser diese
+  Wahl im lokalen Speicher (<code>localStorage</code>) — nur auf deinem Gerät, sie wird
+  nicht an uns übertragen. Das ist für die von dir gewünschte Funktion erforderlich
+  (§ 25 Abs. 2 Nr. 2 TDDDG). Weitere Daten legt die Website nicht in deinem Browser ab.
+</p>
+
 <h3>Reichweitenmessung</h3>
 <p>
   Auf dieser Website findet <b>keine</b> Reichweitenmessung, keine Analyse des
@@ -127,8 +89,10 @@ a{color:var(--accent)}
 
 <h2 id="alphateilnahme">3a · Anmeldung zur Alpha</h2>
 <p>
-  Über das Formular auf der Startseite kannst du dich für die geschlossene Alpha-Phase
-  bewerben. Dabei werden folgende Angaben verarbeitet:
+  Über das Formular auf der <a href="/alpha/">Alpha-Seite</a> kannst du dich für die
+  geschlossene Alpha-Phase bewerben. Sind alle Plätze vergeben (oder nutzt du macOS, das
+  noch in Arbeit ist), landet deine Anmeldung auf der Warteliste. Dabei werden folgende
+  Angaben verarbeitet:
 </p>
 <table>
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
@@ -136,13 +100,16 @@ a{color:var(--accent)}
     <tr><td>Name</td><td>persönliche Ansprache und Auswahl</td><td>Cloudflare Workers KV (EU/global verteilt)</td></tr>
     <tr><td>E-Mail-Adresse</td><td>Rückmeldung und Zusendung des Zugangs</td><td>Cloudflare Workers KV, Resend</td></tr>
     <tr><td>Betriebssystem</td><td>Zuordnung zur passenden Testgruppe</td><td>Cloudflare Workers KV</td></tr>
-    <tr><td>Freitext zur Suchsituation</td><td>Auswahl geeigneter Teilnehmender</td><td>Cloudflare Workers KV</td></tr>
-    <tr><td>Ländercode, Zeitpunkt, verweisende Seite</td><td>Missbrauchserkennung</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Angaben zu deiner Suche: Situation, Bewerbungen pro Monat, bisherige Werkzeuge, Freitext zur größten Hürde</td><td>Auswahl geeigneter Teilnehmender, Ausrichtung der Weiterentwicklung</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Angaben zu KI-Nutzung und Technik-Erfahrung, bevorzugte Feedback-Wege</td><td>Auswahl, passende Hilfestellung beim Einrichten</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Wie du von cockpit erfahren hast, Kampagnen-Kennzeichen aus dem aufgerufenen Link (z. B. <code>utm_source</code>), verweisende Seite</td><td>Auswertung, welche Kanäle für die Alpha funktionieren — nur zusammengefasst, keine Profilbildung</td><td>Cloudflare Workers KV</td></tr>
+    <tr><td>Ländercode, Zeitpunkt</td><td>Missbrauchserkennung</td><td>Cloudflare Workers KV</td></tr>
   </tbody>
 </table>
 <ul style="margin-top:14px">
   <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO — Durchführung vorvertraglicher
-    Maßnahmen auf deine Anfrage hin.</li>
+    Maßnahmen auf deine Anfrage hin; für die zusammengefasste Auswertung der Kanäle
+    Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse, die Alpha wirksam bekannt zu machen).</li>
   <li><b>Speicherdauer:</b> Die Angaben werden spätestens <b>drei Monate nach Ende der
     Alpha-Phase gelöscht</b>, sofern kein Vertragsverhältnis entsteht. Du kannst die
     Löschung jederzeit formlos verlangen.</li>
@@ -150,10 +117,11 @@ a{color:var(--accent)}
     Kein Newsletter, keine Werbung, kein Profiling.</li>
 </ul>
 
-<h2 id="preisumfrage">3b · Preis-Umfrage</h2>
+<h2 id="preisumfrage">3b · Preis-Umfrage auf der Website (beendet)</h2>
 <p>
-  Unter <a href="/umfrage.html">/umfrage.html</a> kannst du freiwillig angeben, was dir
-  cockpit Pro wert wäre. Dabei werden folgende Angaben verarbeitet:
+  Bis September 2026 konntest du auf dieser Website freiwillig angeben, was dir cockpit Pro
+  wert wäre. Diese Umfrage ist beendet; Umfragen laufen jetzt in der App (siehe 3c). Für
+  bereits abgegebene Antworten gilt weiterhin: Verarbeitet wurden folgende Angaben:
 </p>
 <table>
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
@@ -241,6 +209,7 @@ a{color:var(--accent)}
     <tr><td>Anfragen an ein KI-Modell</td><td>bei deinem selbst gewählten Anbieter — oder rein lokal</td><td>der von dir gewählte Anbieter</td></tr>
     <tr><td>Abruf von Stellenanzeigen</td><td>offizielle Schnittstellen der jeweiligen Anbieter</td><td>der jeweilige Anbieter</td></tr>
     <tr><td>Optionale Synchronisierung</td><td>dein eigenes Supabase-Projekt oder deine iCloud</td><td>nur du</td></tr>
+    <tr><td>Suche nach Updates (App-Version, IP-Adresse)</td><td>Abfrage der Datei <code>latest.json</code> bei GitHub</td><td>GitHub, Inc.</td></tr>
   </tbody>
 </table>
 <div class="box hi" style="margin-top:16px">
@@ -260,13 +229,12 @@ a{color:var(--accent)}
   entgegenstehen.
 </p>
 
-<h2>7 · E-Mail-Warteliste</h2>
+<h2>7 · Warteliste</h2>
 <p>
-  Trägst du dich in die Warteliste ein, verarbeiten wir deine E-Mail-Adresse
-  ausschließlich, um dich über neue Versionen zu informieren. Rechtsgrundlage ist
-  deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Du kannst sie jederzeit mit
-  Wirkung für die Zukunft widerrufen — über den Abmeldelink in jeder Nachricht oder
-  formlos per E-Mail.
+  Stehst du auf der Warteliste der Alpha (siehe 3a), verwenden wir deine Angaben nur, um
+  dich zu informieren, sobald ein Platz frei wird oder eine getestete macOS-Version
+  erscheint. Es gelten Rechtsgrundlage und Speicherdauer aus Abschnitt 3a. Du kannst dich
+  jederzeit formlos per E-Mail austragen.
 </p>
 
 <h2>8 · Deine Rechte</h2>
@@ -292,13 +260,3 @@ a{color:var(--accent)}
   Es gilt jeweils die hier abrufbare Fassung.
 </p>
 
-</div></main>
-
-<footer><div class="wrap">
-  <a href="/impressum.html">Impressum</a>
-  <a href="/datenschutz.html">Datenschutz</a>
-  <a href="/widerruf.html">Widerruf</a>
-  <a href="/lizenzbedingungen.html">Lizenzbedingungen</a>
-</div></footer>
-</body>
-</html>

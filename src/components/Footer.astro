@@ -1,0 +1,141 @@
+---
+import { SITE } from "../config";
+
+const spalten = [
+  {
+    titel: "Produkt",
+    links: [
+      ["Funktionen", "/funktionen/"],
+      ["Preise", "/preise/"],
+      ["Download", "/download/"],
+      ["Changelog", "/changelog/"],
+      ["Alpha-Zugang", "/alpha/"],
+    ],
+  },
+  {
+    titel: "Hilfe",
+    links: [
+      ["Hilfe-Center", "/hilfe/"],
+      ["Erste Schritte", "/hilfe/erste-schritte/"],
+      ["KI einrichten", "/hilfe/ki-einrichten/"],
+      ["Alpha-Schlüssel", "/hilfe/alpha-schluessel/"],
+      ["Kontakt", `mailto:${SITE.mail}`],
+    ],
+  },
+  {
+    titel: "Projekt",
+    links: [
+      ["Über das Projekt", "/ueber/"],
+      ["Blog", "/blog/"],
+      ["Releases auf GitHub", SITE.releases],
+      ...(SITE.discord ? [["Discord", SITE.discord]] : []),
+    ],
+  },
+  {
+    titel: "Rechtliches",
+    links: [
+      ["Impressum", "/impressum/"],
+      ["Datenschutz", "/datenschutz/"],
+      ["Widerruf", "/widerruf/"],
+      ["Lizenzbedingungen", "/lizenzbedingungen/"],
+    ],
+  },
+];
+---
+
+<footer class="fuss">
+  <div class="wrap">
+    <div class="fuss-oben">
+      <div class="fuss-marke">
+        <a href="/" class="logo">Bewerbungs-<b>Cockpit</b></a>
+        <p>Bewerbungen organisieren, ohne deinen Lebenslauf an fremde Server zu geben. Für Windows und Linux — macOS <span class="wip">in Arbeit</span>.</p>
+        <a href="/alpha/" class="btn btn-s btn-sm">Alpha-Zugang anfragen</a>
+      </div>
+      {
+        spalten.map((s) => (
+          <nav aria-label={s.titel}>
+            <h2>{s.titel}</h2>
+            <ul>
+              {s.links.map(([t, h]) => (
+                <li>
+                  <a href={h}>{t}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
+    <div class="fuss-unten">
+      <span>© 2026 cockpit · Hergestellt in Deutschland</span>
+      <span>Keine Cookies, keine Analyse-Skripte.</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .fuss {
+    border-top: 1px solid var(--line);
+    background: var(--soft);
+    padding: 56px 0 28px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .fuss-oben {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(4, 1fr);
+    gap: 32px;
+  }
+  .fuss-marke p {
+    margin: 10px 0 16px;
+    max-width: 300px;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo b {
+    color: var(--accent-ink);
+  }
+  h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  ul {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  a:not(.btn):not(.logo) {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  a:not(.btn):not(.logo):hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .fuss-unten {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  @media (max-width: 900px) {
+    .fuss-oben {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .fuss-marke {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

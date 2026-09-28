@@ -1,0 +1,110 @@
+---
+/**
+ * Lucide-Symbol über seinen Namen — damit Inhalte (Markdown-Frontmatter) ein
+ * Symbol als Text angeben können. Nur die hier gelisteten Symbole landen im Build.
+ */
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import Bell from "@lucide/astro/icons/bell";
+import BookOpen from "@lucide/astro/icons/book-open";
+import Bot from "@lucide/astro/icons/bot";
+import ChartColumn from "@lucide/astro/icons/chart-column";
+import Check from "@lucide/astro/icons/check";
+import ChevronDown from "@lucide/astro/icons/chevron-down";
+import ChevronLeft from "@lucide/astro/icons/chevron-left";
+import ChevronRight from "@lucide/astro/icons/chevron-right";
+import Clock from "@lucide/astro/icons/clock";
+import Cpu from "@lucide/astro/icons/cpu";
+import Download from "@lucide/astro/icons/download";
+import FileText from "@lucide/astro/icons/file-text";
+import GraduationCap from "@lucide/astro/icons/graduation-cap";
+import HardDrive from "@lucide/astro/icons/hard-drive";
+import Heart from "@lucide/astro/icons/heart";
+import GitCommit from "@lucide/astro/icons/git-commit-horizontal";
+import KeyRound from "@lucide/astro/icons/key-round";
+import Laptop from "@lucide/astro/icons/laptop";
+import LifeBuoy from "@lucide/astro/icons/life-buoy";
+import ListChecks from "@lucide/astro/icons/list-checks";
+import Lock from "@lucide/astro/icons/lock";
+import Mail from "@lucide/astro/icons/mail";
+import Menu from "@lucide/astro/icons/menu";
+import MessageCircle from "@lucide/astro/icons/message-circle";
+import MessagesSquare from "@lucide/astro/icons/messages-square";
+import Monitor from "@lucide/astro/icons/monitor";
+import Moon from "@lucide/astro/icons/moon";
+import Newspaper from "@lucide/astro/icons/newspaper";
+import PenLine from "@lucide/astro/icons/pen-line";
+import Rocket from "@lucide/astro/icons/rocket";
+import ScrollText from "@lucide/astro/icons/scroll-text";
+import Search from "@lucide/astro/icons/search";
+import ServerOff from "@lucide/astro/icons/server-off";
+import ShieldCheck from "@lucide/astro/icons/shield-check";
+import Sparkles from "@lucide/astro/icons/sparkles";
+import SquareKanban from "@lucide/astro/icons/square-kanban";
+import Sun from "@lucide/astro/icons/sun";
+import Terminal from "@lucide/astro/icons/terminal";
+import TrendingUp from "@lucide/astro/icons/trending-up";
+import Users from "@lucide/astro/icons/users";
+import Wallet from "@lucide/astro/icons/wallet";
+import X from "@lucide/astro/icons/x";
+import Zap from "@lucide/astro/icons/zap";
+
+const ICONS = {
+  "arrow-right": ArrowRight,
+  bell: Bell,
+  "book-open": BookOpen,
+  bot: Bot,
+  "chart-column": ChartColumn,
+  check: Check,
+  "chevron-down": ChevronDown,
+  "chevron-left": ChevronLeft,
+  "chevron-right": ChevronRight,
+  clock: Clock,
+  cpu: Cpu,
+  download: Download,
+  "file-text": FileText,
+  "graduation-cap": GraduationCap,
+  "hard-drive": HardDrive,
+  heart: Heart,
+  "git-commit": GitCommit,
+  "key-round": KeyRound,
+  laptop: Laptop,
+  "life-buoy": LifeBuoy,
+  "list-checks": ListChecks,
+  lock: Lock,
+  mail: Mail,
+  menu: Menu,
+  "message-circle": MessageCircle,
+  "messages-square": MessagesSquare,
+  monitor: Monitor,
+  moon: Moon,
+  newspaper: Newspaper,
+  "pen-line": PenLine,
+  rocket: Rocket,
+  "scroll-text": ScrollText,
+  search: Search,
+  "server-off": ServerOff,
+  "shield-check": ShieldCheck,
+  sparkles: Sparkles,
+  "square-kanban": SquareKanban,
+  sun: Sun,
+  terminal: Terminal,
+  "trending-up": TrendingUp,
+  users: Users,
+  wallet: Wallet,
+  x: X,
+  zap: Zap,
+} as const;
+
+export type IconName = keyof typeof ICONS;
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+}
+const { name, size = 20, class: cls } = Astro.props;
+const Comp = ICONS[name as IconName];
+if (!Comp) throw new Error(`Unbekanntes Symbol: ${name}`);
+---
+
+<Comp size={size} class={cls} aria-hidden="true" stroke-width={1.9} />

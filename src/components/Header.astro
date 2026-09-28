@@ -1,0 +1,613 @@
+---
+import { getCollection } from "astro:content";
+import Icon from "./Icon.astro";
+import { SITE } from "../config";
+
+const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const pfad = Astro.url.pathname;
+const aktiv = (p: string) => (pfad === p || (p !== "/" && pfad.startsWith(p)) ? "page" : undefined);
+
+const ressourcen = [
+  { href: "/hilfe/", titel: "Hilfe-Center", kurz: "Einrichten, KI, Alpha-Schlüssel, Probleme", icon: "life-buoy" },
+  { href: "/blog/", titel: "Blog", kurz: "Hintergründe und Neuigkeiten", icon: "newspaper" },
+  { href: "/changelog/", titel: "Changelog", kurz: "Was sich in jeder Version ändert", icon: "git-commit" },
+  { href: "/ueber/", titel: "Über das Projekt", kurz: "Wer dahintersteht und warum", icon: "heart" },
+  ...(SITE.discord
+    ? [{ href: SITE.discord, titel: "Discord", kurz: "Mit anderen Testern austauschen", icon: "message-circle" }]
+    : []),
+];
+---
+
+<header class="kopf">
+  <div class="wrap kopf-in">
+    <a href="/" class="logo" aria-label="Bewerbungs-Cockpit — Startseite">
+      <span class="marke" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><g transform="rotate(-15 12 12)"><path d="M4 5 L20 12 L13 12 Z" fill="currentColor"></path><path d="M4 19 L20 12 L13 12 Z" fill="currentColor" fill-opacity="0.7"></path></g></svg>
+      </span>
+      <span>Bewerbungs-<b>Cockpit</b></span>
+    </a>
+
+    <nav class="haupt" aria-label="Hauptnavigation">
+      <ul>
+        <li class="menue" data-menue>
+          <button type="button" aria-expanded="false" aria-controls="mm-funktionen" aria-current={aktiv("/funktionen/")}>
+            Funktionen <Icon name="chevron-down" size={15} class="pfeil" />
+          </button>
+          <div class="mega" id="mm-funktionen">
+            <div class="mega-innen">
+              <ul class="mega-raster">
+                {
+                  funktionen.map((f) => (
+                    <li>
+                      <a href={`/funktionen/${f.id}/`} class="mega-link">
+                        <span class="ic">
+                          <Icon name={f.data.icon} size={18} />
+                        </span>
+                        <span>
+                          <b>{f.data.titel}</b>
+                          <small>{f.data.kurz}</small>
+                        </span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+              <aside class="mega-seite">
+                <span class="badge"><span class="punkt"></span>{SITE.version}</span>
+                <p><b>Neu:</b> Interview-Training, Lebenslauf-Designer, Arbeitnow &amp; Adzuna, Umfragen direkt in der App.</p>
+                <a href="/changelog/" class="mehr">Was ist neu <Icon name="arrow-right" size={15} /></a>
+                <a href="/funktionen/" class="btn btn-s btn-sm">Alle Funktionen</a>
+              </aside>
+            </div>
+          </div>
+        </li>
+        <li><a href="/preise/" aria-current={aktiv("/preise/")}>Preise</a></li>
+        <li><a href="/download/" aria-current={aktiv("/download/")}>Download</a></li>
+        <li class="menue" data-menue>
+          <button type="button" aria-expanded="false" aria-controls="mm-ressourcen">
+            Ressourcen <Icon name="chevron-down" size={15} class="pfeil" />
+          </button>
+          <div class="mega klein" id="mm-ressourcen">
+            <ul class="mega-liste">
+              {
+                ressourcen.map((r) => (
+                  <li>
+                    <a href={r.href} class="mega-link">
+                      <span class="ic">
+                        <Icon name={r.icon} size={18} />
+                      </span>
+                      <span>
+                        <b>{r.titel}</b>
+                        <small>{r.kurz}</small>
+                      </span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="kopf-aktionen">
+      <div class="thema" role="group" aria-label="Farbschema">
+        <button type="button" data-theme-knopf="light" aria-label="Hell" title="Hell"><Icon name="sun" size={16} /></button>
+        <button type="button" data-theme-knopf="system" aria-label="Wie das System" title="Wie das System"><Icon name="monitor" size={16} /></button>
+        <button type="button" data-theme-knopf="dark" aria-label="Dunkel" title="Dunkel"><Icon name="moon" size={16} /></button>
+      </div>
+      <a href="/alpha/" class="btn btn-p btn-sm cta-kopf">Alpha-Zugang</a>
+      <button type="button" class="burger" aria-expanded="false" aria-controls="mobilmenue" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobil" id="mobilmenue">
+    <div class="mobil-kopf">
+      <span class="logo"><span>Bewerbungs-<b>Cockpit</b></span></span>
+      <button type="button" class="btn btn-g btn-sm" data-schliessen aria-label="Menü schließen"><Icon name="x" size={18} /></button>
+    </div>
+    <nav aria-label="Mobile Navigation" class="mobil-nav">
+      <details open>
+        <summary>Funktionen <Icon name="chevron-down" size={16} /></summary>
+        <ul>
+          {
+            funktionen.map((f) => (
+              <li>
+                <a href={`/funktionen/${f.id}/`}>
+                  <Icon name={f.data.icon} size={17} /> {f.data.titel}
+                </a>
+              </li>
+            ))
+          }
+          <li><a href="/funktionen/" class="alle">Alle Funktionen →</a></li>
+        </ul>
+      </details>
+      <a href="/preise/" class="mobil-link">Preise</a>
+      <a href="/download/" class="mobil-link">Download</a>
+      <details>
+        <summary>Ressourcen <Icon name="chevron-down" size={16} /></summary>
+        <ul>
+          {
+            ressourcen.map((r) => (
+              <li>
+                <a href={r.href}>
+                  <Icon name={r.icon} size={17} /> {r.titel}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+    </nav>
+    <div class="mobil-fuss">
+      <a href="/alpha/" class="btn btn-p" style="width:100%">Alpha-Zugang anfragen</a>
+      <p class="micro center" data-alpha-plaetze hidden></p>
+      <div class="thema breit" role="group" aria-label="Farbschema">
+        <button type="button" data-theme-knopf="light"><Icon name="sun" size={16} /> Hell</button>
+        <button type="button" data-theme-knopf="system"><Icon name="monitor" size={16} /> System</button>
+        <button type="button" data-theme-knopf="dark"><Icon name="moon" size={16} /> Dunkel</button>
+      </div>
+    </div>
+  </div>
+  <div class="mobil-schleier" aria-hidden="true"></div>
+</header>
+
+<style>
+  .kopf {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--header-bg);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .kopf:global(.klein) {
+    border-bottom-color: var(--line);
+    box-shadow: 0 1px 18px -8px rgba(14, 18, 24, 0.25);
+  }
+  .kopf-in {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    height: 68px;
+    transition: height 0.3s var(--ease);
+  }
+  .kopf:global(.klein) .kopf-in {
+    height: 58px;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .logo b {
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  .marke {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    transition: transform 0.4s var(--spring);
+  }
+  .marke svg {
+    width: 16px;
+    height: 16px;
+  }
+  .logo:hover .marke {
+    transform: rotate(-12deg) translateX(2px);
+  }
+
+  .haupt {
+    margin-left: 14px;
+  }
+  .haupt > ul {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+  }
+  .haupt > ul > li > a,
+  .haupt > ul > li > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 14.5px;
+    font-weight: 560;
+    transition:
+      color 0.15s,
+      background 0.15s;
+  }
+  .haupt > ul > li > a:hover,
+  .haupt > ul > li > button:hover,
+  .menue:global(.offen) > button {
+    color: var(--ink);
+    background: var(--soft);
+  }
+  .haupt [aria-current="page"] {
+    color: var(--ink);
+  }
+  .menue :global(.pfeil) {
+    transition: transform 0.25s var(--ease);
+  }
+  .menue:global(.offen) :global(.pfeil) {
+    transform: rotate(180deg);
+  }
+
+  .menue {
+    position: relative;
+  }
+  .mega {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -12px;
+    width: min(760px, calc(100vw - 48px));
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-3);
+    padding: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px) scale(0.985);
+    transform-origin: top left;
+    transition:
+      opacity 0.18s var(--ease),
+      transform 0.22s var(--ease),
+      visibility 0s linear 0.22s;
+  }
+  .mega.klein {
+    width: 340px;
+  }
+  .menue:global(.offen) .mega {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.18s var(--ease),
+      transform 0.22s var(--ease);
+  }
+  .mega::before {
+    content: "";
+    position: absolute;
+    inset: -12px 0 auto;
+    height: 12px;
+  }
+  .mega-innen {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 10px;
+  }
+  .mega-raster {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    list-style: none;
+  }
+  .mega-liste {
+    list-style: none;
+  }
+  .mega-link {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: background 0.15s;
+  }
+  .mega-link:hover,
+  .mega-link:focus-visible {
+    background: var(--soft);
+  }
+  .mega-link .ic {
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    border-radius: 9px;
+    transition: transform 0.25s var(--spring);
+  }
+  .mega-link:hover .ic {
+    transform: scale(1.08) rotate(-4deg);
+  }
+  .mega-link b {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 620;
+  }
+  .mega-link small {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .mega-seite {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .mega-seite b {
+    color: var(--ink);
+  }
+  .mega-seite .mehr {
+    margin: 0;
+  }
+  .mega-seite .btn {
+    margin-top: auto;
+  }
+
+  .kopf-aktionen {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .thema {
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+  }
+  .thema button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 30px;
+    height: 28px;
+    border-radius: 999px;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .thema button:hover {
+    color: var(--ink);
+  }
+  .thema button[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+  }
+  .thema.breit {
+    display: flex;
+    width: 100%;
+  }
+  .thema.breit button {
+    flex: 1;
+    width: auto;
+    height: 36px;
+    font-size: 13.5px;
+  }
+
+  .burger {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    cursor: pointer;
+    position: relative;
+  }
+  .burger span {
+    position: absolute;
+    left: 11px;
+    right: 11px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition:
+      transform 0.3s var(--ease),
+      opacity 0.2s,
+      top 0.3s var(--ease);
+  }
+  .burger span:nth-child(1) {
+    top: 14px;
+  }
+  .burger span:nth-child(2) {
+    top: 20px;
+  }
+  .burger span:nth-child(3) {
+    top: 26px;
+  }
+  .burger[aria-expanded="true"] span:nth-child(1) {
+    top: 20px;
+    transform: rotate(45deg);
+  }
+  .burger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+  .burger[aria-expanded="true"] span:nth-child(3) {
+    top: 20px;
+    transform: rotate(-45deg);
+  }
+
+  .mobil {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(400px, 100vw);
+    background: var(--bg);
+    border-left: 1px solid var(--line);
+    box-shadow: var(--shadow-3);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(105%);
+    transition: transform 0.38s var(--ease);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  :global(body.menue-offen) .mobil {
+    transform: none;
+  }
+  .mobil-schleier {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 18, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 55;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  :global(body.menue-offen) .mobil-schleier {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  :global(body.menue-offen) {
+    overflow: hidden;
+  }
+  .mobil-kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .mobil-nav {
+    padding: 8px 16px;
+    flex: 1;
+  }
+  .mobil-nav details,
+  .mobil-link {
+    border-bottom: 1px solid var(--line);
+  }
+  .mobil-nav summary,
+  .mobil-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 4px;
+    font-size: 17px;
+    font-weight: 620;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .mobil-nav summary::-webkit-details-marker {
+    display: none;
+  }
+  .mobil-nav summary :global(svg) {
+    transition: transform 0.25s var(--ease);
+  }
+  .mobil-nav details[open] summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .mobil-nav ul {
+    list-style: none;
+    padding-bottom: 10px;
+  }
+  .mobil-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 6px;
+    border-radius: 9px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 15.5px;
+  }
+  .mobil-nav li a:hover {
+    background: var(--soft);
+  }
+  .mobil-nav li a :global(svg) {
+    color: var(--accent-ink);
+  }
+  .mobil-nav .alle {
+    color: var(--accent-ink);
+    font-weight: 620;
+  }
+  .mobil-fuss {
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    background: var(--soft);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(body.menue-offen) .mobil-nav > * {
+      animation: rein 0.45s var(--ease) both;
+    }
+    :global(body.menue-offen) .mobil-nav > *:nth-child(2) {
+      animation-delay: 0.05s;
+    }
+    :global(body.menue-offen) .mobil-nav > *:nth-child(3) {
+      animation-delay: 0.1s;
+    }
+    :global(body.menue-offen) .mobil-nav > *:nth-child(4) {
+      animation-delay: 0.15s;
+    }
+    @keyframes rein {
+      from {
+        opacity: 0;
+        transform: translateX(18px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+
+  @media (max-width: 960px) {
+    .haupt,
+    .kopf-aktionen > .thema {
+      display: none;
+    }
+    .burger {
+      display: block;
+    }
+  }
+  @media (max-width: 420px) {
+    .cta-kopf {
+      display: none;
+    }
+    .logo > span:last-child {
+      font-size: 16.5px;
+    }
+  }
+  @media (min-width: 961px) {
+    .mobil,
+    .mobil-schleier {
+      display: none;
+    }
+  }
+</style>

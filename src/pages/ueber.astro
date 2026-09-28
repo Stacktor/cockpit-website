@@ -1,0 +1,77 @@
+---
+import Base from "../layouts/Base.astro";
+import Seitenkopf from "../components/Seitenkopf.astro";
+import Icon from "../components/Icon.astro";
+import { SITE } from "../config";
+
+const werte = [
+  { icon: "lock", titel: "Deine Daten gehören dir", text: "Local-first ist keine Einstellung, sondern die Bauweise. Es gibt keinen Server, der deine Bewerbungen annimmt." },
+  { icon: "wallet", titel: "Faire Preise", text: "Keine Server- und KI-Kosten pro Nutzer — deshalb muss cockpit kein Abo sein. Den Preis lege ich mit den Testern fest." },
+  { icon: "check", titel: "Ehrlich statt Marketing", text: "Was nicht fertig ist, steht als „in Arbeit“ da. Was cockpit ins Netz schickt, steht vollständig im Blog." },
+  { icon: "users", titel: "Mit den Nutzern gebaut", text: "Was als Nächstes kommt, entscheiden die Menschen mit, die cockpit täglich benutzen." },
+];
+---
+
+<Base title="Über das Projekt" description="Wer hinter Bewerbungs-Cockpit steht, warum es die App gibt und wofür sie steht.">
+  <Seitenkopf eyebrow="Über das Projekt" titel="Ein Werkzeug, das ich selbst haben wollte." krumen={[["Über", "/ueber/"]]} />
+  <section class="abschnitt">
+    <div class="wrap eng prosa">
+      <p class="lead" style="color:var(--ink-2)">
+        Hallo, ich bin Thomas. Hinter cockpit stehe ich allein — ein einzelner Entwickler aus Norddeutschland, kein Konzern und kein Start-up mit Wachstumsdruck.
+      </p>
+      <p>
+        cockpit beginnt mit einer einfachen Beobachtung: Bewerben ist Projektarbeit, aber die Werkzeuge dafür sind entweder eine Tabelle, die niemand pflegt, oder Cloud-Dienste, die Lebenslauf, Wunschgehalt und jede Absage auf fremden Servern speichern. Beides fand ich unbefriedigend.
+      </p>
+      <p>
+        Also habe ich gebaut, was es meiner Meinung nach geben sollte: eine App, die den ganzen Prozess bündelt — Stellen finden, Anschreiben entwerfen, Bewerbungen verfolgen, Mails im Blick behalten, fürs Gespräch üben — und dabei alles auf dem eigenen Rechner lässt. Die KI bringst du selbst mit, als eigenen Schlüssel oder komplett lokal.
+      </p>
+      <p>
+        Jetzt ist cockpit so weit, dass es auf fremden Rechnern funktionieren soll. Dafür gibt es die <a href="/alpha/">Alpha</a>: {SITE.alphaPlaetze} Menschen, die gerade wirklich suchen, testen die App und sagen mir ehrlich, was taugt und was nicht.
+      </p>
+    </div>
+  </section>
+
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Wofür cockpit steht</div>
+        <h2 class="rv" style="--d:1">Vier Grundsätze</h2>
+      </div>
+      <div class="raster r4">
+        {
+          werte.map((w, i) => (
+            <div class="karte rv" style={`--d:${i}`}>
+              <div class="ic">
+                <Icon name={w.icon} />
+              </div>
+              <h3>{w.titel}</h3>
+              <p>{w.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="abschnitt">
+    <div class="wrap eng center">
+      <h2 class="rv">Schreib mir</h2>
+      <p class="lead rv" style="--d:1">Fragen, Ideen, Kritik — ich lese alles und antworte persönlich.</p>
+      <div class="knoepfe rv" style="--d:2">
+        <a href={`mailto:${SITE.mail}`} class="btn btn-p"><Icon name="mail" size={17} /> {SITE.mail}</a>
+        {SITE.discord && <a href={SITE.discord} class="btn btn-s"><Icon name="message-circle" size={17} /> Discord</a>}
+      </div>
+      <p class="micro" style="margin-top:18px">Anbieterangaben im <a href="/impressum/">Impressum</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .knoepfe {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+</style>

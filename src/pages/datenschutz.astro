@@ -1,0 +1,9 @@
+---
+import Base from "../layouts/Base.astro";
+import Rechtstext from "../components/Rechtstext.astro";
+import html from "../legal/datenschutz.html?raw";
+---
+
+<Base title="Datenschutzerklärung" description="Wie cockpit.mesco.cc und die App mit deinen Daten umgehen." noindex>
+  <Rechtstext html={html} />
+</Base>

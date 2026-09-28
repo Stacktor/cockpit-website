@@ -1,0 +1,46 @@
+---
+/**
+ * App-Screenshot in Hell UND Dunkel — sichtbar ist jeweils das Bild, das zum
+ * gewählten Farbschema der Website passt. Astro wandelt die PNGs beim Bauen
+ * in WebP in mehreren Breiten um.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+const bilder = import.meta.glob<{ default: ImageMetadata }>("../assets/screens/*.png", { eager: true });
+
+interface Props {
+  id: string;
+  alt: string;
+  eager?: boolean;
+  sizes?: string;
+}
+const { id, alt, eager = false, sizes = "(min-width: 1120px) 1060px, 100vw" } = Astro.props;
+const hell = bilder[`../assets/screens/light-${id}.png`]?.default;
+const dunkel = bilder[`../assets/screens/dark-${id}.png`]?.default;
+if (!hell || !dunkel) throw new Error(`Screenshot fehlt: ${id}`);
+const breiten = [480, 800, 1100, 1440];
+---
+
+<Image
+  src={hell}
+  alt={alt}
+  widths={breiten}
+  sizes={sizes}
+  class="bild-hell"
+  loading={eager ? "eager" : "lazy"}
+  fetchpriority={eager ? "high" : undefined}
+/>
+<Image src={dunkel} alt={alt} widths={breiten} sizes={sizes} class="bild-dunkel" loading="lazy" />
+
+<style is:global>
+  :root:not([data-theme="dark"]) .bild-dunkel,
+  :root[data-theme="dark"] .bild-hell {
+    display: none;
+  }
+  .bild-hell,
+  .bild-dunkel {
+    width: 100%;
+    height: auto;
+  }
+</style>

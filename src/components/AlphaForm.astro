@@ -1,0 +1,468 @@
+---
+/**
+ * Alpha-Anmeldung in drei Schritten: Du · Deine Suche · Technik & Feedback.
+ * Prüft jeden Schritt vor dem Weiterblättern, schickt am Ende an /api/alpha.
+ * Herkunft: Kampagnen-Kennzeichen (utm_…) aus dem aufgerufenen Link und die
+ * verweisende Seite — nur mit der Anmeldung, nichts wird im Browser gespeichert.
+ */
+import { ALPHA_OPTIONEN as O } from "../../lib/alpha-optionen.js";
+import Icon from "./Icon.astro";
+import { SITE } from "../config";
+
+const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
+---
+
+<div class="anmeldung" id="anmeldung" data-alpha-form>
+  <div class="formular" data-formular>
+    <ol class="schritte" aria-label="Fortschritt">
+      {
+        schritte.map((s, i) => (
+          <li data-schritt-marke={i} class:list={{ aktiv: i === 0 }}>
+            <span class="nr">{i + 1}</span>
+            <span class="name">{s}</span>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="balken" aria-hidden="true"><span></span></div>
+
+    <div class="fehlerbox" data-fehler role="alert" hidden></div>
+
+    <form novalidate>
+      <!-- Schritt 1 -->
+      <fieldset data-schritt="0">
+        <legend class="sr-only">Über dich</legend>
+        <div class="feld">
+          <label for="f-name">Wie heißt du?</label>
+          <input class="eingabe" type="text" id="f-name" name="name" autocomplete="name" placeholder="Vor- und Nachname" required />
+        </div>
+        <div class="feld">
+          <label for="f-mail">E-Mail-Adresse</label>
+          <input class="eingabe" type="email" id="f-mail" name="mail" autocomplete="email" placeholder="du@beispiel.de" required />
+          <p class="hilfe">Dahin schicke ich deinen Alpha-Schlüssel. Kein Newsletter, keine Weitergabe.</p>
+        </div>
+        <div class="feld">
+          <span class="label" id="l-os">Womit arbeitest du?</span>
+          <div class="wahl spalten" role="radiogroup" aria-labelledby="l-os">
+            {
+              Object.entries(O.os).map(([wert, name]) => (
+                <label>
+                  <input type="radio" name="os" value={wert} required />
+                  <span>
+                    {name} {wert === "macos" && <b class="wip">WIP</b>}
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+          <p class="hilfe" data-mac-hinweis hidden>macOS ist noch in Arbeit. Du kommst auf die Mac-Warteliste und hörst von mir, sobald es eine getestete Version gibt.</p>
+        </div>
+      </fieldset>
+
+      <!-- Schritt 2 -->
+      <fieldset data-schritt="1" hidden>
+        <legend class="sr-only">Deine Suche</legend>
+        <div class="feld">
+          <span class="label" id="l-sit">In welcher Situation suchst du gerade?</span>
+          <div class="wahl" role="radiogroup" aria-labelledby="l-sit">
+            {O.situation.map((s) => <label><input type="radio" name="situation" value={s} required /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <div class="feld">
+          <span class="label" id="l-bm">Wie viele Bewerbungen schreibst du im Monat?</span>
+          <div class="wahl" role="radiogroup" aria-labelledby="l-bm">
+            {O.bewerbungenMonat.map((s) => <label><input type="radio" name="bewerbungenMonat" value={s} required /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <div class="feld">
+          <span class="label" id="l-wz">Womit organisierst du dich bisher? <span class="opt">(mehrere möglich)</span></span>
+          <div class="wahl" role="group" aria-labelledby="l-wz">
+            {O.werkzeuge.map((s) => <label><input type="checkbox" name="werkzeuge" value={s} /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <div class="feld">
+          <label for="f-grund">Was ist beim Bewerben gerade deine größte Hürde?</label>
+          <textarea class="eingabe" id="f-grund" name="grund" required placeholder="Ein, zwei Sätze genügen. Zum Beispiel: Ich verliere bei vielen Bewerbungen den Überblick und brauche ewig für Anschreiben."></textarea>
+          <p class="hilfe">Hilft mir bei der Auswahl — ich nehme Leute, die das Werkzeug wirklich brauchen.</p>
+        </div>
+      </fieldset>
+
+      <!-- Schritt 3 -->
+      <fieldset data-schritt="2" hidden>
+        <legend class="sr-only">Technik und Feedback</legend>
+        <div class="feld">
+          <span class="label" id="l-ki">Wie stehst du zu KI?</span>
+          <div class="wahl" role="radiogroup" aria-labelledby="l-ki">
+            {O.ki.map((s) => <label><input type="radio" name="ki" value={s} required /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <div class="feld">
+          <span class="label" id="l-tech">Wie sicher bist du mit Technik?</span>
+          <div class="wahl" role="radiogroup" aria-labelledby="l-tech">
+            {O.technik.map((s) => <label><input type="radio" name="technik" value={s} required /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <div class="feld">
+          <label for="f-quelle">Wie hast du von cockpit erfahren?</label>
+          <select class="eingabe" id="f-quelle" name="quelle" required>
+            <option value="">Bitte wählen …</option>
+            {O.quelle.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div class="feld">
+          <span class="label" id="l-fb">Wie möchtest du Feedback geben? <span class="opt">(mehrere möglich)</span></span>
+          <div class="wahl" role="group" aria-labelledby="l-fb">
+            {O.feedback.map((s) => <label><input type="checkbox" name="feedback" value={s} /><span>{s}</span></label>)}
+          </div>
+        </div>
+        <p class="hilfe">
+          Mit dem Absenden stimmst du zu, dass ich deine Angaben zur Auswahl der Alpha-Teilnehmenden und zur Verbesserung von cockpit verwende. Einzelheiten in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.
+        </p>
+      </fieldset>
+
+      <div class="honig" aria-hidden="true">
+        <label for="f-web">Website (bitte frei lassen)</label>
+        <input type="text" id="f-web" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="leiste">
+        <button type="button" class="btn btn-g" data-zurueck hidden><Icon name="chevron-left" size={17} /> Zurück</button>
+        <span class="zaehler micro" data-schritt-text>Schritt 1 von 3</span>
+        <button type="submit" class="btn btn-p" data-weiter>Weiter <Icon name="arrow-right" size={17} /></button>
+      </div>
+    </form>
+  </div>
+
+  <div class="fertig" data-fertig hidden tabindex="-1">
+    <div class="kreis">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 12.5l5.2 5.2L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <h3 data-fertig-titel>Angekommen.</h3>
+    <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. Ich melde mich in den nächsten Tagen persönlich bei dir — mit deinem Alpha-Schlüssel, wenn du dabei bist.</p>
+    <div class="fertig-links">
+      <a href="/hilfe/erste-schritte/" class="btn btn-s btn-sm">Schon mal reinlesen: Erste Schritte</a>
+      {SITE.discord && <a href={SITE.discord} class="btn btn-s btn-sm">Zum Discord</a>}
+    </div>
+  </div>
+</div>
+
+<script>
+  const wurzel = document.querySelector<HTMLElement>("[data-alpha-form]");
+  if (wurzel) {
+    const form = wurzel.querySelector("form")!;
+    const schritte = [...wurzel.querySelectorAll<HTMLFieldSetElement>("[data-schritt]")];
+    const marken = [...wurzel.querySelectorAll<HTMLElement>("[data-schritt-marke]")];
+    const fehler = wurzel.querySelector<HTMLElement>("[data-fehler]")!;
+    const weiter = wurzel.querySelector<HTMLButtonElement>("[data-weiter]")!;
+    const zurueck = wurzel.querySelector<HTMLButtonElement>("[data-zurueck]")!;
+    const schrittText = wurzel.querySelector<HTMLElement>("[data-schritt-text]")!;
+    const balken = wurzel.querySelector<HTMLElement>(".balken span")!;
+    const macHinweis = wurzel.querySelector<HTMLElement>("[data-mac-hinweis]")!;
+    let schritt = 0;
+
+    const wert = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.value?.trim() ?? "";
+    const gewaehlt = (name: string) =>
+      (form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? "").trim();
+    const alle = (name: string) =>
+      [...form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map((i) => i.value);
+
+    const zeigeFehler = (text: string | null, feld?: string) => {
+      fehler.hidden = !text;
+      fehler.textContent = text ?? "";
+      if (text && feld) {
+        const el = form.querySelector<HTMLElement>(`[name="${feld}"]`);
+        el?.focus({ preventScroll: true });
+        (el?.closest(".feld") ?? fehler).scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    };
+
+    const pruefe = (s: number): [string, string] | null => {
+      if (s === 0) {
+        if (wert("name").length < 2) return ["Bitte gib deinen Namen an.", "name"];
+        if (!/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(wert("mail"))) return ["Diese E-Mail-Adresse sieht nicht gültig aus.", "mail"];
+        if (!gewaehlt("os")) return ["Bitte wähle dein Betriebssystem.", "os"];
+      }
+      if (s === 1) {
+        if (!gewaehlt("situation")) return ["Bitte wähle deine Situation.", "situation"];
+        if (!gewaehlt("bewerbungenMonat")) return ["Wie viele Bewerbungen schreibst du ungefähr?", "bewerbungenMonat"];
+        if (wert("grund").length < 10) return ["Schreib bitte ein, zwei Sätze zu deiner größten Hürde.", "grund"];
+      }
+      if (s === 2) {
+        if (!gewaehlt("ki")) return ["Wie stehst du zu KI? Jede Antwort ist in Ordnung.", "ki"];
+        if (!gewaehlt("technik")) return ["Wie sicher bist du mit Technik?", "technik"];
+        if (!wert("quelle")) return ["Wie hast du von cockpit erfahren?", "quelle"];
+      }
+      return null;
+    };
+
+    const gehe = (s: number) => {
+      schritt = s;
+      schritte.forEach((f, i) => (f.hidden = i !== s));
+      marken.forEach((m, i) => {
+        m.classList.toggle("aktiv", i === s);
+        m.classList.toggle("erledigt", i < s);
+      });
+      balken.style.width = `${((s + 1) / schritte.length) * 100}%`;
+      zurueck.hidden = s === 0;
+      schrittText.textContent = `Schritt ${s + 1} von ${schritte.length}`;
+      weiter.innerHTML =
+        s === schritte.length - 1
+          ? "Anmeldung abschicken"
+          : 'Weiter <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+      zeigeFehler(null);
+      const erstes = schritte[s].querySelector<HTMLElement>("input:not([type=hidden]), select, textarea");
+      if (s > 0) {
+        wurzel.scrollIntoView({ block: "start", behavior: "smooth" });
+        erstes?.focus({ preventScroll: true });
+      }
+    };
+
+    form.addEventListener("change", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === "os") macHinweis.hidden = t.value !== "macos";
+    });
+    zurueck.addEventListener("click", () => gehe(Math.max(0, schritt - 1)));
+
+    const herkunft = () => {
+      const p = new URLSearchParams(location.search);
+      const utm: Record<string, string> = {};
+      for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ref"]) {
+        const v = p.get(k);
+        if (v) utm[k] = v.slice(0, 80);
+      }
+      return { utm: Object.keys(utm).length ? utm : null, referrer: document.referrer.slice(0, 200) };
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = pruefe(schritt);
+      if (f) return zeigeFehler(f[0], f[1]);
+      if (schritt < schritte.length - 1) return gehe(schritt + 1);
+
+      const daten = {
+        name: wert("name"),
+        mail: wert("mail"),
+        os: gewaehlt("os"),
+        situation: gewaehlt("situation"),
+        bewerbungenMonat: gewaehlt("bewerbungenMonat"),
+        werkzeuge: alle("werkzeuge"),
+        grund: wert("grund"),
+        ki: gewaehlt("ki"),
+        technik: gewaehlt("technik"),
+        quelle: wert("quelle"),
+        feedback: alle("feedback"),
+        ...herkunft(),
+        website: wert("website"),
+      };
+
+      weiter.disabled = true;
+      weiter.textContent = "Wird gesendet …";
+      try {
+        const r = await fetch("/api/alpha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(daten),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) {
+          weiter.disabled = false;
+          weiter.textContent = "Anmeldung abschicken";
+          return zeigeFehler(d.fehler || "Das hat nicht geklappt. Schreib mir gern direkt an Kontakt@mesco.cc.");
+        }
+        const titel = wurzel.querySelector<HTMLElement>("[data-fertig-titel]")!;
+        const text = wurzel.querySelector<HTMLElement>("[data-fertig-text]")!;
+        if (d.doppelt) {
+          titel.textContent = "Schon dabei.";
+          text.textContent = d.nachricht;
+        } else if (d.warteliste) {
+          titel.textContent = "Du stehst auf der Warteliste.";
+          text.textContent =
+            daten.os === "macos"
+              ? "Danke! Sobald es eine getestete Mac-Version gibt, melde ich mich bei dir. Eine Bestätigung ist per Mail unterwegs."
+              : "Danke! Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, melde ich mich. Eine Bestätigung ist per Mail unterwegs.";
+        }
+        wurzel.querySelector<HTMLElement>("[data-formular]")!.hidden = true;
+        const fertig = wurzel.querySelector<HTMLElement>("[data-fertig]")!;
+        fertig.hidden = false;
+        fertig.focus({ preventScroll: true });
+        fertig.scrollIntoView({ block: "center", behavior: "smooth" });
+      } catch {
+        weiter.disabled = false;
+        weiter.textContent = "Anmeldung abschicken";
+        zeigeFehler("Keine Verbindung. Bitte versuch es gleich noch einmal — oder schreib an Kontakt@mesco.cc.");
+      }
+    });
+  }
+</script>
+
+<style>
+  .anmeldung {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: clamp(20px, 4vw, 34px);
+    box-shadow: var(--shadow-2);
+    text-align: left;
+    scroll-margin-top: 90px;
+    transition: box-shadow 0.35s var(--ease);
+  }
+  .anmeldung:focus-within {
+    box-shadow: var(--shadow-2), 0 22px 54px -26px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .schritte {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .schritte li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--faint);
+    transition: color 0.3s;
+  }
+  .nr {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 12.5px;
+    border: 1.5px solid var(--line-strong);
+    transition:
+      background 0.3s,
+      border-color 0.3s,
+      color 0.3s,
+      transform 0.35s var(--spring);
+  }
+  .schritte li:global(.aktiv) {
+    color: var(--ink);
+  }
+  .schritte li:global(.aktiv) .nr {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: scale(1.08);
+  }
+  .schritte li:global(.erledigt) {
+    color: var(--muted);
+  }
+  .schritte li:global(.erledigt) .nr {
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    color: var(--accent-ink);
+  }
+  .balken {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--soft);
+    overflow: hidden;
+    margin-bottom: 26px;
+  }
+  .balken span {
+    display: block;
+    height: 100%;
+    width: 33.33%;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #7dd3fc));
+    border-radius: inherit;
+    transition: width 0.5s var(--ease);
+  }
+  fieldset {
+    border: 0;
+    min-width: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    fieldset:not([hidden]) {
+      animation: rein 0.45s var(--ease) both;
+    }
+    @keyframes rein {
+      from {
+        opacity: 0;
+        transform: translateX(14px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .fertig:not([hidden]) {
+      animation: rein 0.5s var(--ease) both;
+    }
+    .fertig:not([hidden]) .kreis {
+      animation: auf 0.55s var(--spring) both 0.1s;
+    }
+    @keyframes auf {
+      from {
+        opacity: 0;
+        transform: scale(0.4);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+  .leiste {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .leiste [data-weiter] {
+    margin-left: auto;
+  }
+  .zaehler {
+    white-space: nowrap;
+  }
+  .fertig {
+    text-align: center;
+    padding: 20px 0;
+    outline: none;
+  }
+  .kreis {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: var(--ok-soft);
+    color: var(--ok);
+    display: grid;
+    place-items: center;
+    margin: 0 auto 18px;
+  }
+  .fertig h3 {
+    font-size: 23px;
+    margin-bottom: 8px;
+  }
+  .fertig p {
+    color: var(--muted);
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .fertig-links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  @media (max-width: 560px) {
+    .schritte .name {
+      display: none;
+    }
+    .schritte li:global(.aktiv) .name {
+      display: inline;
+    }
+    .zaehler {
+      display: none;
+    }
+  }
+</style>

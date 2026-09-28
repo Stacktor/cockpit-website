@@ -1,0 +1,29 @@
+---
+/** Aufklappbare Fragen + strukturierte Daten (FAQPage) für Suchmaschinen. */
+interface Props {
+  fragen: { frage: string; antwort: string }[];
+  ersteOffen?: boolean;
+}
+const { fragen, ersteOffen = false } = Astro.props;
+const ld = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: fragen.map((f) => ({
+    "@type": "Question",
+    name: f.frage,
+    acceptedAnswer: { "@type": "Answer", text: f.antwort.replace(/<[^>]+>/g, "") },
+  })),
+};
+---
+
+<div class="faq">
+  {
+    fragen.map((f, i) => (
+      <details open={ersteOffen && i === 0}>
+        <summary>{f.frage}</summary>
+        <div set:html={f.antwort} />
+      </details>
+    ))
+  }
+</div>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

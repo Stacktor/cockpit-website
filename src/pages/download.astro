@@ -1,0 +1,163 @@
+---
+import Base from "../layouts/Base.astro";
+import Seitenkopf from "../components/Seitenkopf.astro";
+import Icon from "../components/Icon.astro";
+import { DOWNLOADS, SITE } from "../config";
+---
+
+<Base title="Download" description="cockpit für Windows und Linux herunterladen. macOS ist in Arbeit. Kostenlos, ohne Konto.">
+  <Seitenkopf
+    eyebrow="Download"
+    titel="cockpit herunterladen"
+    lead="Für Windows und Linux. Kostenlos, ohne Konto — mit Alpha-Schlüssel sind alle Funktionen frei."
+    krumen={[["Download", "/download/"]]}
+    zentriert
+  >
+    <p class="micro version rv" style="--d:3" data-version>Neueste Version wird geladen …</p>
+  </Seitenkopf>
+
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="hinweis warn center" data-noch-nicht hidden style="margin-bottom:28px">
+        <b>Die erste öffentliche Version erscheint mit dem Start der Alpha.</b>
+        Melde dich für die <a href="/alpha/">Alpha</a> an — du bekommst eine Mail, sobald es losgeht.
+      </div>
+      <div class="systeme">
+        <div class="system karte rv" data-system="windows">
+          <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
+          <a href={DOWNLOADS.windows} class="btn btn-p" data-dl>Installer (.exe) <Icon name="download" size={16} /></a>
+          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket</a>
+          <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
+        </div>
+        <div class="system karte rv" style="--d:1" data-system="linux">
+          <div class="kopf"><span class="ic"><Icon name="terminal" /></span><div><h2>Linux</h2><p class="micro">x86_64 · Ubuntu, Debian, Fedora, Arch …</p></div></div>
+          <a href={DOWNLOADS.appimage} class="btn btn-p" data-dl>AppImage <Icon name="download" size={16} /></a>
+          <a href={DOWNLOADS.deb} class="klein" data-dl>oder als .deb-Paket (Debian, Ubuntu, Mint)</a>
+          <p class="micro"><code>chmod +x cockpit-linux-x86_64.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
+        </div>
+        <div class="system karte rv aus" style="--d:2">
+          <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS <span class="wip">in Arbeit</span></h2><p class="micro">Apple Silicon und Intel</p></div></div>
+          <span class="btn btn-s" aria-disabled="true">Noch nicht verfügbar</span>
+          <p class="micro">Ich habe gerade keinen Mac zum Testen, und ungetestete Installer gebe ich nicht raus. <a href="/alpha/">Melde dich an</a> — du kommst auf die Mac-Warteliste.</p>
+        </div>
+      </div>
+
+      <div class="danach raster r3">
+        <a href="/hilfe/erste-schritte/" class="karte rv"><div class="ic"><Icon name="rocket" /></div><h3>Erste Schritte</h3><p>Installieren, einrichten, erste Bewerbung — in zehn Minuten.</p></a>
+        <a href="/hilfe/alpha-schluessel/" class="karte rv" style="--d:1"><div class="ic"><Icon name="key-round" /></div><h3>Alpha-Schlüssel eintragen</h3><p>Wo du ihn einträgst und was er freischaltet.</p></a>
+        <a href="/changelog/" class="karte rv" style="--d:2"><div class="ic"><Icon name="git-commit" /></div><h3>Was ist neu?</h3><p>Alle Änderungen je Version im Changelog.</p></a>
+      </div>
+
+      <div class="technik">
+        <h2>Systemvoraussetzungen</h2>
+        <ul>
+          <li><b>Windows:</b> 10 oder 11 (64 Bit). Der Installer richtet bei Bedarf Microsoft WebView2 ein.</li>
+          <li><b>Linux:</b> x86_64 mit WebKitGTK 4.1 (bei aktuellen Distributionen vorhanden) und einem Secret-Service (GNOME-Schlüsselbund oder KWallet) für Passwörter und Schlüssel.</li>
+          <li><b>Speicher:</b> cockpit selbst braucht wenig Platz. Lokale KI-Modelle brauchen zusätzlich mehrere GB und am besten 16 GB Arbeitsspeicher.</li>
+          <li><b>Updates:</b> cockpit meldet neue Versionen selbst und installiert sie auf Klick.</li>
+        </ul>
+        <p class="micro">Alle Versionen und Prüfsummen: <a href={SITE.releases}>Releases auf GitHub</a>.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  (async () => {
+    const ziel = document.querySelector<HTMLElement>("[data-version]");
+    try {
+      const r = await fetch("/api/version", { cache: "no-store" });
+      const d = (await r.json()) as { version?: string | null; datum?: string | null };
+      if (d.version) {
+        const datum = d.datum ? new Date(d.datum).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }) : "";
+        if (ziel) ziel.innerHTML = `Neueste Version: <b>${d.version.replace(/^v/, "")}</b>${datum ? ` · ${datum}` : ""} · <a href="/changelog/">Was ist neu?</a>`;
+        return;
+      }
+      if (ziel) ziel.textContent = "";
+      document.querySelector<HTMLElement>("[data-noch-nicht]")?.removeAttribute("hidden");
+      document.querySelectorAll<HTMLAnchorElement>("[data-dl]").forEach((a) => {
+        a.setAttribute("aria-disabled", "true");
+        a.removeAttribute("href");
+      });
+    } catch {
+      if (ziel) ziel.textContent = "";
+    }
+  })();
+</script>
+
+<style>
+  .version :global(a) {
+    color: var(--accent-ink);
+  }
+  .systeme {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .system {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 26px;
+  }
+  .system .kopf {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .system .kopf .ic {
+    margin: 0;
+    width: 46px;
+    height: 46px;
+  }
+  .system h2 {
+    font-size: 21px;
+  }
+  .system .klein {
+    font-size: 13.5px;
+    text-align: center;
+    color: var(--accent-ink);
+  }
+  .system .klein[aria-disabled="true"] {
+    color: var(--faint);
+    pointer-events: none;
+  }
+  .system.aus {
+    background: var(--soft);
+    box-shadow: none;
+  }
+  .system code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+    background: var(--soft);
+    padding: 1px 5px;
+    border-radius: 5px;
+    word-break: break-all;
+  }
+  .danach {
+    margin-top: 56px;
+  }
+  .technik {
+    margin-top: 56px;
+    border-top: 1px solid var(--line);
+    padding-top: 36px;
+    max-width: 780px;
+  }
+  .technik h2 {
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+  .technik ul {
+    display: grid;
+    gap: 8px;
+    padding-left: 20px;
+    color: var(--ink-2);
+    margin-bottom: 14px;
+  }
+  @media (max-width: 900px) {
+    .systeme {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

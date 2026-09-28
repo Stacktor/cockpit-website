@@ -1,0 +1,118 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Icon from "../../components/Icon.astro";
+import { SITE } from "../../config";
+
+export async function getStaticPaths() {
+  const alle = await getCollection("blog");
+  return alle.map((b) => ({ params: { slug: b.id }, props: { b, andere: alle.filter((x) => x.id !== b.id).slice(0, 2) } }));
+}
+const { b, andere } = Astro.props;
+const { Content } = await render(b);
+const datum = b.data.datum.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" });
+const ld = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: b.data.titel,
+  description: b.data.beschreibung,
+  datePublished: b.data.datum.toISOString(),
+  author: { "@type": "Person", name: "Thomas Graf" },
+  publisher: { "@type": "Organization", name: SITE.name, url: SITE.url },
+  mainEntityOfPage: new URL(`/blog/${b.id}/`, SITE.url).href,
+  inLanguage: "de-DE",
+};
+---
+
+<Base title={b.data.titel} description={b.data.beschreibung}>
+  <article>
+    <header class="beitrag-kopf">
+      <div class="wrap eng">
+        <nav class="brotkrumen" aria-label="Brotkrumen"><a href="/">Start</a><span aria-hidden="true">/</span><a href="/blog/">Blog</a></nav>
+        <p class="micro rv"><time datetime={b.data.datum.toISOString()}>{datum}</time> · {b.data.lesezeit} Min. Lesezeit · {b.data.tags.join(", ")}</p>
+        <h1 class="rv" style="--d:1">{b.data.titel}</h1>
+        <p class="lead rv" style="--d:2">{b.data.beschreibung}</p>
+        <div class="autor rv" style="--d:3">
+          <span class="avatar" aria-hidden="true">T</span>
+          <span><b>Thomas</b><br /><span class="micro">entwickelt cockpit</span></span>
+        </div>
+      </div>
+    </header>
+    <div class="abschnitt" style="padding-top:44px">
+      <div class="wrap eng prosa">
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  <aside class="abschnitt soft">
+    <div class="wrap eng">
+      <div class="cta-karte">
+        <div>
+          <h2>cockpit ausprobieren?</h2>
+          <p class="muted">Die geschlossene Alpha für Windows und Linux ist offen — kostenlos.</p>
+        </div>
+        <a href="/alpha/" class="btn btn-p">Alpha-Zugang anfragen <Icon name="arrow-right" size={16} /></a>
+      </div>
+      {
+        andere.length > 0 && (
+          <div class="raster r2" style="margin-top:28px">
+            {andere.map((x) => (
+              <a href={`/blog/${x.id}/`} class="karte">
+                <p class="micro">Weiterlesen</p>
+                <h3 style="margin-top:6px">{x.data.titel}</h3>
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </aside>
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</Base>
+
+<style>
+  .beitrag-kopf {
+    padding: clamp(48px, 7vw, 84px) 0 36px;
+    border-bottom: 1px solid var(--line);
+    background: radial-gradient(900px 300px at 50% -100px, var(--accent-soft), transparent 70%);
+  }
+  .beitrag-kopf h1 {
+    font-size: clamp(28px, 4.4vw, 44px);
+    margin: 10px 0 14px;
+  }
+  .autor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    font-size: 14.5px;
+    line-height: 1.35;
+  }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+  }
+  .cta-karte {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 26px 28px;
+    box-shadow: var(--shadow-1);
+  }
+  .cta-karte h2 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+</style>

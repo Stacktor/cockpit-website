@@ -37,6 +37,8 @@
  *   ALPHA (KV)            Alpha-Anmeldungen und Preis-Umfrage
  */
 
+import { plaetze } from "../../../lib/alpha-optionen.js";
+
 export async function onRequestGet({ request, env }) {
   // ── Zugang prüfen ──────────────────────────────────────────────────
   const wache = await pruefeZugang(request, env);
@@ -208,7 +210,8 @@ async function holeAlpha(env) {
     return hinweisKachel("KV-Namespace ALPHA nicht verbunden — keine Anmeldeliste.");
 
   const liste = await env.ALPHA.list({ prefix: "alpha:", limit: 200 });
-  const schluessel = liste.keys.map((k) => k.name).filter((n) => n !== "alpha:anzahl");
+  // Nur Anmeldungen („alpha:<mail>“), keine Zähler wie alpha:anzahl / alpha:warteliste.
+  const schluessel = liste.keys.map((k) => k.name).filter((n) => n.includes("@"));
 
   const eintraege = (
     await Promise.all(
@@ -227,12 +230,15 @@ async function holeAlpha(env) {
   const proSystem = {};
   eintraege.forEach((e) => (proSystem[e.os] = (proSystem[e.os] || 0) + 1));
 
+  const maxPlaetze = await plaetze(env);
+  const mitPlatz = eintraege.filter((e) => e.status !== "warteliste").length;
   const grenze = Date.now() - 7 * 864e5;
   return {
     ok: true,
     gesamt: eintraege.length,
-    plaetze: 30,
-    frei: Math.max(0, 30 - eintraege.length),
+    plaetze: maxPlaetze,
+    frei: Math.max(0, maxPlaetze - mitPlatz),
+    warteliste: eintraege.length - mitPlatz,
     letzte7Tage: eintraege.filter((e) => new Date(e.zeit).getTime() > grenze).length,
     proSystem,
     eintraege: eintraege.slice(0, 50),

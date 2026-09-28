@@ -1,0 +1,321 @@
+---
+/**
+ * Slider mit App-Ansichten: Reiter oben, Fensterrahmen, Überblendung.
+ * Läuft automatisch weiter (Fortschrittsbalken im Reiter), pausiert bei
+ * Maus/Fokus und wenn der Tab im Hintergrund ist; wischen auf Touch.
+ * Mit „Bewegung reduzieren" kein automatisches Weiterschalten.
+ */
+import Screen from "./Screen.astro";
+import Icon from "./Icon.astro";
+
+interface Folie {
+  id: string;
+  label: string;
+  text: string;
+}
+interface Props {
+  folien: Folie[];
+  intervall?: number;
+}
+const { folien, intervall = 6500 } = Astro.props;
+const basis = `sl-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="slider" data-slider style={`--dauer:${intervall}ms`}>
+  <div class="slider-reiter" role="tablist" aria-label="Ansichten der App">
+    {
+      folien.map((f, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`${basis}-t${i}`}
+          aria-controls={`${basis}-p${i}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {f.label}
+          <span class="lauf" aria-hidden="true" />
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="fenster">
+    <div class="fenster-leiste" aria-hidden="true">
+      <i></i><i></i><i></i>
+      <span class="fenster-titel">cockpit</span>
+    </div>
+    <div class="buehne">
+      {
+        folien.map((f, i) => (
+          <figure
+            class:list={["folie", { aktiv: i === 0 }]}
+            role="tabpanel"
+            id={`${basis}-p${i}`}
+            aria-labelledby={`${basis}-t${i}`}
+            aria-hidden={i === 0 ? undefined : "true"}
+          >
+            <Screen id={f.id} alt={`cockpit: ${f.label} — ${f.text}`} eager={i === 0} />
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="slider-fuss">
+    <p class="slider-text" aria-live="polite">{folien[0].text}</p>
+    <div class="slider-knoepfe">
+      <button type="button" class="rund" data-zurueck aria-label="Vorherige Ansicht"><Icon name="chevron-left" size={18} /></button>
+      <button type="button" class="rund" data-weiter aria-label="Nächste Ansicht"><Icon name="chevron-right" size={18} /></button>
+    </div>
+  </div>
+  <script type="application/json" data-texte set:html={JSON.stringify(folien.map((f) => f.text))} />
+</div>
+
+<script>
+  const ruhig = matchMedia("(prefers-reduced-motion: reduce)");
+  document.querySelectorAll<HTMLElement>("[data-slider]").forEach((slider) => {
+    const reiter = [...slider.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const folien = [...slider.querySelectorAll<HTMLElement>(".folie")];
+    const text = slider.querySelector<HTMLElement>(".slider-text")!;
+    const texte = JSON.parse(slider.querySelector("[data-texte]")?.textContent || "[]") as string[];
+    let aktuell = 0;
+    let pausiert = false;
+
+    const zeige = (i: number, fokus = false) => {
+      aktuell = (i + folien.length) % folien.length;
+      reiter.forEach((r, j) => {
+        const an = j === aktuell;
+        r.setAttribute("aria-selected", String(an));
+        r.tabIndex = an ? 0 : -1;
+        // Fortschritt neu starten.
+        const lauf = r.querySelector<HTMLElement>(".lauf");
+        if (lauf) {
+          lauf.style.animation = "none";
+          void lauf.offsetWidth;
+          lauf.style.animation = "";
+        }
+      });
+      folien.forEach((f, j) => {
+        const an = j === aktuell;
+        f.classList.toggle("aktiv", an);
+        if (an) f.removeAttribute("aria-hidden");
+        else f.setAttribute("aria-hidden", "true");
+        // Bilder der nächsten Folie vorladen.
+        if (j === (aktuell + 1) % folien.length) f.querySelectorAll("img").forEach((img) => (img.loading = "eager"));
+      });
+      if (texte[aktuell]) text.textContent = texte[aktuell];
+      if (fokus) reiter[aktuell].focus();
+      reiter[aktuell].scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    };
+
+    const setzePause = (p: boolean) => {
+      pausiert = p;
+      slider.classList.toggle("pause", p || ruhig.matches);
+    };
+    setzePause(false);
+
+    reiter.forEach((r, i) => {
+      r.addEventListener("click", () => zeige(i));
+      r.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") zeige(aktuell + 1, true);
+        else if (e.key === "ArrowLeft") zeige(aktuell - 1, true);
+        else if (e.key === "Home") zeige(0, true);
+        else if (e.key === "End") zeige(folien.length - 1, true);
+        else return;
+        e.preventDefault();
+      });
+      // Ende des Fortschrittsbalkens = nächste Folie.
+      r.querySelector(".lauf")?.addEventListener("animationend", () => {
+        if (!pausiert && !ruhig.matches && reiter[aktuell] === r) zeige(aktuell + 1);
+      });
+    });
+    slider.querySelector("[data-weiter]")?.addEventListener("click", () => zeige(aktuell + 1));
+    slider.querySelector("[data-zurueck]")?.addEventListener("click", () => zeige(aktuell - 1));
+
+    slider.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && setzePause(true));
+    slider.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && setzePause(false));
+    slider.addEventListener("focusin", () => setzePause(true));
+    slider.addEventListener("focusout", (e) => !slider.contains(e.relatedTarget as Node) && setzePause(false));
+    document.addEventListener("visibilitychange", () => setzePause(document.hidden));
+
+    // Wischen.
+    const buehne = slider.querySelector<HTMLElement>(".buehne")!;
+    let startX: number | null = null;
+    buehne.addEventListener("pointerdown", (e) => (startX = e.clientX));
+    buehne.addEventListener("pointerup", (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 50) zeige(aktuell + (dx < 0 ? 1 : -1));
+    });
+
+    // Erst loslaufen, wenn der Slider sichtbar ist.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        ([e]) => slider.classList.toggle("sichtbar", e.isIntersecting),
+        { threshold: 0.3 },
+      ).observe(slider);
+    } else slider.classList.add("sichtbar");
+  });
+</script>
+
+<style>
+  .slider {
+    position: relative;
+  }
+  .slider-reiter {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px 4px 18px;
+    margin: 0 -4px;
+  }
+  .slider-reiter::-webkit-scrollbar {
+    display: none;
+  }
+  [role="tab"] {
+    position: relative;
+    overflow: hidden;
+    flex: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+  [role="tab"]:hover {
+    color: var(--ink);
+  }
+  [role="tab"][aria-selected="true"] {
+    color: var(--accent-ink);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+    background: var(--accent-soft);
+  }
+  .lauf {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background: var(--accent);
+  }
+  .slider.sichtbar:not(.pause) [aria-selected="true"] .lauf {
+    animation: lauf var(--dauer) linear forwards;
+  }
+  .slider.pause [aria-selected="true"] .lauf,
+  .slider:not(.sichtbar) [aria-selected="true"] .lauf {
+    animation: lauf var(--dauer) linear forwards;
+    animation-play-state: paused;
+  }
+  @keyframes lauf {
+    to {
+      width: 100%;
+    }
+  }
+
+  .fenster {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow-3);
+  }
+  .fenster-leiste {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    background: var(--soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .fenster-leiste i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .fenster-titel {
+    margin-left: 10px;
+    font-size: 12px;
+    color: var(--faint);
+    font-weight: 600;
+  }
+  .buehne {
+    display: grid;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .folie {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.012);
+    transition:
+      opacity 0.55s var(--ease),
+      transform 0.8s var(--ease),
+      visibility 0s linear 0.55s;
+  }
+  .folie.aktiv {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.55s var(--ease),
+      transform 0.8s var(--ease);
+  }
+  .folie :global(img) {
+    pointer-events: none;
+  }
+
+  .slider-fuss {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .slider-text {
+    color: var(--muted);
+    font-size: 15px;
+    text-align: left;
+  }
+  .slider-knoepfe {
+    display: flex;
+    gap: 8px;
+    flex: none;
+  }
+  .rund {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--card);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--ink);
+    transition:
+      border-color 0.2s,
+      transform 0.2s var(--ease);
+  }
+  .rund:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-1px);
+  }
+  @media (max-width: 640px) {
+    .slider-reiter {
+      justify-content: flex-start;
+    }
+  }
+</style>

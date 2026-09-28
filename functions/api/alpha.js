@@ -14,8 +14,13 @@
  *   MAIL_VON         Variable   empfohlen z. B. "Bewerbungs-Cockpit <alpha@mesco.cc>"
  *   MAIL_AN          Variable   empfohlen z. B. "Kontakt@mesco.cc"
  *
- *   ALPHA            KV-Namespace  OPTIONAL  nur für Zähler und Doppelanmeldungs-Erkennung
+ *   ALPHA            KV-Namespace  OPTIONAL  Anmeldungen, Zähler, Doppelanmeldungs-Erkennung
+ *   ALPHA_PLAETZE    Variable   optional  Anzahl Plätze (Standard 50). Im Admin unter
+ *                                        Einstellungen änderbar (KV „config:alpha“).
+ *   DISCORD_URL      Variable   optional  Einladungslink für die Bestätigungsmail
  *
+ * Sind alle Plätze vergeben — oder wählt jemand macOS (noch in Arbeit) —,
+ * landet die Anmeldung auf der Warteliste (Status „warteliste“).
  * Jeder Baustein ist einzeln abschaltbar. Fehlt etwas, läuft der Rest weiter —
  * eine fehlende Konfiguration darf niemals eine Anmeldung verschlucken.
  *
@@ -24,7 +29,7 @@
  * zu verlieren.
  */
 
-const PLAETZE = 30;
+import { ALPHA_OPTIONEN as O, einer, mehrere, plaetze } from "../../lib/alpha-optionen.js";
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -45,10 +50,28 @@ export async function onRequestPost({ request, env }) {
     if (name.length < 2) return antwort(422, "Bitte gib deinen Namen an.");
     if (!/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(mail))
       return antwort(422, "Diese E-Mail-Adresse sieht nicht gültig aus.");
-    if (!["windows", "macos", "linux"].includes(os))
+    if (!Object.keys(O.os).includes(os))
       return antwort(422, "Bitte wähle dein Betriebssystem.");
     if (grund.length < 10)
       return antwort(422, "Schreib bitte ein, zwei Sätze — das hilft mir bei der Auswahl.");
+
+    // Weitere Angaben (seit dem neuen Formular). Unbekannte Werte werden
+    // verworfen statt abgelehnt — eine Anmeldung soll nie an Kleinkram scheitern.
+    const angaben = {
+      situation: einer(daten.situation, O.situation),
+      bewerbungenMonat: einer(daten.bewerbungenMonat, O.bewerbungenMonat),
+      werkzeuge: mehrere(daten.werkzeuge, O.werkzeuge),
+      ki: einer(daten.ki, O.ki),
+      technik: einer(daten.technik, O.technik),
+      herkunft: einer(daten.quelle, O.quelle),
+      feedback: mehrere(daten.feedback, O.feedback),
+    };
+    const utm = {};
+    if (daten.utm && typeof daten.utm === "object") {
+      for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ref"]) {
+        if (typeof daten.utm[k] === "string" && daten.utm[k]) utm[k] = daten.utm[k].slice(0, 80);
+      }
+    }
 
     // ── Notbremse: Nirgends speicherbar? Dann ehrlich sein. ───────────
     // Ohne KV UND ohne Resend würde die Anmeldung ins Leere laufen. Lieber
@@ -74,12 +97,21 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
+    // ── Platz oder Warteliste? ────────────────────────────────────────
+    const maxPlaetze = await plaetze(env);
+    const belegt = env.ALPHA ? Number((await env.ALPHA.get("alpha:anzahl")) || "0") : 0;
+    const warteliste = os === "macos" || (env.ALPHA ? belegt >= maxPlaetze : false);
+
     // ── Speichern ─────────────────────────────────────────────────────
     const eintrag = {
       name,
       mail,
       os,
       grund,
+      ...angaben,
+      utm: Object.keys(utm).length ? utm : null,
+      referrer: String(daten.referrer || "").slice(0, 200),
+      status: warteliste ? "warteliste" : "neu",
       zeit: new Date().toISOString(),
       land: request.headers.get("cf-ipcountry") || "??",
       quelle: request.headers.get("referer") || "",
@@ -88,8 +120,9 @@ export async function onRequestPost({ request, env }) {
     let platz = 0;
     if (env.ALPHA) {
       await env.ALPHA.put(schluessel, JSON.stringify(eintrag));
-      const zaehler = Number((await env.ALPHA.get("alpha:anzahl")) || "0") + 1;
-      await env.ALPHA.put("alpha:anzahl", String(zaehler));
+      const zaehlerName = warteliste ? "alpha:warteliste" : "alpha:anzahl";
+      const zaehler = Number((await env.ALPHA.get(zaehlerName)) || "0") + 1;
+      await env.ALPHA.put(zaehlerName, String(zaehler));
       platz = zaehler;
     }
 
@@ -124,20 +157,22 @@ export async function onRequestPost({ request, env }) {
         senden(env.RESEND_API_KEY, {
           from: von,
           to: [mail],
-          subject: "Deine Anmeldung zur Alpha von Bewerbungs-Cockpit",
-          html: mailAnBewerber(name, platz, mail),
+          subject: warteliste
+            ? "Du stehst auf der Warteliste für Bewerbungs-Cockpit"
+            : "Deine Anmeldung zur Alpha von Bewerbungs-Cockpit",
+          html: mailAnBewerber(name, platz, { warteliste, mac: os === "macos", discord: env.DISCORD_URL }),
         }),
         senden(env.RESEND_API_KEY, {
           from: von,
           to: [an],
           reply_to: mail,
-          subject: `Alpha-Anmeldung #${platz || "?"}: ${name} (${os})`,
+          subject: `${warteliste ? "Warteliste" : "Alpha-Anmeldung"} #${platz || "?"}: ${name} (${os})`,
           html: mailAnThomas(eintrag, platz),
         }),
       ]);
     }
 
-    return antwort(200, null, { ok: true, platz });
+    return antwort(200, null, { ok: true, platz, warteliste });
   } catch (fehler) {
     return antwort(500, "Unerwarteter Fehler. Bitte schreib mir direkt an Kontakt@mesco.cc.");
   }
@@ -145,9 +180,10 @@ export async function onRequestPost({ request, env }) {
 
 /** Freie Plätze für die Anzeige auf der Seite. */
 export async function onRequestGet({ env }) {
+  const max = await plaetze(env);
   let belegt = 0;
   if (env.ALPHA) belegt = Number((await env.ALPHA.get("alpha:anzahl")) || "0");
-  return antwort(200, null, { plaetze: PLAETZE, belegt, frei: Math.max(0, PLAETZE - belegt) });
+  return antwort(200, null, { plaetze: max, belegt, frei: Math.max(0, max - belegt) });
 }
 
 // ───────────────────────── Hilfsfunktionen ─────────────────────────
@@ -214,28 +250,38 @@ ${inhalt}
 </td></tr>
 </table></td></tr></table></body></html>`;
 
-const mailAnBewerber = (name, platz, mail) =>
+const mailAnBewerber = (name, platz, { warteliste, mac, discord }) =>
   RAHMEN(`
   <h1 style="font-size:21px;margin:0 0 12px;letter-spacing:-.4px;color:#0e1218;">Danke, ${escape_(name)}.</h1>
-  <p style="margin:0 0 14px;">Deine Anmeldung für die geschlossene Alpha ist angekommen${
-    platz ? ` — du bist Anmeldung Nummer <b>${platz}</b>` : ""
-  }.</p>
-  <p style="margin:0 0 14px;">Ich vergebe die dreißig Plätze persönlich und melde mich in den
-  nächsten Tagen bei dir. Falls es diesmal nicht klappt, sage ich dir auch das —
-  du hörst auf jeden Fall von mir.</p>
-  <div style="background:#e7f6ef;border:1px solid #b9e3cd;border-radius:9px;padding:14px 16px;margin:20px 0;">
-    <b style="display:block;margin-bottom:4px;color:#0b5f43;">Was dich erwartet</b>
-    <span style="color:#0b5f43;">Vollzugang zu allen Pro-Funktionen. Wenn du mir nach vier Wochen
-    einmal ehrlich schreibst, was gut und was schlecht war, behältst du die Vollversion
-    dauerhaft — inklusive aller künftigen Aktualisierungen.</span>
+  ${
+    warteliste
+      ? `<p style="margin:0 0 14px;">Deine Anmeldung ist angekommen — du stehst auf der
+  <b>Warteliste</b>${platz ? ` (Platz ${platz})` : ""}. ${
+          mac
+            ? "cockpit gibt es noch nicht für macOS, weil ich es gerade nicht testen kann. Sobald es eine getestete Mac-Version gibt, melde ich mich bei dir."
+            : "Gerade sind alle Alpha-Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, melde ich mich — nach Reihenfolge der Anmeldung."
+        }</p>`
+      : `<p style="margin:0 0 14px;">Deine Anmeldung für die geschlossene Alpha ist angekommen${
+          platz ? ` — du bist Anmeldung Nummer <b>${platz}</b>` : ""
+        }.</p>
+  <p style="margin:0 0 14px;">Ich vergebe die Plätze persönlich und melde mich in den nächsten
+  Tagen. Wenn du dabei bist, bekommst du deinen <b>Alpha-Schlüssel</b> per Mail (Absender:
+  Lemon Squeezy). Falls es diesmal nicht klappt, sage ich dir auch das.</p>
+  <div style="background:#edf2ff;border:1px solid #cfdcff;border-radius:9px;padding:14px 16px;margin:20px 0;">
+    <b style="display:block;margin-bottom:6px;color:#1747cc;">So geht es dann weiter</b>
+    <span style="color:#1b3d8f;">1. App laden: <a href="https://cockpit.mesco.cc/download/" style="color:#1747cc;">cockpit.mesco.cc/download</a><br>
+    2. Alpha-Schlüssel beim ersten Start eintragen (<a href="https://cockpit.mesco.cc/hilfe/alpha-schluessel/" style="color:#1747cc;">Anleitung</a>)<br>
+    3. Loslegen — nach ein paar Tagen fragt dich die App kurz, wie es läuft.</span>
   </div>
-  <p style="margin:0 0 14px;">Eine kleine Bitte, wenn du zwei Minuten hast: Der Preis für
-  cockpit Pro steht noch nicht fest, und ich lege ihn gemeinsam mit euch fest. Sag mir in
-  fünf kurzen Fragen, was dir die App wert wäre:</p>
-  <p style="margin:0 0 18px;"><a href="https://cockpit.mesco.cc/umfrage.html?mail=${encodeURIComponent(mail)}"
-    style="display:inline-block;background:#1f5eff;color:#fff;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:8px;">Zur Preis-Umfrage</a></p>
-  <p style="margin:0 0 14px;">Ansonsten: Diese Mail brauchst du nicht aufzubewahren, und du musst
-  nichts weiter tun.</p>
+  <p style="margin:0 0 14px;">Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die
+  Vollversion dauerhaft — inklusive künftiger Aktualisierungen.</p>`
+  }
+  ${
+    discord
+      ? `<p style="margin:0 0 14px;">Magst du dich schon mit anderen austauschen? <a href="${escape_(discord)}" style="color:#1f5eff;">Komm in den Discord</a>.</p>`
+      : ""
+  }
+  <p style="margin:0 0 14px;">Diese Mail brauchst du nicht aufzubewahren, und du musst nichts weiter tun.</p>
   <p style="margin:0;">Viele Grüße<br>Thomas</p>
   <p style="margin:18px 0 0;font-size:13px;color:#5b6675;">Du bekommst diese Mail, weil du dich auf
   cockpit.mesco.cc für die Alpha angemeldet hast. Antworte einfach, wenn du wieder
@@ -249,12 +295,22 @@ const mailAnThomas = (e, platz) =>
   <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;">
     <tr><td style="padding:5px 0;color:#5b6675;width:120px;">Name</td><td><b>${escape_(e.name)}</b></td></tr>
     <tr><td style="padding:5px 0;color:#5b6675;">E-Mail</td><td><a href="mailto:${escape_(e.mail)}">${escape_(e.mail)}</a></td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Status</td><td><b>${escape_(e.status)}</b></td></tr>
     <tr><td style="padding:5px 0;color:#5b6675;">System</td><td>${escape_(e.os)}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Situation</td><td>${escape_(e.situation)}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Bewerbungen/Monat</td><td>${escape_(e.bewerbungenMonat)}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Bisher</td><td>${escape_((e.werkzeuge || []).join(", "))}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">KI</td><td>${escape_(e.ki)}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Technik</td><td>${escape_(e.technik)}</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Gefunden über</td><td>${escape_(e.herkunft)}${
+      e.utm ? ` · ${escape_(Object.entries(e.utm).map(([k, v]) => `${k}=${v}`).join(" "))}` : ""
+    }</td></tr>
+    <tr><td style="padding:5px 0;color:#5b6675;">Feedback</td><td>${escape_((e.feedback || []).join(", "))}</td></tr>
     <tr><td style="padding:5px 0;color:#5b6675;">Land</td><td>${escape_(e.land)}</td></tr>
     <tr><td style="padding:5px 0;color:#5b6675;">Zeit</td><td>${escape_(e.zeit)}</td></tr>
   </table>
   <div style="background:#f6f8fb;border:1px solid #e4e8ee;border-radius:9px;padding:14px 16px;margin:16px 0 0;">
-    <b style="display:block;margin-bottom:6px;">Warum die Person sucht</b>
+    <b style="display:block;margin-bottom:6px;">Größte Hürde beim Bewerben</b>
     ${escape_(e.grund).replace(/\n/g, "<br>")}
   </div>
   <p style="margin:16px 0 0;font-size:13px;color:#5b6675;">Antworten auf diese Mail geht direkt an
