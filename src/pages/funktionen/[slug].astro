@@ -1,0 +1,118 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Seitenkopf from "../../components/Seitenkopf.astro";
+import Icon from "../../components/Icon.astro";
+import Screen from "../../components/Screen.astro";
+
+export async function getStaticPaths() {
+  const alle = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+  return alle.map((f, i) => ({
+    params: { slug: f.id },
+    props: { f, vorher: alle[(i - 1 + alle.length) % alle.length], nachher: alle[(i + 1) % alle.length] },
+  }));
+}
+const { f, vorher, nachher } = Astro.props;
+const { Content } = await render(f);
+---
+
+<Base title={`${f.data.titel} — ${f.data.kurz}`} description={f.data.beschreibung}>
+  <Seitenkopf
+    eyebrow="Funktion"
+    titel={f.data.titel}
+    lead={f.data.kurz}
+    krumen={[
+      ["Funktionen", "/funktionen/"],
+      [f.data.titel, `/funktionen/${f.id}/`],
+    ]}
+  >
+    <div class="kopf-cta rv" style="--d:3">
+      <a href="/alpha/" class="btn btn-p">Alpha-Zugang anfragen</a>
+      <a href="/download/" class="btn btn-s">Download</a>
+    </div>
+  </Seitenkopf>
+
+  <section class="abschnitt oben">
+    <div class="wrap">
+      <div class="gross rv">
+        <Screen id={f.data.screen} alt={`cockpit: ${f.data.titel}`} eager />
+      </div>
+      <div class="raster r4 punkte">
+        {
+          f.data.punkte.map((p, i) => (
+            <div class="karte rv" style={`--d:${i}`}>
+              <Icon name="check" size={18} />
+              <p>{p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="abschnitt soft">
+    <div class="wrap eng prosa rv">
+      <Content />
+    </div>
+  </section>
+
+  <nav class="abschnitt blaettern" aria-label="Weitere Funktionen">
+    <div class="wrap raster r2">
+      <a href={`/funktionen/${vorher.id}/`} class="karte">
+        <span class="micro">← Vorherige Funktion</span>
+        <h3>{vorher.data.titel}</h3>
+        <p>{vorher.data.kurz}</p>
+      </a>
+      <a href={`/funktionen/${nachher.id}/`} class="karte rechts">
+        <span class="micro">Nächste Funktion →</span>
+        <h3>{nachher.data.titel}</h3>
+        <p>{nachher.data.kurz}</p>
+      </a>
+    </div>
+  </nav>
+</Base>
+
+<style>
+  .kopf-cta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .oben {
+    padding-top: 48px;
+  }
+  .gross {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-3);
+  }
+  .punkte {
+    margin-top: 28px;
+  }
+  .punkte .karte {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 18px;
+  }
+  .punkte .karte p {
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .punkte :global(svg) {
+    color: var(--ok);
+    flex: none;
+    margin-top: 2px;
+  }
+  .blaettern {
+    padding-top: 56px;
+  }
+  .blaettern .karte h3 {
+    margin-top: 6px;
+  }
+  .rechts {
+    text-align: right;
+  }
+</style>

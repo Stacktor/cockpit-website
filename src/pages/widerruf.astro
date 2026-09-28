@@ -1,0 +1,9 @@
+---
+import Base from "../layouts/Base.astro";
+import Rechtstext from "../components/Rechtstext.astro";
+import html from "../legal/widerruf.html?raw";
+---
+
+<Base title="Widerrufsbelehrung" description="Widerrufsbelehrung und 30-Tage-Geld-zurück-Garantie für cockpit." noindex>
+  <Rechtstext html={html} />
+</Base>

@@ -1,0 +1,687 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import ScreenSlider from "../components/ScreenSlider.astro";
+import CardRail from "../components/CardRail.astro";
+import Faq from "../components/Faq.astro";
+import { SITE } from "../config";
+
+const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const beitraege = (await getCollection("blog")).sort((a, b) => +b.data.datum - +a.data.datum).slice(0, 3);
+
+const folien = [
+  { id: "start", label: "Start", text: "Kennzahlen, offene Erinnerungen und neue passende Stellen auf einen Blick." },
+  { id: "pipeline", label: "Pipeline", text: "Jede Bewerbung als Karte — von „Entwurf“ bis „Abgeschlossen“." },
+  { id: "stellen", label: "Stellen", text: "Arbeitsagentur, Arbeitnow, Adzuna und RSS in einer Suche, mit Match-Score." },
+  { id: "inbox", label: "Inbox", text: "Bewerbungs-Mails zusammengefasst, einsortiert und mit der Bewerbung verknüpft." },
+  { id: "interview", label: "Interview", text: "Üben mit Fragen zur Stelle, Bewertung und Musterantworten." },
+  { id: "lebenslauf", label: "Lebenslauf", text: "Aus deinem Profil ein sauberes PDF — drei Vorlagen, Deutsch oder Englisch." },
+];
+
+const quellen = ["Bundesagentur für Arbeit", "Arbeitnow", "Adzuna", "RSS-Feeds", "IMAP-Postfächer", "Anthropic", "OpenAI", "Google Gemini", "Perplexity", "xAI", "Ollama", "LM Studio"];
+
+const fragen = [
+  {
+    frage: "Was kostet cockpit?",
+    antwort:
+      "<p>Die Grundversion bleibt dauerhaft kostenlos. Was Pro kostet und ob als Einmalkauf oder Abo, lege ich gemeinsam mit den Alpha-Testern fest — deshalb steht der Preis noch nicht fest. Alpha-Tester, die bis zum Ende Rückmeldung geben, behalten die Vollversion dauerhaft.</p>",
+  },
+  {
+    frage: "Brauche ich einen kostenpflichtigen KI-Zugang?",
+    antwort:
+      '<p>Nein. Du kannst einen eigenen API-Schlüssel nutzen (meist wenige Cent pro Anschreiben) oder ein lokales Modell über Ollama oder LM Studio — das ist kostenlos. Ohne KI funktioniert cockpit auch, dann ohne Entwürfe. <a href="/hilfe/ki-einrichten/">KI einrichten</a></p>',
+  },
+  {
+    frage: "Wo liegen meine Daten?",
+    antwort:
+      '<p>In einer Datenbank-Datei auf deinem Rechner, Passwörter und Schlüssel im Schlüsselbund deines Betriebssystems. Es gibt keinen cockpit-Server, der deine Bewerbungen annimmt. <a href="/blog/warum-local-first/">Warum local-first</a></p>',
+  },
+  {
+    frage: "Gibt es cockpit für den Mac?",
+    antwort:
+      "<p>Noch nicht. macOS ist in Arbeit, aber ich habe gerade keinen Mac zum Testen — und ungetestete Installer gebe ich nicht raus. Du kannst dich trotzdem anmelden und kommst auf die Mac-Warteliste.</p>",
+  },
+  {
+    frage: "Wie komme ich in die Alpha?",
+    antwort: `<p>Über das <a href="/alpha/">Anmeldeformular</a>. Es gibt ${SITE.alphaPlaetze} Plätze, ich vergebe sie persönlich. Wenn du dabei bist, bekommst du deinen Alpha-Schlüssel per Mail.</p>`,
+  },
+];
+---
+
+<Base
+  title="Bewerbungs-Cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto."
+  description="Der Bewerbungsmanager, der deine Daten auf deinem Gerät lässt: Pipeline, Stellensuche, KI-Anschreiben mit eigenem Schlüssel, Inbox und Interview-Training. Für Windows und Linux."
+>
+  <!-- ───────── Hero ───────── -->
+  <section class="held">
+    <div class="held-grund" aria-hidden="true">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+      <span class="gitter"></span>
+    </div>
+    <div class="wrap center">
+      <a href="/alpha/" class="badge rv an">
+        <span class="punkt"></span> Geschlossene {SITE.version} · <span data-alpha-plaetze>{SITE.alphaPlaetze} Plätze</span>
+      </a>
+      <h1 class="rv an" style="--d:1">
+        Bewerbungen organisieren, <span class="verlauf">ohne deinen Lebenslauf</span> an fremde Server zu geben.
+      </h1>
+      <p class="lead rv an" style="--d:2">
+        cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App — die alles auf <b>deinem Gerät</b> speichert. Kein Konto, keine Cloud, kein Abo-Zwang.
+      </p>
+      <div class="cta rv an" style="--d:3">
+        <a href="/alpha/" class="btn btn-p btn-lg">Alpha-Zugang anfragen <Icon name="arrow-right" size={17} /></a>
+        <a href="/funktionen/" class="btn btn-s btn-lg">Funktionen ansehen</a>
+      </div>
+      <p class="micro rv an" style="--d:4">
+        Für <b>Windows</b> und <b>Linux</b> · macOS <span class="wip">in Arbeit</span> · kostenlos für Alpha-Tester
+      </p>
+      <div class="vertrauen rv an" style="--d:5">
+        <span><Icon name="server-off" size={16} /> <b>0</b> Server, die deine Daten sehen</span>
+        <span><Icon name="wallet" size={16} /> <b>0 €</b> KI-Kosten mit lokalem Modell</span>
+        <span><Icon name="lock" size={16} /> <b>Kein</b> Konto nötig</span>
+      </div>
+    </div>
+    <div class="wrap held-slider rv" style="--d:3">
+      <ScreenSlider folien={folien} />
+    </div>
+  </section>
+
+  <!-- ───────── Quellen-Band ───────── -->
+  <section class="band" aria-label="Funktioniert mit">
+    <p class="micro center">Funktioniert mit</p>
+    <div class="laufband">
+      <div class="spur">
+        <ul>
+          {quellen.map((q) => <li>{q}</li>)}
+        </ul>
+        {[1, 2, 3].map(() => (
+          <ul aria-hidden="true">
+            {quellen.map((q) => <li>{q}</li>)}
+          </ul>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Problem ───────── -->
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Das Problem</div>
+        <h2 class="rv" style="--d:1">Bewerben ist Projektarbeit — nur ohne Werkzeug.</h2>
+        <p class="lead rv" style="--d:2">
+          Fünf Portale, drei Postfächer, eine Tabelle, die niemand pflegt. Und ein Anschreiben, das 45 Minuten kostet und trotzdem generisch klingt.
+        </p>
+      </div>
+      <div class="raster r3">
+        <div class="karte rv" style="--d:1">
+          <div class="ic"><Icon name="list-checks" /></div>
+          <h3>Kein Überblick</h3>
+          <p>Wo hast du dich beworben? Wann war das? Wer hat sich nie gemeldet? Nach der zwanzigsten Bewerbung weiß das niemand mehr.</p>
+        </div>
+        <div class="karte rv" style="--d:2">
+          <div class="ic"><Icon name="clock" /></div>
+          <h3>Anschreiben fressen Zeit</h3>
+          <p>30 bis 60 Minuten pro Stück. ChatGPT hilft — aber du kopierst deinen Werdegang jedes Mal neu hinein.</p>
+        </div>
+        <div class="karte rv" style="--d:3">
+          <div class="ic"><Icon name="shield-check" /></div>
+          <h3>Deine Daten auf fremden Servern</h3>
+          <p>Gehalt, Kündigungsgründe, Absagen, aktueller Arbeitgeber. Die gängigen Tools laden all das in ihre Cloud.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Funktionen (Karussell) ───────── -->
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <CardRail label="Funktionen">
+        <div slot="kopf">
+          <div class="eyebrow rv">Die Lösung</div>
+          <h2 class="rv" style="--d:1">Alles an einem Ort. Auf deinem Gerät.</h2>
+          <p class="lead rv" style="--d:2">Acht Werkzeuge, ein gemeinsamer Kern.</p>
+        </div>
+        {
+          funktionen.map((f) => (
+            <li>
+              <a href={`/funktionen/${f.id}/`} class="karte funktion">
+                <div class="ic">
+                  <Icon name={f.data.icon} />
+                </div>
+                <h3>{f.data.titel}</h3>
+                <p>{f.data.kurz}</p>
+                <span class="mehr">
+                  Mehr erfahren <Icon name="arrow-right" size={15} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </CardRail>
+    </div>
+  </section>
+
+  <!-- ───────── So geht's ───────── -->
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="abschnitt-kopf center">
+        <div class="eyebrow rv">So geht's</div>
+        <h2 class="rv" style="--d:1">In zehn Minuten startklar.</h2>
+      </div>
+      <ol class="ablauf">
+        <li class="rv" style="--d:1">
+          <span class="schritt-nr">1</span>
+          <h3>Installieren</h3>
+          <p>Windows-Installer oder AppImage laden, starten. Kein Konto, keine Registrierung.</p>
+        </li>
+        <li class="rv" style="--d:2">
+          <span class="schritt-nr">2</span>
+          <h3>Lebenslauf einlesen</h3>
+          <p>cockpit baut daraus dein Profil — Grundlage für Suche, Match-Score und Anschreiben.</p>
+        </li>
+        <li class="rv" style="--d:3">
+          <span class="schritt-nr">3</span>
+          <h3>Stellen finden, bewerben</h3>
+          <p>Treffer übernehmen, Anschreiben entwerfen lassen, in der Pipeline verfolgen.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ───────── Datenschutz ───────── -->
+  <section class="abschnitt soft" id="datenschutz">
+    <div class="wrap zwei">
+      <div>
+        <div class="eyebrow rv">Datenschutz</div>
+        <h2 class="rv" style="--d:1">Das ist keine Funktion. Das ist die Architektur.</h2>
+        <p class="lead rv" style="--d:2">
+          Bewerbungsdaten gehören zu den sensibelsten Daten, die du hast. cockpit ist so gebaut, dass sie dein Gerät nicht verlassen — nicht, weil ich es verspreche, sondern weil es keinen Server gibt, der sie annehmen könnte.
+        </p>
+        <div class="chips rv" style="--d:3">
+          <span class="chip"><i></i>SQLite auf deiner Festplatte</span>
+          <span class="chip"><i></i>Schlüssel im System-Schlüsselbund</span>
+          <span class="chip"><i></i>Kein Konto</span>
+          <span class="chip"><i></i>Keine Telemetrie</span>
+          <span class="chip"><i></i>Nur offizielle Stellenquellen</span>
+        </div>
+        <a href="/blog/warum-local-first/" class="mehr rv" style="--d:4">Was cockpit ins Netz schickt — vollständig <Icon name="arrow-right" size={15} /></a>
+      </div>
+      <div class="raster">
+        <div class="karte rv" style="--d:2">
+          <div class="ic"><Icon name="cpu" /></div>
+          <h3>Bring deine eigene KI mit</h3>
+          <p>Eigener API-Schlüssel beim Anbieter deiner Wahl oder ein lokales Modell über Ollama oder LM Studio. Deine Texte gehen nie über mich.</p>
+        </div>
+        <div class="karte rv" style="--d:3">
+          <div class="ic"><Icon name="wallet" /></div>
+          <h3>Warum das den Preis senkt</h3>
+          <p>Keine Server und keine KI-Kosten pro Nutzer heißt: cockpit muss kein Abo sein, das jeden Monat die Rechnung deckt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Vergleich ───────── -->
+  <section class="abschnitt" id="vergleich">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Vergleich</div>
+        <h2 class="rv" style="--d:1">Warum nicht einfach Teal, Huntr oder Excel?</h2>
+        <p class="lead rv" style="--d:2">Die anderen Werkzeuge sind gut — nur für einen anderen Markt und ein anderes Datenschutzverständnis gebaut.</p>
+      </div>
+      <div class="tabelle rv" style="--d:2">
+        <table>
+          <thead>
+            <tr><th><span class="sr-only">Merkmal</span></th><th class="ich">cockpit</th><th>Teal / Huntr</th><th>ChatGPT</th><th>Excel</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Daten bleiben auf deinem Gerät</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
+            <tr><td>Ohne Benutzerkonto nutzbar</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
+            <tr><td>Deutsche Stellenquellen (Arbeitsagentur)</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="nein">Nein</td></tr>
+            <tr><td>Anschreiben auf Deutsch, in deinem Ton</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
+            <tr><td>Eigener KI-Schlüssel oder lokales Modell</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td>–</td></tr>
+            <tr><td>Interview-Training</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
+            <tr><td>Grundversion dauerhaft kostenlos</td><td class="ich ja">Ja</td><td>eingeschränkt</td><td>eingeschränkt</td><td class="ja">Ja</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="micro" style="margin-top:14px">Angaben zu anderen Werkzeugen laut deren öffentlichen Seiten, Stand Juli 2026.</p>
+    </div>
+  </section>
+
+  <!-- ───────── Preis & Alpha ───────── -->
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="alpha-band rv">
+        <div>
+          <div class="eyebrow">Geschlossene Alpha</div>
+          <h2>{SITE.alphaPlaetze} Plätze. Kostenlos. Und du behältst sie.</h2>
+          <p>
+            Die App ist fertig — jetzt soll sie auf fremden Rechnern funktionieren. Dafür suche ich Menschen, die gerade wirklich auf Jobsuche sind. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
+          </p>
+          <p class="micro" data-alpha-plaetze hidden></p>
+        </div>
+        <div class="alpha-knoepfe">
+          <a href="/alpha/" class="btn btn-p btn-lg">Jetzt anmelden <Icon name="arrow-right" size={17} /></a>
+          <a href="/preise/" class="btn btn-s">Preise: noch offen — du bestimmst mit</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Blog ───────── -->
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="abschnitt-kopf kopf-zeile">
+        <div>
+          <div class="eyebrow rv">Aus dem Blog</div>
+          <h2 class="rv" style="--d:1">Hintergründe und Tipps</h2>
+        </div>
+        <a href="/blog/" class="btn btn-s btn-sm rv">Alle Beiträge</a>
+      </div>
+      <div class="raster r3">
+        {
+          beitraege.map((b, i) => (
+            <a href={`/blog/${b.id}/`} class="karte beitrag rv" style={`--d:${i + 1}`}>
+              <span class="micro">
+                {b.data.tags[0]} · {b.data.lesezeit} Min.
+              </span>
+              <h3>{b.data.titel}</h3>
+              <p>{b.data.beschreibung}</p>
+              <span class="mehr">
+                Lesen <Icon name="arrow-right" size={15} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Fragen ───────── -->
+  <section class="abschnitt soft">
+    <div class="wrap eng">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Fragen</div>
+        <h2 class="rv" style="--d:1">Was die meisten wissen wollen</h2>
+      </div>
+      <div class="rv" style="--d:2"><Faq fragen={fragen} ersteOffen /></div>
+      <p class="micro" style="margin-top:22px">Mehr im <a href="/hilfe/">Hilfe-Center</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .held {
+    position: relative;
+    padding: clamp(56px, 9vw, 104px) 0 clamp(40px, 6vw, 72px);
+    overflow: hidden;
+  }
+  .held-grund {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+  }
+  .b1 {
+    width: 520px;
+    height: 520px;
+    left: -140px;
+    top: -180px;
+    background: color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+  .b2 {
+    width: 460px;
+    height: 460px;
+    right: -120px;
+    top: -60px;
+    background: color-mix(in srgb, #7dd3fc 45%, transparent);
+  }
+  .b3 {
+    width: 380px;
+    height: 380px;
+    left: 38%;
+    top: 220px;
+    background: color-mix(in srgb, #a78bfa 30%, transparent);
+  }
+  :global([data-theme="dark"]) .blob {
+    opacity: 0.28;
+  }
+  .gitter {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 70% 55% at 50% 20%, #000 10%, transparent 70%);
+    opacity: 0.55;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .b1 {
+      animation: treiben 18s ease-in-out infinite alternate;
+    }
+    .b2 {
+      animation: treiben 22s ease-in-out infinite alternate-reverse;
+    }
+    .b3 {
+      animation: treiben 26s ease-in-out infinite alternate;
+    }
+    @keyframes treiben {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        transform: translate(60px, 40px) scale(1.12);
+      }
+    }
+  }
+  .held h1 {
+    max-width: 900px;
+    margin: 22px auto 20px;
+  }
+  .verlauf {
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #7dd3fc));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .held .lead {
+    margin-bottom: 30px;
+  }
+  .cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .vertrauen {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .vertrauen span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .vertrauen b {
+    color: var(--ink);
+  }
+  .vertrauen :global(svg) {
+    color: var(--accent-ink);
+  }
+  .held-slider {
+    margin-top: clamp(40px, 6vw, 64px);
+    max-width: 1100px;
+  }
+
+  .band {
+    padding: 26px 0 30px;
+    border-block: 1px solid var(--line);
+  }
+  .laufband {
+    display: flex;
+    overflow: hidden;
+    margin-top: 12px;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  /* Vier gleiche Listen: Die Spur wandert um genau die Hälfte (zwei Listen) und
+     springt dann nahtlos zurück. Zwei Listen sind breiter als jeder Bildschirm,
+     so entsteht auch auf großen Monitoren keine Lücke hinter dem letzten Eintrag. */
+  .spur {
+    display: flex;
+    flex: none;
+  }
+  .laufband ul {
+    display: flex;
+    flex: none;
+    gap: 44px;
+    padding-right: 44px;
+    list-style: none;
+    font-weight: 650;
+    font-size: 15px;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .spur {
+      animation: laufen 76s linear infinite;
+    }
+    .laufband:hover .spur {
+      animation-play-state: paused;
+    }
+    @keyframes laufen {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .laufband {
+      mask-image: none;
+    }
+    .spur {
+      flex: 1;
+      min-width: 0;
+    }
+    .laufband ul {
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+      white-space: normal;
+      gap: 12px 28px;
+      padding: 0 22px;
+    }
+    .laufband ul[aria-hidden] {
+      display: none;
+    }
+  }
+
+  .funktion {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .funktion .mehr {
+    margin-top: auto;
+    padding-top: 14px;
+  }
+
+  .ablauf {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+    position: relative;
+  }
+  .ablauf::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: 16%;
+    right: 16%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 30%, transparent));
+    opacity: 0.35;
+  }
+  .ablauf li {
+    text-align: center;
+    position: relative;
+  }
+  .schritt-nr {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 16px;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    color: var(--accent-ink);
+    font-weight: 750;
+    font-size: 18px;
+    box-shadow: 0 0 0 6px var(--bg);
+  }
+  .ablauf p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 300px;
+    margin: 6px auto 0;
+  }
+  @media (max-width: 760px) {
+    .ablauf {
+      grid-template-columns: 1fr;
+    }
+    .ablauf::before {
+      display: none;
+    }
+  }
+
+  .zwei {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 44px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .zwei {
+      grid-template-columns: 1fr;
+    }
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0 18px;
+  }
+
+  .tabelle {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--card);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    min-width: 620px;
+  }
+  th,
+  td {
+    padding: 13px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .ich {
+    background: var(--accent-soft);
+  }
+  th.ich {
+    color: var(--accent-ink);
+  }
+  td:first-child {
+    font-weight: 560;
+  }
+  .ja {
+    color: var(--ok);
+    font-weight: 700;
+  }
+  .nein {
+    color: var(--faint);
+    font-weight: 600;
+  }
+  tbody tr {
+    transition: background 0.2s;
+  }
+  tbody tr:hover {
+    background: var(--soft);
+  }
+
+  .alpha-band {
+    display: grid;
+    grid-template-columns: 1.4fr auto;
+    gap: 32px;
+    align-items: center;
+    padding: clamp(28px, 5vw, 48px);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(600px 240px at 90% 0%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%),
+      var(--ink);
+    color: #fff;
+    box-shadow: var(--shadow-3);
+  }
+  :global([data-theme="dark"]) .alpha-band {
+    background:
+      radial-gradient(600px 240px at 90% 0%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 70%),
+      #18202c;
+    border: 1px solid var(--line);
+  }
+  .alpha-band .eyebrow {
+    color: #9ab4ff;
+  }
+  .alpha-band h2 {
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .alpha-band p {
+    color: #b7c0cc;
+    max-width: 560px;
+  }
+  .alpha-band .micro {
+    margin-top: 10px;
+    color: #8de0ba;
+  }
+  .alpha-knoepfe {
+    display: grid;
+    gap: 10px;
+  }
+  .alpha-knoepfe .btn-s {
+    background: transparent;
+    color: #fff;
+    --b: rgba(255, 255, 255, 0.25);
+  }
+  @media (max-width: 800px) {
+    .alpha-band {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .kopf-zeile {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .beitrag {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .beitrag .mehr {
+    margin-top: auto;
+  }
+</style>

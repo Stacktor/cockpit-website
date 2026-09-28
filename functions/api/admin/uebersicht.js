@@ -1,338 +1,82 @@
 /**
- * Admin-Übersicht — sammelt alle Kennzahlen an einer Stelle.
- *
- * WICHTIG ZUR SICHERHEIT
- * ----------------------
- * Hier laufen Kundendaten zusammen. Der Endpunkt ist deshalb **fail-closed**:
- * Ohne eingerichteten Schutz liefert er nichts aus, sondern erklärt, was fehlt.
- *
- * Zwei Wege, ihn zu schützen — mindestens einer muss aktiv sein:
- *
- *   A) Cloudflare Access (empfohlen, kostenlos bis 50 Nutzer)
- *      Zero Trust → Access → Applications → Self-hosted
- *      Domain: cockpit.mesco.cc, Pfad: /admin
- *      Richtlinie: E-Mail = Thomas.grf@protonmail.com, One-Time-PIN
- *      Cloudflare setzt dann den Kopf `Cf-Access-Authenticated-User-Email`.
- *
- *   B) ADMIN_TOKEN (Notlösung, wenn Access nicht geht)
- *      Ein langes Zufallswort als Secret hinterlegen und beim Aufruf
- *      als `?token=…` mitgeben. Schwächer, weil der Wert in der Adresszeile steht.
- *
- * Alle API-Schlüssel bleiben ausschließlich hier auf dem Server. Sie werden
- * niemals an den Browser ausgeliefert — das Portal sieht nur fertige Zahlen.
- *
- * Optionale Secrets (jede Kachel funktioniert unabhängig):
- *   RESEND_API_KEY        Mailversand-Statistik und Kontaktliste
- *   LEMONSQUEEZY_API_KEY  Lizenzen, Bestellungen, Umsatz
- *   CF_ANALYTICS_TOKEN    Seitenaufrufe (API-Token mit Analytics-Leserecht)
- *   CF_ACCOUNT_ID         Konto-ID für die Analytics-Abfrage
- *   ALPHA (KV)            Alpha-Anmeldungen
+ * GET /api/admin/uebersicht — Kennzahlen für die Startseite des Dashboards.
+ * Jede Quelle einzeln abgesichert: Fehlt ein Schlüssel, zeigt die Kachel einen Hinweis.
  */
+import { json } from "../../../lib/admin/zugang.js";
+import { anmeldungen, antworten, belegtStatus, fehlerberichte, github, hinweis, lemon, proTag, resend, sicher, zaehle } from "../../../lib/admin/daten.js";
+import { nps } from "../../../lib/admin/auswertung.js";
+import { leseProtokoll } from "../../../lib/admin/protokoll.js";
+import { plaetze } from "../../../lib/alpha-optionen.js";
 
-export async function onRequestGet({ request, env }) {
-  // ── Zugang prüfen ──────────────────────────────────────────────────
-  const wache = pruefeZugang(request, env);
-  if (!wache.erlaubt) return json(wache.status, { fehler: wache.grund });
-
-  // Jede Quelle einzeln — eine kaputte darf die anderen nicht mitreißen
-  const [alpha, resend, lemon, aufrufe] = await Promise.all([
-    holeAlpha(env).catch((e) => fehlerKachel(e)),
-    holeResend(env).catch((e) => fehlerKachel(e)),
-    holeLemon(env).catch((e) => fehlerKachel(e)),
-    holeAufrufe(env).catch((e) => fehlerKachel(e)),
+export async function onRequestGet({ data }) {
+  const env = data.env;
+  const [alpha, umfragen, fehler, lizenzen, mails, downloads, protokoll] = await Promise.all([
+    sicher(async () => {
+      if (!env.ALPHA) return hinweis("KV-Namespace ALPHA ist nicht verbunden.");
+      const liste = await anmeldungen(env);
+      const max = await plaetze(env);
+      const belegt = liste.filter((e) => belegtStatus(e.status)).length;
+      const woche = Date.now() - 7 * 864e5;
+      return {
+        ok: true,
+        gesamt: liste.length,
+        plaetze: max,
+        belegt,
+        frei: Math.max(0, max - belegt),
+        nachStatus: zaehle(liste.map((e) => e.status)),
+        letzte7: liste.filter((e) => new Date(e.zeit).getTime() > woche).length,
+        proTag: proTag(liste.map((e) => e.zeit), 30),
+        quellen: zaehle(liste.map((e) => e.herkunft || e.utm?.utm_source || "unbekannt")).slice(0, 8),
+        neueste: liste.slice(0, 6).map((e) => ({ name: e.name, mail: e.mail, os: e.os, status: e.status, zeit: e.zeit })),
+      };
+    }),
+    sicher(async () => {
+      if (!env.ALPHA) return hinweis("KV-Namespace ALPHA ist nicht verbunden.");
+      const liste = await antworten(env);
+      const npsWerte = liste.map((a) => a.antworten?.nps).filter((x) => Number.isInteger(x));
+      return { ok: true, gesamt: liste.length, jeUmfrage: zaehle(liste.map((a) => a.umfrage)), nps: nps(npsWerte) };
+    }),
+    sicher(async () => {
+      if (!env.ALPHA) return hinweis("KV-Namespace ALPHA ist nicht verbunden.");
+      const liste = await fehlerberichte(env);
+      return { ok: true, gesamt: liste.length, offen: liste.filter((b) => ["neu", "in-arbeit"].includes(b.status || "neu")).length, neueste: liste.slice(0, 5).map((b) => ({ beschreibung: b.beschreibung?.slice(0, 120), version: b.version, zeit: b.zeit, status: b.status })) };
+    }),
+    sicher(async () => {
+      if (!env.LEMONSQUEEZY_API_KEY) return hinweis("Lemon-Squeezy-Schlüssel fehlt (Einstellungen).");
+      const [lz, be] = await Promise.all([lemon(env, "license-keys?page[size]=100"), lemon(env, "orders?page[size]=100&sort=-createdAt")]);
+      if (!lz.ok) return hinweis(`Lemon Squeezy: ${lz.status}`);
+      const lizenzen = lz.daten?.data || [];
+      const bestellungen = be.daten?.data || [];
+      const monat = Date.now() - 30 * 864e5;
+      const neu = bestellungen.filter((o) => new Date(o.attributes.created_at).getTime() > monat);
+      return {
+        ok: true,
+        lizenzen: lizenzen.length,
+        aktiv: lizenzen.filter((l) => l.attributes.status === "active").length,
+        geraete: lizenzen.reduce((s, l) => s + (l.attributes.activation_usage || 0), 0),
+        bestellungen30: neu.length,
+        umsatz30: neu.reduce((s, o) => s + (o.attributes.total || 0), 0) / 100,
+        waehrung: bestellungen[0]?.attributes.currency || "EUR",
+      };
+    }),
+    sicher(async () => {
+      if (!env.RESEND_API_KEY) return hinweis("Resend-Schlüssel fehlt (Einstellungen).");
+      const r = await resend(env, "emails?limit=100");
+      if (!r.ok) return hinweis(r.status === 401 || r.status === 403 ? "Resend-Schlüssel darf nur senden — für Statistik „Full access“ verwenden." : `Resend: ${r.status}`);
+      const alle = r.daten?.data || [];
+      const status = zaehle(alle.map((m) => m.last_event || "unbekannt"));
+      const z = (n) => status.find((s) => s.name === n)?.anzahl || 0;
+      return { ok: true, gesendet: alle.length, zugestellt: z("delivered"), probleme: z("bounced") + z("complained") + z("failed") };
+    }),
+    sicher(async () => {
+      const r = await github(env, "repos/Stacktor/cockpit-releases/releases?per_page=20");
+      if (!r.ok) return hinweis(`GitHub: ${r.status}`);
+      const releases = r.daten || [];
+      const summe = releases.reduce((s, rel) => s + (rel.assets || []).reduce((a, x) => a + (x.download_count || 0), 0), 0);
+      return { ok: true, gesamt: summe, neueste: releases[0] ? { tag: releases[0].tag_name, datum: releases[0].published_at } : null };
+    }),
+    sicher(() => leseProtokoll(env, 8)),
   ]);
 
-  return json(200, {
-    stand: new Date().toISOString(),
-    benutzer: wache.benutzer,
-    alpha,
-    resend,
-    lemon,
-    aufrufe,
-  });
-}
-
-// ───────────────────────── Zugangsschutz ─────────────────────────
-
-function pruefeZugang(request, env) {
-  const url = new URL(request.url);
-
-  // ── Weg A: Cloudflare Access ──────────────────────────────────────
-  // Neuere Access-Versionen schicken statt der E-Mail-Kopfzeile ein JWT.
-  // Beide Varianten werden akzeptiert.
-  //
-  // Wichtig gegen Umgehung: Access schützt nur die eigene Domain. Über die
-  // *.pages.dev-Adresse käme man daran vorbei — deshalb wird der Access-Weg
-  // ausschließlich auf der geschützten Domain akzeptiert.
-  const eigeneDomain =
-    url.hostname === (env.ADMIN_DOMAIN || "cockpit.mesco.cc");
-
-  if (eigeneDomain) {
-    const mail = request.headers.get("Cf-Access-Authenticated-User-Email");
-    if (mail) return { erlaubt: true, benutzer: mail };
-
-    const jwt = request.headers.get("Cf-Access-Jwt-Assertion");
-    if (jwt) {
-      // Die Richtlinie hat Cloudflare bereits am Rand durchgesetzt — hier wird
-      // der Inhalt nur noch gelesen, um zu wissen, wer angemeldet ist.
-      return { erlaubt: true, benutzer: mailAusJwt(jwt) || "Access-Zugang" };
-    }
-  }
-
-  // ── Weg B: ADMIN_TOKEN ────────────────────────────────────────────
-  if (env.ADMIN_TOKEN) {
-    const gegeben =
-      request.headers.get("X-Admin-Token") || url.searchParams.get("token") || "";
-    if (zeitgleich(gegeben, env.ADMIN_TOKEN))
-      return { erlaubt: true, benutzer: "Token-Zugang" };
-    return {
-      erlaubt: false,
-      status: 401,
-      grund:
-        "Zugang verweigert. Bist du über Cloudflare Access angemeldet? " +
-        "Sonst einmal mit ?token=… aufrufen.",
-    };
-  }
-
-  return {
-    erlaubt: false,
-    status: 503,
-    grund:
-      "Das Portal ist noch ungeschützt und liefert deshalb keine Daten aus. " +
-      "Richte Cloudflare Access ein — oder hinterlege das Secret ADMIN_TOKEN.",
-  };
-}
-
-/** Liest die E-Mail aus dem Access-JWT. Reines Auslesen, keine Prüfung — die
- *  hat Cloudflare bereits erledigt, bevor die Anfrage hier ankommt. */
-function mailAusJwt(jwt) {
-  try {
-    const teil = jwt.split(".")[1];
-    if (!teil) return null;
-    const roh = atob(teil.replace(/-/g, "+").replace(/_/g, "/"));
-    const daten = JSON.parse(decodeURIComponent(escape(roh)));
-    return daten.email || daten.common_name || null;
-  } catch (_) {
-    return null;
-  }
-}
-
-/** Vergleich mit gleichbleibender Laufzeit — verrät nichts über den Inhalt. */
-function zeitgleich(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") return false;
-  if (a.length !== b.length) return false;
-  let unterschied = 0;
-  for (let i = 0; i < a.length; i++) unterschied |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return unterschied === 0;
-}
-
-// ───────────────────────── Alpha-Anmeldungen ─────────────────────────
-
-async function holeAlpha(env) {
-  if (!env.ALPHA)
-    return hinweisKachel("KV-Namespace ALPHA nicht verbunden — keine Anmeldeliste.");
-
-  const liste = await env.ALPHA.list({ prefix: "alpha:", limit: 200 });
-  const schluessel = liste.keys.map((k) => k.name).filter((n) => n !== "alpha:anzahl");
-
-  const eintraege = (
-    await Promise.all(
-      schluessel.map(async (k) => {
-        try {
-          return JSON.parse((await env.ALPHA.get(k)) || "null");
-        } catch (_) {
-          return null;
-        }
-      })
-    )
-  ).filter(Boolean);
-
-  eintraege.sort((a, b) => String(b.zeit).localeCompare(String(a.zeit)));
-
-  const proSystem = {};
-  eintraege.forEach((e) => (proSystem[e.os] = (proSystem[e.os] || 0) + 1));
-
-  const grenze = Date.now() - 7 * 864e5;
-  return {
-    ok: true,
-    gesamt: eintraege.length,
-    plaetze: 30,
-    frei: Math.max(0, 30 - eintraege.length),
-    letzte7Tage: eintraege.filter((e) => new Date(e.zeit).getTime() > grenze).length,
-    proSystem,
-    eintraege: eintraege.slice(0, 50),
-  };
-}
-
-// ───────────────────────── Resend ─────────────────────────
-
-async function holeResend(env) {
-  if (!env.RESEND_API_KEY)
-    return hinweisKachel("RESEND_API_KEY fehlt — keine Mailstatistik.");
-
-  const kopf = { Authorization: `Bearer ${env.RESEND_API_KEY}` };
-
-  const [mails, listen, domains] = await Promise.all([
-    fetch("https://api.resend.com/emails?limit=100", { headers: kopf })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null),
-    fetch("https://api.resend.com/audiences", { headers: kopf })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null),
-    fetch("https://api.resend.com/domains", { headers: kopf })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null),
-  ]);
-
-  const alle = (mails && mails.data) || [];
-  const nachStatus = {};
-  alle.forEach((m) => {
-    const s = m.last_event || m.status || "unbekannt";
-    nachStatus[s] = (nachStatus[s] || 0) + 1;
-  });
-
-  const grenze = Date.now() - 30 * 864e5;
-  return {
-    ok: true,
-    gesendet: alle.length,
-    letzte30Tage: alle.filter((m) => new Date(m.created_at).getTime() > grenze).length,
-    nachStatus,
-    zugestellt: nachStatus.delivered || 0,
-    fehlgeschlagen: (nachStatus.bounced || 0) + (nachStatus.failed || 0),
-    listen: ((listen && listen.data) || []).map((a) => ({ id: a.id, name: a.name })),
-    domains: ((domains && domains.data) || []).map((d) => ({
-      name: d.name,
-      status: d.status,
-      region: d.region,
-    })),
-    letzte: alle.slice(0, 15).map((m) => ({
-      an: Array.isArray(m.to) ? m.to[0] : m.to,
-      betreff: m.subject,
-      status: m.last_event || m.status,
-      zeit: m.created_at,
-    })),
-  };
-}
-
-// ───────────────────────── Lemon Squeezy ─────────────────────────
-
-async function holeLemon(env) {
-  if (!env.LEMONSQUEEZY_API_KEY)
-    return hinweisKachel("LEMONSQUEEZY_API_KEY fehlt — keine Lizenz- und Umsatzdaten.");
-
-  const kopf = {
-    Authorization: `Bearer ${env.LEMONSQUEEZY_API_KEY}`,
-    Accept: "application/vnd.api+json",
-  };
-
-  const [lizenzen, bestellungen] = await Promise.all([
-    fetch("https://api.lemonsqueezy.com/v1/license-keys?page[size]=100", { headers: kopf })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null),
-    fetch("https://api.lemonsqueezy.com/v1/orders?page[size]=50&sort=-createdAt", {
-      headers: kopf,
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null),
-  ]);
-
-  const lz = (lizenzen && lizenzen.data) || [];
-  const be = (bestellungen && bestellungen.data) || [];
-
-  const nachStatus = {};
-  lz.forEach((l) => {
-    const s = l.attributes.status || "unbekannt";
-    nachStatus[s] = (nachStatus[s] || 0) + 1;
-  });
-
-  const cent = be.reduce((s, o) => s + (o.attributes.total || 0), 0);
-  const grenze = Date.now() - 30 * 864e5;
-
-  return {
-    ok: true,
-    lizenzenGesamt: lz.length,
-    lizenzenNachStatus: nachStatus,
-    bestellungen: be.length,
-    umsatzGesamt: (cent / 100).toFixed(2),
-    umsatz30Tage: (
-      be
-        .filter((o) => new Date(o.attributes.created_at).getTime() > grenze)
-        .reduce((s, o) => s + (o.attributes.total || 0), 0) / 100
-    ).toFixed(2),
-    letzteLizenzen: lz.slice(0, 60).map((l) => ({
-      id: l.id,
-      schluessel: l.attributes.key_short || (l.attributes.key || "").slice(0, 8) + "…",
-      status: l.attributes.status,
-      deaktiviert: !!l.attributes.disabled,
-      genutzt: l.attributes.activation_usage,
-      limit: l.attributes.activation_limit,
-      kunde: l.attributes.user_email,
-      kundenName: l.attributes.user_name,
-      produkt: l.attributes.product_name,
-      erstellt: l.attributes.created_at,
-      laeuftAb: l.attributes.expires_at,
-    })),
-  };
-}
-
-// ───────────────────────── Seitenaufrufe ─────────────────────────
-
-async function holeAufrufe(env) {
-  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID)
-    return hinweisKachel(
-      "CF_ANALYTICS_TOKEN oder CF_ACCOUNT_ID fehlt — keine Zugriffszahlen."
-    );
-
-  const seit = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
-  const frage = `
-    query { viewer { accounts(filter: {accountTag: "${env.CF_ACCOUNT_ID}"}) {
-      total: pagesFunctionsInvocationsAdaptiveGroups(
-        limit: 1000, filter: {date_geq: "${seit}"}
-      ) { sum { requests } dimensions { date } }
-    } } }`;
-
-  const r = await fetch("https://api.cloudflare.com/client/v4/graphql", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.CF_ANALYTICS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query: frage }),
-  });
-
-  if (!r.ok) return fehlerKachel(new Error("Analytics-API: " + r.status));
-  const j = await r.json();
-  const gruppen =
-    (j.data && j.data.viewer && j.data.viewer.accounts[0] &&
-      j.data.viewer.accounts[0].total) || [];
-
-  const proTag = gruppen.map((g) => ({
-    tag: g.dimensions.date,
-    anfragen: g.sum.requests,
-  }));
-
-  return {
-    ok: true,
-    gesamt30Tage: proTag.reduce((s, t) => s + t.anfragen, 0),
-    proTag: proTag.slice(-30),
-    hinweis:
-      "Gezählt werden Aufrufe der Formular-Schnittstelle. Für echte Seitenaufrufe " +
-      "empfiehlt sich Cloudflare Web Analytics — cookiefrei und ohne Einwilligungsbanner.",
-  };
-}
-
-// ───────────────────────── Hilfsfunktionen ─────────────────────────
-
-const hinweisKachel = (text) => ({ ok: false, art: "hinweis", text });
-const fehlerKachel = (e) => ({ ok: false, art: "fehler", text: String(e).slice(0, 160) });
-
-function json(status, koerper) {
-  return new Response(JSON.stringify(koerper), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-      "x-robots-tag": "noindex, nofollow",
-    },
-  });
+  return json(200, { stand: new Date().toISOString(), benutzer: data.benutzer, alpha, umfragen, fehler, lizenzen, mails, downloads, protokoll });
 }

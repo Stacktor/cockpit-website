@@ -1,0 +1,10 @@
+# Alte Adressen (vor dem Astro-Umbau) — dauerhaft umleiten.
+/index.html               /                          301
+/impressum.html           /impressum/                301
+/datenschutz.html         /datenschutz/              301
+/widerruf.html            /widerruf/                 301
+/lizenzbedingungen.html   /lizenzbedingungen/        301
+/danke.html               /danke/                    301
+# Die Web-Preisumfrage ist durch die Umfragen in der App ersetzt.
+/umfrage.html             /hilfe/alpha-schluessel/   301
+/umfrage                  /hilfe/alpha-schluessel/   301

@@ -1,0 +1,9 @@
+---
+import Base from "../layouts/Base.astro";
+import Rechtstext from "../components/Rechtstext.astro";
+import html from "../legal/lizenzbedingungen.html?raw";
+---
+
+<Base title="Lizenzbedingungen" description="Lizenzbedingungen für Bewerbungs-Cockpit (Entwurf)." noindex>
+  <Rechtstext html={html} />
+</Base>

@@ -1,0 +1,135 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import AlphaForm from "../components/AlphaForm.astro";
+import Faq from "../components/Faq.astro";
+import { SITE } from "../config";
+
+const ablauf = [
+  { icon: "pen-line", titel: "Anmelden", text: "Das Formular unten — zwei Minuten, drei kurze Schritte." },
+  { icon: "mail", titel: "Schlüssel bekommen", text: "Ich vergebe die Plätze persönlich. Bist du dabei, kommt dein Alpha-Schlüssel per Mail." },
+  { icon: "download", titel: "Loslegen", text: "App laden, Schlüssel beim ersten Start eintragen — alle Funktionen sind frei." },
+  { icon: "messages-square", titel: "Rückmeldung geben", text: "Zwei kurze Umfragen direkt in der App (nach 3 und 14 Tagen) und „Fehler melden“, wenn etwas hakt." },
+];
+
+const fragen = [
+  { frage: "Was kostet die Alpha?", antwort: "<p>Nichts. Und wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft — inklusive künftiger Aktualisierungen.</p>" },
+  { frage: "Wie viel Zeit muss ich investieren?", antwort: "<p>Nutz cockpit einfach für deine echte Jobsuche. Dazu kommen zwei Umfragen in der App — eine dauert eine Minute, die große etwa fünf. Alles andere ist freiwillig.</p>" },
+  { frage: "Nach welchen Kriterien vergibst du die Plätze?", antwort: "<p>Ich suche eine gute Mischung: verschiedene Situationen, Branchen und Erfahrung mit Technik. Vor allem suche ich Menschen, die gerade wirklich auf Jobsuche sind und das Werkzeug brauchen.</p>" },
+  { frage: "Ich nutze einen Mac. Kann ich trotzdem mitmachen?", antwort: "<p>Noch nicht — macOS ist in Arbeit, weil ich gerade keinen Mac zum Testen habe. Melde dich trotzdem an: Du kommst auf die Mac-Warteliste und hörst von mir, sobald es eine getestete Version gibt.</p>" },
+  { frage: "Was passiert mit meinen Angaben?", antwort: '<p>Sie dienen der Auswahl und der Weiterentwicklung. Keine Weitergabe, kein Newsletter. Spätestens drei Monate nach Ende der Alpha werden sie gelöscht, auf Wunsch jederzeit früher. Details in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.</p>' },
+  { frage: "Alle Plätze sind weg — und jetzt?", antwort: "<p>Melde dich trotzdem an. Du kommst auf die Warteliste; wenn jemand aussteigt oder die nächste Runde startet, geht es nach Reihenfolge.</p>" },
+];
+---
+
+<Base title="Alpha-Zugang" description={`Teste cockpit vor allen anderen: ${SITE.alphaPlaetze} Plätze in der geschlossenen 0.1 Alpha für Windows und Linux — kostenlos, alle Funktionen frei.`}>
+  <section class="alpha-held">
+    <div class="wrap zwei">
+      <div>
+        <a href="#anmeldung" class="badge rv an"><span class="punkt"></span><span data-alpha-plaetze>{SITE.alphaPlaetze} Plätze</span></a>
+        <h1 class="rv an" style="--d:1">Teste cockpit, bevor es alle anderen tun.</h1>
+        <p class="lead rv an" style="--d:2">
+          Die geschlossene {SITE.version} für Windows und Linux: alle Funktionen frei, kostenlos — und dein Feedback bestimmt, was als Nächstes kommt und was cockpit kostet.
+        </p>
+        <ul class="vorteile rv an" style="--d:3">
+          <li><Icon name="check" size={18} /> Vollzugang zu allen Funktionen, ohne Grenzen</li>
+          <li><Icon name="check" size={18} /> Vollversion dauerhaft behalten, wenn du bis zum Ende dabei bist</li>
+          <li><Icon name="check" size={18} /> Direkter Draht zu mir — ich antworte persönlich</li>
+        </ul>
+        <div class="hinweis warn rv an" style="--d:4">
+          <b>Es ist eine Alpha.</b> Es wird Fehler geben. Sichere deine Daten regelmäßig über <i>Einstellungen → Daten & Sicherung</i>. macOS ist noch <span class="wip">in Arbeit</span>.
+        </div>
+      </div>
+      <div class="rv an" style="--d:2">
+        <AlphaForm />
+      </div>
+    </div>
+  </section>
+
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="abschnitt-kopf center">
+        <div class="eyebrow rv">So läuft die Alpha</div>
+        <h2 class="rv" style="--d:1">Vier Schritte, kein Aufwand</h2>
+      </div>
+      <ol class="ablauf raster r4">
+        {
+          ablauf.map((a, i) => (
+            <li class="karte rv" style={`--d:${i}`}>
+              <span class="nr">{i + 1}</span>
+              <div class="ic">
+                <Icon name={a.icon} />
+              </div>
+              <h3>{a.titel}</h3>
+              <p>{a.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="abschnitt">
+    <div class="wrap eng">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow">Fragen zur Alpha</div>
+        <h2>Gut zu wissen</h2>
+      </div>
+      <Faq fragen={fragen} ersteOffen />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .alpha-held {
+    padding: clamp(48px, 7vw, 88px) 0 clamp(56px, 8vw, 96px);
+    background: radial-gradient(1000px 420px at 20% -140px, var(--accent-soft), transparent 70%);
+  }
+  .zwei {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+  }
+  .alpha-held h1 {
+    font-size: clamp(32px, 4.6vw, 50px);
+    margin: 20px 0 16px;
+  }
+  .vorteile {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    margin: 24px 0;
+    color: var(--ink-2);
+  }
+  .vorteile li {
+    display: flex;
+    gap: 10px;
+  }
+  .vorteile :global(svg) {
+    color: var(--ok);
+    flex: none;
+    margin-top: 3px;
+  }
+  .ablauf {
+    list-style: none;
+    counter-reset: none;
+  }
+  .ablauf li {
+    position: relative;
+  }
+  .nr {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--line);
+    line-height: 1;
+  }
+  @media (max-width: 960px) {
+    .zwei {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

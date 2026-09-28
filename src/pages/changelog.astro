@@ -1,0 +1,125 @@
+---
+import Base from "../layouts/Base.astro";
+import Seitenkopf from "../components/Seitenkopf.astro";
+import Icon from "../components/Icon.astro";
+import { SITE } from "../config";
+
+/** Neueste Version oben. Texte für Nutzer — die technische Fassung steht im App-Repo. */
+const versionen = [
+  {
+    version: "0.1.0",
+    titel: "0.1 Alpha",
+    datum: "Alpha-Start, Herbst 2026",
+    intro: "Die erste Version für Tester — für Windows und Linux.",
+    neu: [
+      "Neues, ruhiges Design in Hell und Dunkel — derselbe Look wie diese Website.",
+      "Interview-Training: Fragen zur Stelle, Bewertung und Musterantworten.",
+      "Lebenslauf-Designer: drei Vorlagen, Deutsch oder Englisch, als PDF.",
+      "Weitere Stellenquellen: Arbeitnow und Adzuna.",
+      "Daten sichern und auf einem anderen Rechner einlesen.",
+      "Alpha-Schlüssel direkt beim ersten Start eintragen.",
+      "Automatische Updates: Hinweis bei neuer Version, Installation auf Klick.",
+      "Feedback aus der App: kurze Umfragen und „Fehler melden“ mit Vorschau, was gesendet wird.",
+      "Lizenz mit 30 Tagen Offline-Karenz; die kostenlose Stufe erlaubt 10 aktive Bewerbungen.",
+    ],
+    geaendert: [
+      "Fortgeschrittenes (eigener Mailserver, eingebetteter Browser, Google/Microsoft-Anmeldung im Postfach, Sync) ist in der Alpha unter „Experimentell“ versteckt.",
+      "Robuster: Ein Fehler in einer Ansicht betrifft nur diese Ansicht, nicht die ganze App.",
+      "macOS ist vorerst in Arbeit.",
+    ],
+  },
+];
+---
+
+<Base title="Changelog" description="Alle Änderungen an cockpit je Version — neue Funktionen, Verbesserungen und Fehlerbehebungen.">
+  <Seitenkopf eyebrow="Changelog" titel="Was sich geändert hat" lead="Jede Version mit ihren Neuerungen. Updates bekommst du direkt in der App." krumen={[["Changelog", "/changelog/"]]} />
+  <section class="abschnitt">
+    <div class="wrap eng">
+      <ol class="zeitleiste">
+        {
+          versionen.map((v) => (
+            <li class="rv" id={`v${v.version}`}>
+              <div class="marke" aria-hidden="true" />
+              <div class="eintrag karte">
+                <div class="kopf">
+                  <span class="badge">v{v.version}</span>
+                  <span class="micro">{v.datum}</span>
+                </div>
+                <h2>{v.titel}</h2>
+                <p class="muted">{v.intro}</p>
+                <h3><Icon name="sparkles" size={16} /> Neu</h3>
+                <ul>{v.neu.map((n) => <li>{n}</li>)}</ul>
+                <h3><Icon name="git-commit" size={16} /> Geändert</h3>
+                <ul>{v.geaendert.map((n) => <li>{n}</li>)}</ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="micro" style="margin-top:28px">Technische Details und alle Versionen: <a href={SITE.releases}>Releases auf GitHub</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .zeitleiste {
+    list-style: none;
+    position: relative;
+    padding-left: 30px;
+  }
+  .zeitleiste::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(var(--accent), var(--line));
+  }
+  .zeitleiste li {
+    position: relative;
+  }
+  .zeitleiste li + li {
+    margin-top: 28px;
+  }
+  .marke {
+    position: absolute;
+    left: -30px;
+    top: 26px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+  }
+  .eintrag {
+    padding: 26px 28px;
+  }
+  .kopf {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .eintrag h2 {
+    font-size: 24px;
+    margin: 12px 0 4px;
+  }
+  .eintrag h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-ink);
+    margin: 22px 0 8px;
+  }
+  .eintrag ul {
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+</style>

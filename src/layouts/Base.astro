@@ -1,0 +1,66 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE } from "../config";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Seiten, die nicht in Suchmaschinen sollen (Danke-Seite, Rechtliches). */
+  noindex?: boolean;
+  bild?: string;
+}
+const { title, description, noindex = false, bild = "/og.png" } = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const vollerTitel = title.includes("Cockpit") ? title : `${title} · ${SITE.name}`;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{vollerTitel}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={vollerTitel} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(bild, SITE.url).href} />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c1016" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="cockpit-Blog" href="/blog/rss.xml" />
+    <slot name="head" />
+    <!-- Farbschema vor dem ersten Zeichnen setzen (kein Aufblitzen). -->
+    <script is:inline>
+      (function () {
+        var wahl = "system";
+        try {
+          wahl = localStorage.getItem("cockpit-web-theme") || "system";
+        } catch (e) {}
+        var dunkel = wahl === "dark" || (wahl === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dunkel ? "dark" : "light";
+        document.documentElement.dataset.themeWahl = wahl;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+    <Header />
+    <main id="inhalt">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      import { starteSeite } from "../scripts/seite";
+      starteSeite();
+    </script>
+  </body>
+</html>

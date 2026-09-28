@@ -1,0 +1,46 @@
+---
+interface Props {
+  titel: string;
+  lead?: string;
+  eyebrow?: string;
+  krumen?: [string, string][];
+  zentriert?: boolean;
+}
+const { titel, lead, eyebrow, krumen = [], zentriert = false } = Astro.props;
+const ld =
+  krumen.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [["Start", "/"], ...krumen].map(([name, href], i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name,
+          item: new URL(href, "https://cockpit.mesco.cc").href,
+        })),
+      }
+    : null;
+---
+
+<section class:list={["seitenkopf", { center: zentriert }]}>
+  <div class="wrap">
+    {
+      krumen.length > 0 && (
+        <nav class="brotkrumen rv" aria-label="Brotkrumen">
+          <a href="/">Start</a>
+          {krumen.map(([name, href]) => (
+            <>
+              <span aria-hidden="true">/</span>
+              <a href={href}>{name}</a>
+            </>
+          ))}
+        </nav>
+      )
+    }
+    {eyebrow && <div class="eyebrow rv">{eyebrow}</div>}
+    <h1 class="rv" style="--d:1">{titel}</h1>
+    {lead && <p class="lead rv" style="--d:2">{lead}</p>}
+    <slot />
+  </div>
+  {ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
+</section>
