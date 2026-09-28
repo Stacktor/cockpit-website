@@ -7,8 +7,10 @@
  * `bug:<zeit>:<lizenzId>`, optional Benachrichtigung per Resend.
  */
 import { imKontingent, json, pruefeAlphaLizenz } from "../../../lib/app-lizenz.js";
+import { mitSchluesseln } from "../../../lib/admin/tresor.js";
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env: roh }) {
+  const env = await mitSchluesseln(roh);
   const d = await request.json().catch(() => null);
   if (!d) return json(400, { ok: false, fehler: "Anfrage konnte nicht gelesen werden." });
 

@@ -1,0 +1,57 @@
+---
+/**
+ * Admin-Portal — Zugriff nur über Cloudflare Access (Pfade /admin und /api/admin)
+ * oder ?token=… (ADMIN_TOKEN). Die Seite selbst enthält keine Daten; alles
+ * kommt nach der Prüfung aus /api/admin/*.
+ */
+import "../../styles/admin.css";
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>cockpit Admin</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="admin">
+    <div class="a-rahmen">
+      <aside class="a-leiste" id="a-leiste" aria-label="Admin-Navigation">
+        <div class="a-marke">
+          <i><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-15 12 12)"><path d="M4 5 L20 12 L13 12 Z" fill="#fff"></path><path d="M4 19 L20 12 L13 12 Z" fill="#fff" fill-opacity="0.7"></path></g></svg></i>
+          <span>cockpit<small>Admin</small></span>
+        </div>
+        <nav id="a-nav"></nav>
+        <div class="a-leiste-fuss">
+          <a href="/" target="_blank" rel="noopener">Zur Website ↗</a>
+          <span>Zugriff über Cloudflare Access</span>
+        </div>
+      </aside>
+      <div class="a-haupt">
+        <header class="a-oben">
+          <button class="a-knopf a-menue" id="a-menue" type="button" aria-label="Navigation">☰</button>
+          <h1 id="a-titel">Übersicht</h1>
+          <span class="a-stand" id="a-stand"></span>
+          <div class="a-rechts">
+            <button class="a-knopf" id="a-neu" type="button">Neu laden</button>
+          </div>
+        </header>
+        <main class="a-inhalt" id="a-inhalt" aria-live="polite"></main>
+      </div>
+    </div>
+    <div class="a-schleier" id="a-schleier"></div>
+    <aside class="a-schublade" id="a-schublade" aria-hidden="true" role="dialog" aria-label="Details">
+      <div class="a-schublade-kopf">
+        <h2></h2>
+        <button class="a-knopf" type="button" data-zu aria-label="Schließen">✕</button>
+      </div>
+      <div class="a-schublade-inhalt"></div>
+    </aside>
+    <div class="a-toast" id="a-toast" role="status" aria-live="polite"></div>
+    <script>
+      import "../../scripts/admin/app";
+    </script>
+  </body>
+</html>

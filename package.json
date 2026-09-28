@@ -7,8 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:api": "node tests/api.test.mjs",
-    "audit": "node scripts/audit.mjs"
+    "test:api": "node tests/api.test.mjs && node tests/admin.test.mjs",
+    "audit": "node scripts/audit.mjs",
+    "audit:admin": "node tests/admin-ui.mjs"
   },
   "dependencies": {
     "@lucide/astro": "^1.48.0",

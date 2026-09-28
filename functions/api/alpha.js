@@ -30,8 +30,11 @@
  */
 
 import { ALPHA_OPTIONEN as O, einer, mehrere, plaetze } from "../../lib/alpha-optionen.js";
+import { mitSchluesseln } from "../../lib/admin/tresor.js";
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env: roh }) {
+  // Schlüssel aus dem Admin-Tresor haben Vorrang vor Umgebungsvariablen.
+  const env = await mitSchluesseln(roh);
   try {
     const daten = await request.json().catch(() => null);
     if (!daten) return antwort(400, "Anfrage konnte nicht gelesen werden.");

@@ -22,8 +22,9 @@ npm install
 npm run dev        # lokale Vorschau (ohne Functions)
 npm run build      # nach dist/
 npm run check      # Typprüfung
-npm run test:api   # Functions-Tests (KV, Lemon Squeezy, Resend simuliert)
+npm run test:api   # Functions-Tests inkl. Admin-API (KV, Lemon Squeezy, Resend simuliert)
 npm run audit      # nach build: jede Seite Desktop/Handy, Hell/Dunkel
+npm run audit:admin  # nach build: Admin-Dashboard mit echten Handlern und Beispieldaten
 ```
 
 ## Cloudflare Pages — Einstellungen
@@ -37,9 +38,26 @@ npm run audit      # nach build: jede Seite Desktop/Handy, Hell/Dunkel
 
 Die Functions in `functions/` erkennt Cloudflare weiterhin automatisch.
 
-Variablen und Secrets der Functions: `ALPHA` (KV-Namespace), `RESEND_API_KEY`, `MAIL_VON`, `MAIL_AN`,
-optional `ALPHA_PLAETZE` (Standard 50), `DISCORD_URL`, `ALPHA_VARIANT_IDS`, für das Admin-Portal
-`ACCESS_TEAM_DOMAIN` und `ACCESS_AUD`.
+Pflicht für die Functions: KV-Namespace `ALPHA`. Für das Admin-Portal außerdem:
+
+| Name | Art | Wozu |
+|---|---|---|
+| `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD` | Variable | Prüfung des Cloudflare-Access-JWT (Anwendung für `/admin` **und** `/api/admin`) |
+| `ADMIN_MASTER_KEY` | Secret | Verschlüsselt die im Dashboard eingetragenen API-Schlüssel (mind. 16 zufällige Zeichen) |
+| `ADMIN_TOKEN` | Secret, optional | Notzugang `/admin/?token=…`, falls Access nicht geht |
+
+Alle übrigen Schlüssel und Einstellungen (Lemon Squeezy, Resend, Cloudflare Analytics, GitHub,
+Store-/Variant-ID, Checkout-Link, Discord, Absender) trägst du im Dashboard unter **Einstellungen**
+ein. Umgebungsvariablen gleichen Namens (`RESEND_API_KEY`, `MAIL_VON`, …) gelten weiter als Rückfall.
+Optional: `ALPHA_PLAETZE` (Standard 50; im Dashboard änderbar), `ALPHA_VARIANT_IDS`.
+
+## Admin-Portal (`/admin/`)
+
+Dunkles Dashboard mit Übersicht, Alpha-Anmeldungen (Status, Einladung mit 100-%-Code und Mail),
+Umfragen (Editor + Auswertung mit NPS und Van Westendorp, CSV), Fehlerberichten, Lizenzen,
+Kunden & Umsatz, Mail (Rundmail an Tester), Analytics, Downloads & Builds und Einstellungen
+(Schlüssel-Tresor, Audit-Log). Code: `src/pages/admin/`, `src/scripts/admin/`, `functions/api/admin/`,
+`lib/admin/`. Schreibzugriffe nur als JSON von der eigenen Seite; jede Änderung landet im Audit-Log.
 
 ## Inhalte pflegen
 
