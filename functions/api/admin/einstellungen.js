@@ -19,6 +19,7 @@ export async function onRequestGet({ env, data }) {
       token: Boolean(env.ADMIN_TOKEN),
       kv: Boolean(env.ALPHA),
       master: Boolean(env.ADMIN_MASTER_KEY && String(env.ADMIN_MASTER_KEY).length >= 16),
+      masterZuKurz: Boolean(env.ADMIN_MASTER_KEY && String(env.ADMIN_MASTER_KEY).length < 16),
     },
     benutzer: data.benutzer,
     protokoll: await leseProtokoll(env, 100),

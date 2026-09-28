@@ -80,8 +80,16 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
 {
   const env = { ALPHA: new KV(), RESEND_API_KEY: "re_umgebung_1111" };
   tresor._cacheLeeren();
-  await assert.rejects(() => tresor.setzeGeheim(env, "RESEND_API_KEY", "re_neu_22223333", "t"), /ADMIN_MASTER_KEY/);
+  await assert.rejects(() => tresor.setzeGeheim(env, "RESEND_API_KEY", "re_neu_22223333", "t"), /ADMIN_MASTER_KEY fehlt/);
+  env.ADMIN_MASTER_KEY = "zu-kurz";
+  await assert.rejects(() => tresor.setzeGeheim(env, "RESEND_API_KEY", "re_neu_22223333", "t"), /ADMIN_MASTER_KEY ist zu kurz/);
   env.ADMIN_MASTER_KEY = "0123456789abcdef-sehr-geheim";
+  // Lemon-Squeezy-Schlüssel sind JWTs mit rund 1000 Zeichen
+  const jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9." + "a".repeat(900) + ".sig_ENDE";
+  await tresor.setzeGeheim(env, "LEMONSQUEEZY_API_KEY", jwt, "test@x");
+  assert.equal((await tresor.mitSchluesseln(env)).LEMONSQUEEZY_API_KEY, jwt);
+  await tresor.loescheGeheim(env, "LEMONSQUEEZY_API_KEY");
+  await assert.rejects(() => tresor.setzeGeheim(env, "RESEND_API_KEY", "kurz", "t"), /unvollständig/);
   await tresor.setzeGeheim(env, "RESEND_API_KEY", "re_dashboard_4444", "test@x");
   const roh = env.ALPHA.m.get("tresor:v1");
   assert.ok(!roh.includes("re_dashboard_4444"), "Klartext darf nicht im KV stehen");
