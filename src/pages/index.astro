@@ -91,12 +91,16 @@ const fragen = [
   <section class="band" aria-label="Funktioniert mit">
     <p class="micro center">Funktioniert mit</p>
     <div class="laufband">
-      <ul>
-        {quellen.map((q) => <li>{q}</li>)}
-      </ul>
-      <ul aria-hidden="true">
-        {quellen.map((q) => <li>{q}</li>)}
-      </ul>
+      <div class="spur">
+        <ul>
+          {quellen.map((q) => <li>{q}</li>)}
+        </ul>
+        {[1, 2, 3].map(() => (
+          <ul aria-hidden="true">
+            {quellen.map((q) => <li>{q}</li>)}
+          </ul>
+        ))}
+      </div>
     </div>
   </section>
 
@@ -435,6 +439,13 @@ const fragen = [
     margin-top: 12px;
     mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   }
+  /* Vier gleiche Listen: Die Spur wandert um genau die Hälfte (zwei Listen) und
+     springt dann nahtlos zurück. Zwei Listen sind breiter als jeder Bildschirm,
+     so entsteht auch auf großen Monitoren keine Lücke hinter dem letzten Eintrag. */
+  .spur {
+    display: flex;
+    flex: none;
+  }
   .laufband ul {
     display: flex;
     flex: none;
@@ -447,15 +458,15 @@ const fragen = [
     white-space: nowrap;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .laufband ul {
-      animation: laufen 38s linear infinite;
+    .spur {
+      animation: laufen 76s linear infinite;
     }
-    .laufband:hover ul {
+    .laufband:hover .spur {
       animation-play-state: paused;
     }
     @keyframes laufen {
       to {
-        transform: translateX(-100%);
+        transform: translateX(-50%);
       }
     }
   }
@@ -463,7 +474,12 @@ const fragen = [
     .laufband {
       mask-image: none;
     }
+    .spur {
+      flex: 1;
+      min-width: 0;
+    }
     .laufband ul {
+      flex: 1;
       flex-wrap: wrap;
       justify-content: center;
       white-space: normal;
