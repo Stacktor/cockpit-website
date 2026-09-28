@@ -912,14 +912,16 @@ export const einstellungen: Bereich = async (ziel, neu) => {
         badge(s.access ? "Cloudflare Access geprüft" : "Access nicht eingerichtet", s.access ? "ok" : "warn"),
         badge(s.token ? "ADMIN_TOKEN gesetzt" : "kein ADMIN_TOKEN", s.token ? "info" : ""),
         badge(s.kv ? "KV verbunden" : "KV fehlt", s.kv ? "ok" : "bad"),
-        badge(s.master ? "Tresor bereit" : "ADMIN_MASTER_KEY fehlt", s.master ? "ok" : "bad"),
+        badge(s.master ? "Tresor bereit" : s.masterZuKurz ? "ADMIN_MASTER_KEY zu kurz" : "ADMIN_MASTER_KEY fehlt", s.master ? "ok" : "bad"),
       ),
       h("p", { class: "a-klein", style: "color:var(--a-muted);margin:12px 0 0" }, `Angemeldet als ${d.benutzer}.`),
       !s.master
         ? h(
             "div",
             { class: "a-hinweis", style: "margin-top:12px" },
-            "Um Schlüssel hier zu speichern, im Pages-Projekt das Secret ADMIN_MASTER_KEY anlegen (mindestens 16 zufällige Zeichen, z. B. aus einem Passwortmanager). Bis dahin gelten die Umgebungsvariablen.",
+            s.masterZuKurz
+              ? "Das Secret ADMIN_MASTER_KEY ist gesetzt, aber kürzer als 16 Zeichen. Im Pages-Projekt einen längeren Wert eintragen (z. B. 32 zufällige Zeichen aus einem Passwortmanager) und die Bereitstellung neu starten. Bis dahin gelten die Umgebungsvariablen."
+              : "Um Schlüssel hier zu speichern, im Pages-Projekt das Secret ADMIN_MASTER_KEY anlegen (mindestens 16 zufällige Zeichen, z. B. aus einem Passwortmanager) und die Bereitstellung neu starten. Bis dahin gelten die Umgebungsvariablen.",
           )
         : null,
     ),
