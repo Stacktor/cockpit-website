@@ -1,4 +1,4 @@
-import { h, datum, zeit, relativ, zahl, euro, type Daten } from "./dom";
+import { h, svg, ICONS, datum, zeit, relativ, zahl, euro, type Daten } from "./dom";
 import {
   aktion,
   api,
@@ -36,48 +36,270 @@ const text = (wert = "", attrs: Daten = {}) => {
 };
 
 // ═════════════ Übersicht ═════════════
+// Aufbau wie die Referenz „Nexus Analytics Dashboard": links (7/12) die
+// Hauptkarte mit großer Kennzahl und Tages-Stielen, darunter neueste
+// Anmeldungen und die Plätze-Karte; rechts (5/12) der Betriebs-Akkordeon und
+// der Alpha-Trichter mit Strichcode-Diagramm.
+
+const TAGE_KURZ = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+function initialen(name = "") {
+  const teile = name.trim().split(/\s+/).filter(Boolean);
+  return ((teile[0]?.[0] ?? "?") + (teile.length > 1 ? teile[teile.length - 1][0] : "")).toUpperCase();
+}
+
+/** Hauptkarte: Anmeldungen der letzten 7 Tage als Stiele, heute hervorgehoben. */
+function heldKarte(a: Daten) {
+  const icon = h("div", { class: "a-kachel-icon", style: "width:32px;height:32px" }, svg(ICONS.alpha, 18));
+  const kopf = h(
+    "div",
+    { class: "a-held-kopf" },
+    h(
+      "div",
+      {},
+      h("div", { class: "a-held-titel" }, icon, h("h2", { class: "a-maske" }, h("span", { class: "a-rein" }, "Alpha-Anmeldungen"))),
+      h("p", {}, "Wie viele Menschen sich für die geschlossene Alpha melden — Tag für Tag und im Vergleich zur Vorwoche."),
+    ),
+    h("span", { class: "a-pille" }, "7 Tage"),
+  );
+  if (!a.ok) return h("section", { class: "a-karte a-held" }, kopf, hinweisKachel(a));
+
+  const tageListe: { tag: string; anzahl: number }[] = a.proTag ?? [];
+  const woche = tageListe.slice(-7);
+  const vorwoche = tageListe.slice(-14, -7);
+  const summe = (l: { anzahl: number }[]) => l.reduce((x, t) => x + t.anzahl, 0);
+  const jetzt = summe(woche);
+  const vorher = summe(vorwoche);
+  const aenderung = vorher > 0 ? Math.round(((jetzt - vorher) / vorher) * 100) : null;
+  // Echtes Minuszeichen und schmales, geschütztes Leerzeichen vor „%".
+  const anzeige = aenderung === null ? `+${zahl(jetzt)}` : `${aenderung >= 0 ? "+" : "−"}${Math.abs(aenderung)}\u202f%`;
+  const satz =
+    aenderung === null
+      ? `${zahl(jetzt)} neue Anmeldungen in 7 Tagen, ${zahl(a.gesamt)} insgesamt.`
+      : `${zahl(jetzt)} Anmeldungen in 7 Tagen gegenüber ${zahl(vorher)} in der Woche davor.`;
+
+  const max = Math.max(1, ...woche.map((t) => t.anzahl));
+  const tage = h(
+    "div",
+    { class: "a-tage", role: "img", "aria-label": `Anmeldungen der letzten 7 Tage: ${woche.map((t) => `${TAGE_KURZ[new Date(t.tag).getDay()]} ${t.anzahl}`).join(", ")}` },
+    woche.map((t, i) => {
+      const heute = i === woche.length - 1;
+      // Knoten zwischen 12 % (Maximum) und 72 % (null) der Höhe.
+      const oben = 72 - (t.anzahl / max) * 60;
+      const kurz = TAGE_KURZ[new Date(t.tag).getDay()];
+      const text = `${datum(t.tag)}: ${t.anzahl} ${t.anzahl === 1 ? "Anmeldung" : "Anmeldungen"}`;
+      return h(
+        "div",
+        { class: `a-tag${heute ? " aktiv" : ""}`, tabindex: 0, title: text },
+        heute
+          ? h("span", { class: "a-wertpille", style: `top:${Math.max(6, oben - 4)}%` }, `${t.anzahl} heute`)
+          : [
+              h("span", { class: "a-knoten", style: `top:${oben}%` }),
+              h("span", { class: "a-stiel", style: `top:${oben + 4}%` }),
+              h("span", { class: "a-tip", style: `top:${oben}%` }, `${t.anzahl}`),
+            ],
+        h("span", { class: "a-kurz" }, kurz.slice(0, heute ? 2 : 1)),
+      );
+    }),
+  );
+
+  return h(
+    "section",
+    { class: "a-karte a-held" },
+    kopf,
+    h(
+      "div",
+      { class: "a-held-koerper" },
+      h("div", { class: "a-held-zahl" }, h("div", { class: "a-maske" }, h("div", { class: "a-anzeige a-rein" }, anzeige)), h("p", {}, satz)),
+      tage,
+    ),
+  );
+}
+
+function neuesteAnmeldungen(a: Daten) {
+  const kopf = h("div", { class: "a-abschnitt-kopf" }, h("h3", {}, "Neueste Anmeldungen"), h("a", { href: "#/alpha" }, "Alle ansehen"));
+  if (!a.ok) return h("div", {}, kopf, hinweisKachel(a));
+  const liste: Daten[] = (a.neueste ?? []).slice(0, 3);
+  return h(
+    "div",
+    {},
+    kopf,
+    liste.length
+      ? h(
+          "div",
+          { class: "a-kacheln" },
+          liste.map((e) =>
+            h(
+              "a",
+              { class: "a-kachel", href: "#/alpha" },
+              h(
+                "div",
+                { class: "a-kachel-links" },
+                h("span", { class: "a-avatar", "aria-hidden": "true" }, initialen(e.name)),
+                h("div", { style: "min-width:0" }, h("div", { class: "a-kachel-name" }, h("b", {}, e.name || "—"), badge(e.status || "neu")), h("span", { class: "a-kachel-meta" }, `${e.os || "?"} · ${relativ(e.zeit)}`)),
+              ),
+              h("span", { class: "a-plus", "aria-hidden": "true" }, svg(ICONS.pfeil, 15)),
+            ),
+          ),
+        )
+      : h("div", { class: "a-kachel" }, leer("Noch keine Anmeldungen.")),
+  );
+}
+
+function plaetzeKarte(a: Daten) {
+  return h(
+    "div",
+    { class: "a-promo" },
+    h(
+      "div",
+      {},
+      h("h3", {}, "Alpha-Plätze"),
+      a.ok ? h("div", { class: "a-promo-zahl" }, `${zahl(a.frei)} frei`) : null,
+      h("p", {}, a.ok ? `von ${zahl(a.plaetze)} Plätzen. Ist alles belegt, landen neue Anmeldungen auf der Warteliste.` : "Sobald die Anmeldung verbunden ist, siehst du hier die freien Plätze."),
+    ),
+    h("a", { class: "a-promo-knopf", href: "#/alpha" }, h("span", {}, "Anmeldungen prüfen"), h("span", { "aria-hidden": "true" }, svg(ICONS.pfeil, 16))),
+  );
+}
+
+/** Aufklappbarer Eintrag im Betriebs-Akkordeon (erster offen). */
+function akkEintrag(opt: { icon: keyof typeof ICONS; titel: string; status: HTMLElement | null; unter: string; offen?: boolean; inhalt: (Node | null | false)[] }) {
+  const id = `akk-${Math.random().toString(36).slice(2, 8)}`;
+  const inhalt = h("div", { class: "a-akk-inhalt", id, hidden: !opt.offen }, ...opt.inhalt);
+  const knopf = h(
+    "button",
+    { class: "a-akk-kopf", type: "button", "aria-expanded": opt.offen ? "true" : "false", "aria-controls": id },
+    h(
+      "span",
+      { class: "a-akk-links" },
+      h("span", { class: `a-kachel-icon${opt.offen ? " a-dunkel" : ""}` }, svg(ICONS[opt.icon], 22)),
+      h("span", {}, h("span", { class: "a-akk-titel" }, opt.titel, opt.status), h("span", { class: "a-akk-unter" }, opt.unter)),
+    ),
+    h("span", { class: "a-chevron", "aria-hidden": "true" }, svg(ICONS.runter, 16)),
+  );
+  const box = h("div", { class: `a-akk${opt.offen ? " offen" : ""}` }, knopf, inhalt);
+  knopf.addEventListener("click", () => {
+    const auf = inhalt.hidden === true;
+    inhalt.hidden = !auf;
+    knopf.setAttribute("aria-expanded", String(auf));
+    box.classList.toggle("offen", auf);
+    knopf.querySelector(".a-kachel-icon")!.classList.toggle("a-dunkel", auf);
+  });
+  return box;
+}
+
+function betrieb(d: Daten) {
+  const { fehler: f, umfragen: u, lizenzen: l, downloads: dl, mails: m } = d;
+  const nichtDa = (x: Daten) => (x.ok ? null : h("p", { style: "margin:0" }, x.text || "Nicht verbunden."));
+  return h(
+    "div",
+    {},
+    h("div", { class: "a-abschnitt-kopf" }, h("h2", {}, "Betrieb"), h("a", { href: "#/fehler" }, "Alle Fehlerberichte")),
+    h(
+      "div",
+      { class: "a-akkordeon" },
+      akkEintrag({
+        icon: "fehler",
+        titel: "Fehlerberichte",
+        status: f.ok ? (f.offen ? badge(`${f.offen} offen`, "bad") : badge("Alles erledigt", "ok")) : null,
+        unter: f.ok ? `${zahl(f.gesamt)} insgesamt` : "nicht verfügbar",
+        offen: true,
+        inhalt: [
+          nichtDa(f),
+          ...(f.ok ? (f.neueste ?? []).slice(0, 2).map((b: Daten) => h("div", { class: "a-zitat" }, b.beschreibung || "—", h("small", {}, `${b.version || "?"} · ${relativ(b.zeit)} · ${b.status || "neu"}`))) : []),
+          f.ok && !(f.neueste ?? []).length ? h("p", { style: "margin:0" }, "Noch keine Meldungen aus der App.") : null,
+        ],
+      }),
+      akkEintrag({
+        icon: "umfrage",
+        titel: "Umfragen",
+        status: u.ok && u.nps ? badge(`NPS ${u.nps.wert}`, "info") : null,
+        unter: u.ok ? `${zahl(u.gesamt)} Antworten` : "nicht verfügbar",
+        inhalt: [
+          nichtDa(u),
+          u.ok && (u.jeUmfrage ?? []).length ? h("div", { class: "a-chips" }, (u.jeUmfrage as Daten[]).slice(0, 6).map((x) => h("span", { class: "a-chip" }, `${x.name} · ${x.anzahl}`))) : null,
+          u.ok ? h("div", { class: "a-meta" }, h("span", {}, u.nps ? `NPS aus ${u.nps.n} Antworten` : "Noch kein NPS"), h("a", { href: "#/umfragen", style: "color:inherit" }, "Zur Auswertung")) : null,
+        ],
+      }),
+      akkEintrag({
+        icon: "lizenz",
+        titel: "Lizenzen",
+        status: l.ok ? badge(`${zahl(l.aktiv)} aktiv`, "ok") : null,
+        unter: l.ok ? `${zahl(l.geraete)} Geräte · ${euro(l.umsatz30, l.waehrung)} in 30 Tagen` : "Lemon Squeezy nicht verbunden",
+        inhalt: [nichtDa(l), l.ok ? h("a", { href: "#/lizenzen", class: "a-knopf", style: "justify-self:start" }, "Lizenzen öffnen") : null],
+      }),
+      akkEintrag({
+        icon: "download",
+        titel: "Downloads",
+        status: dl.ok && dl.neueste ? badge(dl.neueste.tag) : null,
+        unter: dl.ok ? `${zahl(dl.gesamt)} Downloads` : "GitHub nicht verbunden",
+        inhalt: [nichtDa(dl), dl.ok && dl.neueste ? h("div", { class: "a-meta" }, h("span", {}, `Release ${dl.neueste.tag} vom ${datum(dl.neueste.datum)}`)) : null],
+      }),
+      akkEintrag({
+        icon: "mail",
+        titel: "Mails",
+        status: m.ok ? (m.probleme ? badge(`${m.probleme} Probleme`, "warn") : badge("Zugestellt", "ok")) : null,
+        unter: m.ok ? `${zahl(m.zugestellt)} von ${zahl(m.gesendet)} zugestellt (letzte 100)` : "Resend nicht verbunden",
+        inhalt: [nichtDa(m), m.ok ? h("a", { href: "#/mail", class: "a-knopf", style: "justify-self:start" }, "Mail öffnen") : null],
+      }),
+    ),
+  );
+}
+
+/** Alpha-Trichter: drei Kennzahlen, darunter 30 Tage Anmeldungen als Strichcode. */
+function trichter(d: Daten) {
+  const a = d.alpha;
+  const u = d.umfragen;
+  const tageListe: { tag: string; anzahl: number }[] = a.ok ? a.proTag ?? [] : [];
+  const max = Math.max(1, ...tageListe.map((t) => t.anzahl));
+  const n = tageListe.length;
+  return h(
+    "section",
+    { class: "a-karte a-trichter" },
+    h("div", { class: "a-karte-kopf", style: "margin:0" }, h("h2", {}, "Alpha-Trichter"), h("span", { class: "a-pille", style: "border:0;padding:0;color:var(--a-muted)" }, svg(ICONS.uhr, 15), "30 Tage")),
+    h(
+      "div",
+      { class: "a-trichter-werte" },
+      h("div", {}, h("span", {}, "Anmeldungen"), h("strong", {}, a.ok ? zahl(a.gesamt) : "—")),
+      h("div", {}, h("span", {}, "Plätze belegt"), h("strong", {}, a.ok ? zahl(a.plaetze - a.frei) : "—")),
+      h("div", {}, h("span", {}, "Antworten"), h("strong", {}, u.ok ? zahl(u.gesamt) : "—")),
+    ),
+    n
+      ? h(
+          "div",
+          { class: "a-strichcode", role: "img", "aria-label": `Anmeldungen je Tag, 30 Tage, höchstens ${max} an einem Tag` },
+          tageListe.map((t, i) =>
+            h("i", {
+              class: i >= n - 10 ? "d" : i >= n - 20 ? "m" : "",
+              style: `height:${Math.max(8, (t.anzahl / max) * 100)}%;animation-delay:${i * 18}ms`,
+              title: `${datum(t.tag)}: ${t.anzahl}`,
+            }),
+          ),
+        )
+      : null,
+  );
+}
 
 export const uebersicht: Bereich = async (ziel) => {
   const d = await api("uebersicht");
   const a = d.alpha;
-  const u = d.umfragen;
-  const f = d.fehler;
-  const l = d.lizenzen;
-  fuege(ziel, 
-    raster(
-      "a-r4",
-      kpi("Alpha-Anmeldungen", a.ok ? zahl(a.gesamt) : "—", a.ok ? `${a.frei} von ${a.plaetze} Plätzen frei · +${a.letzte7} in 7 Tagen` : ""),
-      kpi("Umfrage-Antworten", u.ok ? zahl(u.gesamt) : "—", u.ok && u.nps ? `NPS ${u.nps.wert} (n = ${u.nps.n})` : "noch kein NPS"),
-      kpi("Offene Fehlerberichte", f.ok ? zahl(f.offen) : "—", f.ok ? `${f.gesamt} insgesamt` : ""),
-      kpi("Aktive Lizenzen", l.ok ? zahl(l.aktiv) : "—", l.ok ? `${l.geraete} Geräte · ${euro(l.umsatz30, l.waehrung)} in 30 Tagen` : "Lemon Squeezy nicht verbunden"),
-      kpi("Downloads", d.downloads.ok ? zahl(d.downloads.gesamt) : "—", d.downloads.ok && d.downloads.neueste ? `neueste: ${d.downloads.neueste.tag}` : "noch kein Release"),
-      kpi("Mails (letzte 100)", d.mails.ok ? zahl(d.mails.zugestellt) : "—", d.mails.ok ? `zugestellt · ${d.mails.probleme} Probleme` : "Resend nicht verbunden"),
+  const glocke = document.querySelector("#a-glocke .a-punkt") as HTMLElement | null;
+  if (glocke) glocke.hidden = !(d.fehler.ok && d.fehler.offen > 0);
+
+  fuege(
+    ziel,
+    h(
+      "div",
+      { class: "a-bento" },
+      h("div", { class: "a-spalte" }, heldKarte(a), h("div", { class: "a-zwei" }, neuesteAnmeldungen(a), plaetzeKarte(a))),
+      h("div", { class: "a-spalte" }, betrieb(d), trichter(d)),
     ),
     raster(
       "a-r2",
-      karte("Anmeldungen, letzte 30 Tage", hinweisKachel(a) || verlauf(tage(a.proTag))),
       karte("Woher die Anmeldungen kommen", hinweisKachel(a) || balken(a.quellen)),
-    ),
-    raster(
-      "a-r3",
-      karte(
-        "Neueste Anmeldungen",
-        hinweisKachel(a) ||
-          (a.neueste.length
-            ? h("div", { class: "a-balken" }, a.neueste.map((e: Daten) => h("div", { class: "a-frage-kopf" }, badge(e.status), h("b", {}, e.name), h("span", { class: "a-klein", style: "color:var(--a-faint)" }, `${e.os} · ${relativ(e.zeit)}`))))
-            : leer("Noch keine Anmeldungen.")),
-      ),
-      karte(
-        "Neueste Fehlerberichte",
-        hinweisKachel(f) ||
-          (f.neueste.length
-            ? h("div", { class: "a-balken" }, f.neueste.map((b: Daten) => h("div", { class: "a-zitat" }, b.beschreibung, h("small", {}, `${b.version || "?"} · ${relativ(b.zeit)} · ${b.status || "neu"}`))))
-            : leer("Keine Fehlerberichte — schön.")),
-      ),
       karte(
         "Letzte Aktivität",
         Array.isArray(d.protokoll) && d.protokoll.length
-          ? h("div", { class: "a-balken" }, d.protokoll.map((p: Daten) => h("div", { class: "a-zitat" }, `${p.aktion}${p.details ? ` — ${p.details}` : ""}`, h("small", {}, `${p.benutzer} · ${relativ(p.zeit)}`))))
+          ? h("div", { class: "a-balken" }, d.protokoll.slice(0, 8).map((p: Daten) => h("div", { class: "a-zitat" }, `${p.aktion}${p.details ? ` — ${p.details}` : ""}`, h("small", {}, `${p.benutzer} · ${relativ(p.zeit)}`))))
           : leer("Noch keine Änderungen protokolliert."),
       ),
     ),
@@ -338,7 +560,7 @@ export const umsatz: Bereich = async (ziel, neu) => {
       kpi("Kunden", zahl(k.kunden)),
       kpi("Erstattungen", zahl(k.erstattet)),
     ),
-    karte("Bestellungen pro Tag (30 Tage)", verlauf(tage(d.proTag), "#34d399")),
+    karte("Bestellungen pro Tag (30 Tage)", verlauf(tage(d.proTag))),
     karte(null, tabs, inhalt),
   );
 };
@@ -743,7 +965,7 @@ export const analytics: Bereich = async (ziel) => {
     e.ok
       ? raster(
           "a-r2",
-          karte("Anmeldungen pro Tag", verlauf(tage(e.anmeldungenProTag), "#a78bfa")),
+          karte("Anmeldungen pro Tag", verlauf(tage(e.anmeldungenProTag), "#334155")),
           karte(
             "Trichter",
             balken(

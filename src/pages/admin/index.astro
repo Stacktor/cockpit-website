@@ -3,7 +3,13 @@
  * Admin-Portal — Zugriff nur über Cloudflare Access (Pfade /admin und /api/admin)
  * oder ?token=… (ADMIN_TOKEN). Die Seite selbst enthält keine Daten; alles
  * kommt nach der Prüfung aus /api/admin/*.
+ *
+ * Gestaltung nach „Nexus Analytics Dashboard" (DESIGN.md): helle, gerahmte
+ * Arbeitsfläche, Navigation oben, Inter + JetBrains Mono (lokal eingebunden,
+ * keine Google-Server), 14-px-Karten, Pillen-Knöpfe, gestaffelte Einblendung.
  */
+import "@fontsource-variable/inter";
+import "@fontsource/jetbrains-mono/600.css";
 import "../../styles/admin.css";
 ---
 
@@ -13,39 +19,79 @@ import "../../styles/admin.css";
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="light" />
     <title>cockpit Admin</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body class="admin">
     <div class="a-rahmen">
-      <aside class="a-leiste" id="a-leiste" aria-label="Admin-Navigation">
-        <div class="a-marke">
-          <i><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-15 12 12)"><path d="M4 5 L20 12 L13 12 Z" fill="#fff"></path><path d="M4 19 L20 12 L13 12 Z" fill="#fff" fill-opacity="0.7"></path></g></svg></i>
-          <span>cockpit<small>Admin</small></span>
+      <header class="a-kopf">
+        <a class="a-marke" href="#/uebersicht" aria-label="cockpit Admin – Übersicht">
+          <i>
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <g transform="rotate(-15 12 12)">
+                <path d="M4 5 L20 12 L13 12 Z" fill="#fff"></path>
+                <path d="M4 19 L20 12 L13 12 Z" fill="#fff" fill-opacity="0.7"></path>
+              </g>
+            </svg>
+          </i>
+          <span>cockpit</span>
+          <small>Admin</small>
+        </a>
+
+        <nav class="a-hauptnav" id="a-nav" aria-label="Bereiche"></nav>
+
+        <div class="a-aktionen">
+          <label class="a-suche">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input id="a-suche" type="search" list="a-ziele" placeholder="Bereich öffnen …" aria-label="Bereich öffnen" autocomplete="off" />
+            <datalist id="a-ziele"></datalist>
+          </label>
+          <button class="a-rund" id="a-neu" type="button" aria-label="Neu laden" title="Neu laden">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"></path><path d="M21 3v5h-5"></path></svg>
+          </button>
+          <a class="a-rund" href="#/fehler" id="a-glocke" aria-label="Fehlerberichte" title="Fehlerberichte">
+            <span class="a-punkt" hidden></span>
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+          </a>
+          <a class="a-rund" href="#/einstellungen" aria-label="Einstellungen" title="Einstellungen">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </a>
+          <button class="a-rund a-menue" id="a-menue" type="button" aria-label="Navigation öffnen" aria-expanded="false" aria-controls="a-blatt">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+          </button>
         </div>
-        <nav id="a-nav"></nav>
-        <div class="a-leiste-fuss">
-          <a href="/" target="_blank" rel="noopener">Zur Website ↗</a>
-          <span>Zugriff über Cloudflare Access</span>
+      </header>
+
+      <div class="a-seitenkopf">
+        <div>
+          <h1 class="a-maske"><span id="a-titel">Übersicht</span></h1>
+          <p class="a-beschreibung" id="a-beschreibung"></p>
         </div>
-      </aside>
-      <div class="a-haupt">
-        <header class="a-oben">
-          <button class="a-knopf a-menue" id="a-menue" type="button" aria-label="Navigation">☰</button>
-          <h1 id="a-titel">Übersicht</h1>
-          <span class="a-stand" id="a-stand"></span>
-          <div class="a-rechts">
-            <button class="a-knopf" id="a-neu" type="button">Neu laden</button>
-          </div>
-        </header>
-        <main class="a-inhalt" id="a-inhalt" aria-live="polite"></main>
+        <span class="a-stand" id="a-stand"></span>
       </div>
+
+      <main class="a-inhalt" id="a-inhalt" aria-live="polite"></main>
+
+      <footer class="a-fuss">
+        <span>Zugriff über Cloudflare Access</span>
+        <a href="/" target="_blank" rel="noopener">Zur Website ↗</a>
+      </footer>
     </div>
+
+    <div class="a-blatt" id="a-blatt" role="dialog" aria-modal="true" aria-label="Navigation" hidden>
+      <div class="a-blatt-kopf">
+        <span class="a-label">Bereiche</span>
+        <button class="a-rund" type="button" data-blatt-zu aria-label="Schließen">✕</button>
+      </div>
+      <nav id="a-blatt-nav" aria-label="Bereiche (mobil)"></nav>
+    </div>
+
     <div class="a-schleier" id="a-schleier"></div>
     <aside class="a-schublade" id="a-schublade" aria-hidden="true" role="dialog" aria-label="Details">
       <div class="a-schublade-kopf">
         <h2></h2>
-        <button class="a-knopf" type="button" data-zu aria-label="Schließen">✕</button>
+        <button class="a-rund" type="button" data-zu aria-label="Schließen">✕</button>
       </div>
       <div class="a-schublade-inhalt"></div>
     </aside>
