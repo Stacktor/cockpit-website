@@ -165,7 +165,7 @@ export function balken(liste: { name: string; anzahl: number }[], max = 10, skal
 }
 
 /** Flächendiagramm für Tageswerte. */
-export function verlauf(werte: { tag: string; wert: number }[], farbe = "#4f7dff") {
+export function verlauf(werte: { tag: string; wert: number }[], farbe = "#000000") {
   if (!werte.length) return leer("Noch keine Daten.");
   const B = 600;
   const H = 150;
@@ -187,7 +187,7 @@ export function verlauf(werte: { tag: string; wert: number }[], farbe = "#4f7dff
   grad.setAttribute("x2", "0");
   grad.setAttribute("y2", "1");
   for (const [o, a] of [
-    ["0", "0.35"],
+    ["0", "0.12"],
     ["1", "0"],
   ]) {
     const st = document.createElementNS(ns, "stop");
@@ -204,7 +204,7 @@ export function verlauf(werte: { tag: string; wert: number }[], farbe = "#4f7dff
     l.setAttribute("x2", String(B));
     l.setAttribute("y1", String((H / 4) * i));
     l.setAttribute("y2", String((H / 4) * i));
-    l.setAttribute("stroke", "#1f2935");
+    l.setAttribute("stroke", "#f1f5f9");
     s.append(l);
   }
   const flaeche = document.createElementNS(ns, "path");
