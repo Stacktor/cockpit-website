@@ -71,6 +71,14 @@ assert.equal(st, 200, JSON.stringify(d));
 const g = JSON.parse(await env.ALPHA.get("survey:resp:alpha-gross:111"));
 assert.deepEqual(g.antworten.hilfreich, { Pipeline: 5, "Auto-Modus": "nicht genutzt" });
 
+// Lizenz-Ping: nur mit gültiger Lizenz, speichert Version und System
+const { onRequestPost: ping } = await import(W + "lizenz-ping.js");
+[st, d] = await call(ping, { schluessel: "PRO-1", instanz: "inst-9", version: "0.1.0", system: "windows", status: "aktiv" });
+assert.equal(st, 200);
+const gepingt = JSON.parse(await env.ALPHA.get("lping:222"));
+assert.equal(gepingt.version, "0.1.0"); assert.ok(!JSON.stringify(gepingt).includes("PRO-1"));
+[st] = await call(ping, { schluessel: "FALSCH", instanz: "x" }); assert.equal(st, 403);
+
 // Fehler melden
 [st, d] = await call(fehler, { ...alpha, beschreibung: "x" }); assert.equal(st, 422);
 [st, d] = await call(fehler, { ...alpha, beschreibung: "Absturz beim Export", protokoll: "v0.1.0 windows\nfehler", version: "0.1.0", system: "windows" });

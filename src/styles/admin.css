@@ -2290,3 +2290,43 @@ a.a-wzeile:hover .a-wzeile-text {
 .admin [hidden] {
   display: none !important;
 }
+
+/* ── Tabellen-Auswahl und Zeitleiste (Lizenzen) ── */
+.a-kaestchen {
+  width: 34px;
+  text-align: center;
+}
+.a-kaestchen input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.a-auswahl {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--a-weich);
+}
+.a-auswahl[hidden] {
+  display: none;
+}
+.a-zeitleiste {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--a-linie);
+  display: grid;
+  gap: 10px;
+}
+.a-zeitleiste li {
+  position: relative;
+}
+.a-zeitleiste li::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--a-akzent);
+}

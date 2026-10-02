@@ -42,6 +42,10 @@ for (let i = 0; i < 6; i++)
   kv.m.set(`survey:resp:alpha-gross:${i}`, JSON.stringify({ umfrage: "alpha-gross", lizenzId: String(i), email: `t${i}@example.org`, zeit: tag(i), antworten: { haeufigkeit: "Mehrmals pro Woche", genutzt: ["Pipeline", "Stellensuche", "KI-Anschreiben"], hilfreich: { Pipeline: 5, Stellensuche: 4, "KI-Anschreiben": 4 + (i % 2) }, zuBillig: 5 + i, guenstig: 15 + i * 2, teuer: 35 + i * 3, zuTeuer: 60 + i * 4, modell: "Einmal kaufen", nps: [9, 8, 10, 7, 9, 10][i], design: 4, tempo: 5, einstieg: 4, fehlerhaeufigkeit: "Selten", system: "Windows 11", ki: "Lokales Modell (Ollama/LM Studio)", status: "Arbeitsuchend", branche: "IT / Software", erfahrung: "3–7 Jahre", bewerbungenMonat: "6–15", gespraech: "Ja, gern", fehlt: "Kalender-Export" } }));
 kv.m.set("bug:" + tag(0.3) + ":1", JSON.stringify({ beschreibung: "Beim Speichern einer Bewerbung mit sehr langem Anschreiben hängt die App kurz.", protokoll: "Ansicht: /pipeline\nZeit: …\nLetzte Fehlermeldungen (1):\n[10:12:03] abfrage: database is locked", version: "0.1.0", system: "Windows x86_64", email: "anna.becker@example.org", zeit: tag(0.3), status: "neu" }));
 kv.m.set("bug:" + tag(2) + ":2", JSON.stringify({ beschreibung: "AppImage startet unter Fedora nicht ohne libfuse2.", version: "0.1.0", system: "Linux x86_64", email: "noah.klein@example.org", zeit: tag(2), status: "erledigt" }));
+kv.m.set("lping:100", JSON.stringify({ zeit: tag(0.2), version: "0.1.0", system: "windows x86_64", status: "aktiv" }));
+kv.m.set("lping:102", JSON.stringify({ zeit: tag(40), version: "0.1.0", system: "linux x86_64", status: "aktiv" }));
+kv.m.set("lnotiz:101", JSON.stringify({ text: "Hat Fehler beim Import gemeldet, Rückruf vereinbart.", zeit: tag(1) }));
+kv.m.set("audit:" + tag(2) + ":b", JSON.stringify({ zeit: tag(2), benutzer: "thomas@example.org", aktion: "Lizenz um 30 Tage verlängert", details: "Lizenz 100" }));
 kv.m.set("audit:" + tag(0.1) + ":a", JSON.stringify({ zeit: tag(0.1), benutzer: "thomas@example.org", aktion: "Alpha-Einladung gesendet", details: "jonas.wolf@example.org (Code ALPHAK3F9Q)" }));
 
 const env = { ALPHA: kv, ADMIN_MASTER_KEY: "vorschau-master-schluessel-123", CF_ACCOUNT_ID: "abc", CF_ZONE_ID: "zone1", LEMONSQUEEZY_API_KEY: "ls_test_1234", RESEND_API_KEY: "re_test_5678", CF_ANALYTICS_TOKEN: "cf_9999", LS_STORE_ID: "1", LS_ALPHA_VARIANT_ID: "2", LS_ALPHA_CHECKOUT_URL: "https://cockpit.lemonsqueezy.com/checkout/buy/x", GITHUB_TOKEN: "ghp_vorschau" };
@@ -130,6 +134,23 @@ try {
       await page.locator("tbody tr").first().click();
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/desktop-alpha-detail.png` });
+      // Lizenzen: Merkmal-Filter, Auswahl mit Sammelaktionen, Detail mit Notiz und Verlauf.
+      await page.goto("http://localhost:4329/admin/#/lizenzen", { waitUntil: "networkidle" });
+      await page.waitForTimeout(500);
+      await page.selectOption('select[aria-label="Merkmal"]', "mit Notiz");
+      if ((await page.locator("tbody tr").count()) !== 1) funde.push("Lizenzen: Merkmal-Filter „mit Notiz“ zeigt nicht genau eine Lizenz");
+      await page.selectOption('select[aria-label="Merkmal"]', "");
+      await page.locator('thead input[type="checkbox"]').check();
+      if (!/6 ausgewählt/.test(await page.locator(".a-auswahl").innerText())) funde.push("Lizenzen: Auswahl aller sichtbaren fehlt");
+      await page.screenshot({ path: `${OUT}/desktop-lizenzen-auswahl.png` });
+      await page.getByRole("button", { name: "Auswahl aufheben" }).click();
+      await page.locator("tbody tr").first().locator("td").nth(1).click();
+      await page.waitForTimeout(600);
+      const detail = await page.locator("#a-schublade").innerText();
+      if (!/Letzte App-Prüfung/.test(detail) || !/Verlauf/.test(detail) || !/Mail an Kunden/.test(detail)) funde.push(`Lizenz-Detail unvollständig: ${detail.slice(0, 160)}`);
+      await page.screenshot({ path: `${OUT}/desktop-lizenz-detail.png` });
+      await page.keyboard.press("Escape");
+
       await page.goto("http://localhost:4329/admin/#/umfragen", { waitUntil: "networkidle" });
       await page.getByRole("button", { name: "Auswertung" }).nth(1).click();
       await page.waitForTimeout(500);

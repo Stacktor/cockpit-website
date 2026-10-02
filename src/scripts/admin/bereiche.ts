@@ -155,16 +155,39 @@ function alphaDetail(x: Daten, d: Daten, neu: () => void) {
 
 // ═════════════ Lizenzen ═════════════
 
+const TAG = 864e5;
+const statusVon = (x: Daten) => (x.deaktiviert ? "disabled" : x.status);
+/** Merkmale für den Filter „Merkmal“. */
+function merkmale(x: Daten): string[] {
+  const m: string[] = [];
+  const ab = x.laeuftAb ? new Date(x.laeuftAb).getTime() : 0;
+  if (ab && ab > Date.now() && ab - Date.now() < 30 * TAG) m.push("läuft in 30 Tagen ab");
+  if (ab && ab < Date.now()) m.push("abgelaufen");
+  if (x.testmodus) m.push("Testmodus");
+  if (!x.ping) m.push("nie in der App geprüft");
+  else if (Date.now() - new Date(x.ping.zeit).getTime() > 30 * TAG) m.push("seit 30 Tagen nicht geprüft");
+  if (x.notiz) m.push("mit Notiz");
+  return m;
+}
+const MERKMALE = ["läuft in 30 Tagen ab", "abgelaufen", "Testmodus", "nie in der App geprüft", "seit 30 Tagen nicht geprüft", "mit Notiz"];
+
 export const lizenzen: Bereich = async (ziel, neu) => {
   const d = await api("lizenzen");
   const l: Daten[] = d.lizenzen;
-  const status = [...new Set(l.map((x) => (x.deaktiviert ? "disabled" : x.status)))];
-  fuege(ziel, 
+  const status = [...new Set(l.map(statusVon))];
+  const produkte = [...new Set(l.map((x) => x.produkt).filter(Boolean))] as string[];
+  const sammel = (aktionName: string, frage: string, extra: Daten = {}) => async (zeilen: Daten[]) => {
+    if (!zeilen.length) return;
+    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an Lemon Squeezy. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
+    await aktion(null, () => api("lizenzen", { ids: zeilen.map((x) => x.id), aktion: aktionName, ...extra }), neu);
+  };
+  fuege(
+    ziel,
     raster(
       "a-r4",
       kpi("Lizenzen", zahl(l.length)),
       kpi("Aktiv", zahl(l.filter((x) => x.status === "active" && !x.deaktiviert).length)),
-      kpi("Geräte angemeldet", zahl(l.reduce((s, x) => s + (x.genutzt || 0), 0))),
+      kpi("Läuft in 30 Tagen ab", zahl(l.filter((x) => merkmale(x).includes("läuft in 30 Tagen ab")).length)),
       kpi("Gesperrt / abgelaufen", zahl(l.filter((x) => x.deaktiviert || x.status === "expired").length)),
     ),
     karte(
@@ -172,15 +195,36 @@ export const lizenzen: Bereich = async (ziel, neu) => {
       tabelle(
         [
           { titel: "Schlüssel", wert: (x) => h("span", { class: "a-mono" }, x.schluessel), suche: (x) => x.schluessel },
-          { titel: "Kunde", wert: (x) => h("div", {}, x.kundenName || "—", h("div", { class: "a-klein" }, x.kunde)), suche: (x) => `${x.kundenName} ${x.kunde}` },
+          { titel: "Kunde", wert: (x) => h("div", {}, x.kundenName || "—", h("div", { class: "a-klein" }, x.kunde)), suche: (x) => `${x.kundenName} ${x.kunde} ${x.notiz || ""}` },
           { titel: "Produkt", wert: (x) => x.produkt },
-          { titel: "Status", wert: (x) => h("span", {}, badge(x.deaktiviert ? "disabled" : x.status), x.testmodus ? badge("Test", "") : null) },
+          { titel: "Status", wert: (x) => h("span", {}, badge(statusVon(x)), x.testmodus ? badge("Test", "") : null) },
           { titel: "Geräte", wert: (x) => `${x.genutzt ?? 0} / ${x.limit ?? "∞"}`, klasse: "a-zahl" },
+          {
+            titel: "App",
+            wert: (x) => (x.ping ? h("div", {}, relativ(x.ping.zeit), h("div", { class: "a-klein" }, `${x.ping.version || "?"} · ${x.ping.system || "?"}`)) : "—"),
+            suche: (x) => (x.ping ? `${x.ping.version} ${x.ping.system}` : ""),
+          },
           { titel: "Läuft ab", wert: (x) => (x.laeuftAb ? datum(x.laeuftAb) : "unbefristet") },
           { titel: "Erstellt", wert: (x) => datum(x.erstellt) },
         ],
         l,
-        { filter: { name: "Status", werte: status, feld: (x) => (x.deaktiviert ? "disabled" : x.status) }, beiKlick: (x) => lizenzDetail(x.id, neu), leerText: "Noch keine Lizenzen." },
+        {
+          filter: [
+            { name: "Status", werte: status, feld: statusVon },
+            ...(produkte.length > 1 ? [{ name: "Produkt", werte: produkte, feld: (x: Daten) => x.produkt || "" }] : []),
+            { name: "Merkmal", werte: MERKMALE, feld: merkmale },
+          ],
+          beiKlick: (x) => lizenzDetail(x.id, neu),
+          leerText: "Noch keine Lizenzen.",
+          auswahl: {
+            schluessel: (x) => String(x.id),
+            aktionen: [
+              { titel: "Um 30 Tage verlängern", aus: sammel("verlaengern", "um 30 Tage verlängern", { tage: 30 }) },
+              { titel: "Entsperren", aus: sammel("entsperren", "entsperren") },
+              { titel: "Sperren", klasse: "a-rot", aus: sammel("sperren", "sperren") },
+            ],
+          },
+        },
       ),
     ),
   );
@@ -203,18 +247,29 @@ async function lizenzDetail(id: string, neu: () => void) {
       lizenzDetail(id, neu);
       neu();
     });
+  const notiz = text(x.notiz || "", { rows: 3, placeholder: "Nur für dich sichtbar, z. B. „Rabatt zugesagt“", "aria-label": "Notiz" });
+  const betreff = eingabe({ placeholder: "Betreff", "aria-label": "Betreff", style: "width:100%" });
+  const mailText = text("", { rows: 5, placeholder: "Text der Mail (Anrede mit Vorname kommt automatisch)", "aria-label": "Text" });
+  const sync = d.sync as Daten | null;
+
   schublade(
     `Lizenz ${x.schluessel}`,
     liste([
       ["Kunde", x.kundenName],
       ["E-Mail", x.kunde ? h("a", { href: `mailto:${x.kunde}` }, x.kunde) : null],
       ["Produkt", x.produkt],
-      ["Status", badge(x.deaktiviert ? "disabled" : x.status)],
+      ["Status", badge(statusVon(x))],
       ["Geräte", `${x.genutzt ?? 0} von ${x.limit ?? "∞"}`],
       ["Läuft ab", x.laeuftAb ? zeit(x.laeuftAb) : "unbefristet"],
+      ["Letzte App-Prüfung", x.ping ? `${zeit(x.ping.zeit)} · ${x.ping.version || "?"} · ${x.ping.system || "?"} · ${x.ping.status || "?"}` : "noch keine"],
       ["Bestellung", x.bestellung],
       ["Erstellt", zeit(x.erstellt)],
     ]),
+    karte(
+      "Notiz",
+      notiz,
+      h("div", { class: "a-werkzeuge", style: "margin-top:8px" }, knopf("Speichern", (ev) => tu({ aktion: "notiz", text: notiz.value })(ev))),
+    ),
     karte(
       "Geräte",
       d.geraete.length
@@ -239,11 +294,53 @@ async function lizenzDetail(id: string, neu: () => void) {
       h(
         "div",
         { class: "a-werkzeuge", style: "margin-bottom:12px" },
-        x.deaktiviert ? knopf("Entsperren", tu({ aktion: "entsperren" })) : knopf("Sperren", async (ev) => (await bestaetigen("Lizenz sperren?", "Die App stuft beim nächsten Prüfen auf „Kostenlos“ zurück.", "Sperren")) && tu({ aktion: "sperren" })(ev), "a-rot"),
+        x.deaktiviert
+          ? knopf("Entsperren", tu({ aktion: "entsperren" }))
+          : knopf("Sperren", async (ev) => (await bestaetigen("Lizenz sperren?", "Die App zeigt „Gesperrt“, behält den Schlüssel und läuft als Kostenlos weiter.", "Sperren")) && tu({ aktion: "sperren" })(ev), "a-rot"),
         knopf("Unbefristet", tu({ aktion: "unbefristet" })),
       ),
       h("div", { class: "a-werkzeuge", style: "margin-bottom:12px" }, "Verlängern um", tageEingabe, "Tage", knopf("Verlängern", (ev) => tu({ aktion: "verlaengern", tage: Number(tageEingabe.value), bisherAblauf: x.laeuftAb })(ev))),
       h("div", { class: "a-werkzeuge" }, "Geräte-Limit", limitEingabe, knopf("Setzen", (ev) => tu({ aktion: "geraete", limit: Number(limitEingabe.value) })(ev))),
+    ),
+    sync
+      ? karte(
+          "Sync-Speicher",
+          h("p", { class: "a-klein" }, `${(sync.belegt / 1048576).toLocaleString("de-DE", { maximumFractionDigits: 1 })} MB von ${Math.round(sync.grenze / 1048576)} MB · ${sync.dateien} Dateien (verschlüsselt, Inhalt nicht lesbar)`),
+          sync.dateien
+            ? knopf("Sync-Speicher leeren", async (ev) => (await bestaetigen("Sync-Speicher leeren?", "Alle Sync-Pakete dieser Lizenz werden gelöscht. Die Daten auf den Geräten bleiben; beim nächsten Abgleich lädt ein Gerät seinen Stand neu hoch.", "Leeren")) && tu({ aktion: "sync-leeren" })(ev), "a-rot")
+            : null,
+        )
+      : null,
+    karte(
+      "Mail an Kunden",
+      x.kunde
+        ? h(
+            "div",
+            {},
+            betreff,
+            h("div", { style: "height:8px" }),
+            mailText,
+            h(
+              "div",
+              { class: "a-werkzeuge", style: "margin-top:8px" },
+              knopf("Senden", async (ev) => {
+                if (!betreff.value.trim() || !mailText.value.trim()) return toast("Betreff und Text ausfüllen.", true);
+                if (await bestaetigen("Mail senden?", `An ${x.kunde}, mit cockpit-Logo und Fußzeile.`, "Senden")) tu({ aktion: "mail", betreff: betreff.value, text: mailText.value })(ev);
+              }),
+            ),
+          )
+        : leer("Zu dieser Lizenz gibt es keine E-Mail-Adresse."),
+    ),
+    karte(
+      "Verlauf",
+      d.verlauf?.length
+        ? h(
+            "ol",
+            { class: "a-zeitleiste" },
+            d.verlauf.map((e: Daten) => h("li", {}, h("b", {}, e.aktion), h("div", { class: "a-klein" }, `${zeit(e.zeit)} · ${e.benutzer || "?"}`))),
+          )
+        : leer("Noch keine Änderungen aus dem Admin."),
+      h("p", { class: "a-klein", style: "margin-top:8px;color:var(--a-faint)" }, `Erstellt ${zeit(x.erstellt)} bei Lemon Squeezy.`),
     ),
   );
 }

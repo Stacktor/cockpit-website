@@ -242,37 +242,100 @@ export interface Spalte {
   suche?: (z: Daten) => string;
 }
 
+type Filter = { name: string; werte: string[]; feld: (z: Daten) => string | string[] };
+type Sammel = { titel: string; klasse?: string; aus: (zeilen: Daten[]) => void };
+
 export function tabelle(
   spalten: Spalte[],
   zeilen: Daten[],
-  opt: { suche?: boolean; filter?: { name: string; werte: string[]; feld: (z: Daten) => string }; beiKlick?: (z: Daten) => void; leerText?: string } = {},
+  opt: {
+    suche?: boolean;
+    /** Ein oder mehrere Filter; `feld` darf mehrere Werte liefern (z. B. Merkmale). */
+    filter?: Filter | Filter[];
+    beiKlick?: (z: Daten) => void;
+    leerText?: string;
+    /** Auswahl per Kästchen mit Sammelaktionen (bekommen die ausgewählten Zeilen). */
+    auswahl?: { schluessel: (z: Daten) => string; aktionen: Sammel[] };
+  } = {},
 ) {
   let text = "";
-  let filterWert = "";
+  const filter = opt.filter ? (Array.isArray(opt.filter) ? opt.filter : [opt.filter]) : [];
+  const filterWerte = filter.map(() => "");
+  const gewaehlt = new Set<string>();
   const tbody = h("tbody");
   const zaehler = h("span", { class: "a-klein", style: "color:var(--a-faint)" });
+  const leiste = h("div", { class: "a-werkzeuge a-auswahl", style: "margin-bottom:12px", hidden: true });
+  let sichtbar: Daten[] = [];
+  const passt = (z: Daten) =>
+    filter.every((f, i) => {
+      if (!filterWerte[i]) return true;
+      const w = f.feld(z);
+      return Array.isArray(w) ? w.includes(filterWerte[i]) : w === filterWerte[i];
+    });
+  const zeigeLeiste = () => {
+    if (!opt.auswahl) return;
+    leiste.hidden = gewaehlt.size === 0;
+    const ausgewaehlt = zeilen.filter((z) => gewaehlt.has(opt.auswahl!.schluessel(z)));
+    leiste.replaceChildren(
+      h("b", {}, `${gewaehlt.size} ausgewählt`),
+      ...opt.auswahl.aktionen.map((a) => {
+        const k = h("button", { class: `a-knopf ${a.klasse || ""}`, type: "button" }, a.titel);
+        k.addEventListener("click", () => a.aus(ausgewaehlt));
+        return k;
+      }),
+      (() => {
+        const k = h("button", { class: "a-knopf", type: "button" }, "Auswahl aufheben");
+        k.addEventListener("click", () => {
+          gewaehlt.clear();
+          zeichne();
+        });
+        return k;
+      })(),
+    );
+  };
+  const kopfKaestchen = h("input", { type: "checkbox", "aria-label": "Alle sichtbaren auswählen" }) as HTMLInputElement;
+  kopfKaestchen.addEventListener("change", () => {
+    for (const z of sichtbar) {
+      const k = opt.auswahl!.schluessel(z);
+      if (kopfKaestchen.checked) gewaehlt.add(k);
+      else gewaehlt.delete(k);
+    }
+    zeichne();
+  });
   const zeichne = () => {
     tbody.replaceChildren();
     const q = text.toLowerCase();
-    const sichtbar = zeilen.filter((z) => {
-      if (opt.filter && filterWert && opt.filter.feld(z) !== filterWert) return false;
+    sichtbar = zeilen.filter((z) => {
+      if (!passt(z)) return false;
       if (!q) return true;
       return spalten.some((s) => String((s.suche ?? ((x: Daten) => String(s.wert(x) ?? "")))(z)).toLowerCase().includes(q));
     });
     zaehler.textContent = `${sichtbar.length} von ${zeilen.length}`;
+    kopfKaestchen.checked = sichtbar.length > 0 && opt.auswahl ? sichtbar.every((z) => gewaehlt.has(opt.auswahl!.schluessel(z))) : false;
+    zeigeLeiste();
+    const breite = spalten.length + (opt.auswahl ? 1 : 0);
     if (!sichtbar.length) {
-      tbody.append(h("tr", {}, h("td", { colspan: spalten.length }, leer(opt.leerText || "Keine Einträge."))));
+      tbody.append(h("tr", {}, h("td", { colspan: breite }, leer(opt.leerText || "Keine Einträge."))));
       return;
     }
     for (const z of sichtbar.slice(0, 500)) {
-      const tr = h(
-        "tr",
-        { class: opt.beiKlick ? "a-klickbar" : "", tabindex: opt.beiKlick ? 0 : null },
-        spalten.map((s) => {
-          const v = s.wert(z);
-          return h("td", { class: s.klasse || "" }, v instanceof Node ? v : v === null || v === undefined || v === "" ? "—" : String(v));
-        }),
-      );
+      const zellen = spalten.map((s) => {
+        const v = s.wert(z);
+        return h("td", { class: s.klasse || "" }, v instanceof Node ? v : v === null || v === undefined || v === "" ? "—" : String(v));
+      });
+      if (opt.auswahl) {
+        const k = opt.auswahl.schluessel(z);
+        const box = h("input", { type: "checkbox", "aria-label": "Auswählen", checked: gewaehlt.has(k) }) as HTMLInputElement;
+        box.addEventListener("click", (e) => e.stopPropagation());
+        box.addEventListener("change", () => {
+          if (box.checked) gewaehlt.add(k);
+          else gewaehlt.delete(k);
+          zeigeLeiste();
+          kopfKaestchen.checked = sichtbar.every((x) => gewaehlt.has(opt.auswahl!.schluessel(x)));
+        });
+        zellen.unshift(h("td", { class: "a-kaestchen" }, box));
+      }
+      const tr = h("tr", { class: opt.beiKlick ? "a-klickbar" : "", tabindex: opt.beiKlick ? 0 : null }, zellen);
       if (opt.beiKlick) {
         tr.addEventListener("click", () => opt.beiKlick!(z));
         tr.addEventListener("keydown", (e) => (e as KeyboardEvent).key === "Enter" && opt.beiKlick!(z));
@@ -289,21 +352,24 @@ export function tabelle(
     });
     werkzeuge.append(eingabe);
   }
-  if (opt.filter) {
-    const sel = h("select", { class: "a-eingabe", "aria-label": opt.filter.name }, h("option", { value: "" }, `${opt.filter.name}: alle`), opt.filter.werte.map((w) => h("option", { value: w }, w))) as HTMLSelectElement;
+  filter.forEach((f, i) => {
+    const sel = h("select", { class: "a-eingabe", "aria-label": f.name }, h("option", { value: "" }, `${f.name}: alle`), f.werte.map((w) => h("option", { value: w }, w))) as HTMLSelectElement;
     sel.addEventListener("change", () => {
-      filterWert = sel.value;
+      filterWerte[i] = sel.value;
       zeichne();
     });
     werkzeuge.append(sel);
-  }
+  });
   werkzeuge.append(zaehler);
   zeichne();
+  const kopf = spalten.map((s) => h("th", { class: s.klasse || "" }, s.titel));
+  if (opt.auswahl) kopf.unshift(h("th", { class: "a-kaestchen" }, kopfKaestchen));
   return h(
     "div",
     {},
     werkzeuge,
-    h("div", { class: "a-tabelle-rahmen" }, h("table", { class: "a-tabelle" }, h("thead", {}, h("tr", {}, spalten.map((s) => h("th", { class: s.klasse || "" }, s.titel)))), tbody)),
+    leiste,
+    h("div", { class: "a-tabelle-rahmen" }, h("table", { class: "a-tabelle" }, h("thead", {}, h("tr", {}, kopf)), tbody)),
   );
 }
 

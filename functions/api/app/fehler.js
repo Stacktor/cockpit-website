@@ -13,6 +13,7 @@
  */
 import { imKontingent, json, pruefeLizenz, sha256 } from "../../../lib/app-lizenz.js";
 import { mitSchluesseln } from "../../../lib/admin/tresor.js";
+import { escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vorlage.js";
 
 const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -68,6 +69,12 @@ export async function onRequestPost({ request, env: roh }) {
         ...(bericht.email ? { reply_to: bericht.email } : {}),
         subject: `Fehlerbericht ${bericht.version || ""} (${bericht.system || "?"}) · ${bericht.quelle}`,
         text: `${bericht.email || "ohne E-Mail"} · ${bericht.quelle}\n\n${beschreibung}\n\n---\n${bericht.protokoll || "(kein Protokoll)"}`,
+        html: mailHtml(
+          `<p style="margin:0 0 6px;font-size:13px;color:#5b6675;">${escapeHtml(bericht.email || "ohne E-Mail")} · ${escapeHtml(bericht.quelle)} · ${escapeHtml(bericht.version || "?")} · ${escapeHtml(bericht.system || "?")}</p>
+          ${textZuHtml(beschreibung)}
+          <pre style="margin:16px 0 0;padding:12px 14px;background:#f6f8fb;border:1px solid #e4e8ee;border-radius:8px;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;">${escapeHtml(bericht.protokoll || "(kein Protokoll)")}</pre>`,
+          { vorschau: beschreibung.slice(0, 120) },
+        ),
       }),
     }).catch(() => {});
   }

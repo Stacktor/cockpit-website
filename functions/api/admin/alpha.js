@@ -10,7 +10,7 @@
 import { json } from "../../../lib/admin/zugang.js";
 import { anmeldungen, escapeHtml, lemon, lsFehler, resend, zaehleBelegt } from "../../../lib/admin/daten.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
-import { rahmen } from "../../../lib/admin/mail-vorlage.js";
+import { alsText, kasten, knopf, link as mailLink, mailHtml, titel } from "../../../lib/mail/vorlage.js";
 import { plaetze } from "../../../lib/alpha-optionen.js";
 
 const STATUS = ["neu", "angenommen", "eingeladen", "warteliste", "abgelehnt"];
@@ -109,23 +109,25 @@ async function einladen(env, benutzer, key, eintrag, ohneCode) {
   if (code) link.searchParams.set("checkout[discount_code]", code);
 
   const vorname = String(eintrag.name || "").split(/\s+/)[0] || "hallo";
-  const html = rahmen(`
-    <h1 style="font-size:21px;margin:0 0 12px;color:#0e1218;">Du bist dabei, ${escapeHtml(vorname)}!</h1>
-    <p style="margin:0 0 14px;">Danke für deine Anmeldung — ich freue mich, dass du die <b>0.1 Alpha</b> von cockpit testest.
+  const html = mailHtml(
+    `${titel(`Du bist dabei, ${vorname}!`)}
+    <p style="margin:0 0 14px;">Danke für deine Anmeldung. Schön, dass du die <b>0.1 Alpha</b> von cockpit testest.
     So kommst du an deinen Alpha-Schlüssel:</p>
-    <p style="margin:0 0 18px;"><a href="${escapeHtml(link.href)}" style="display:inline-block;background:#1f5eff;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:8px;">Alpha-Schlüssel abholen</a></p>
-    <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Der Link führt zu Lemon Squeezy, der Plattform, über die cockpit später verkauft wird.
-    ${code ? `Der Code <b>${code}</b> ist schon eingetragen, du zahlst <b>0 €</b>.` : "Die Alpha-Variante kostet 0 €."}
-    Danach bekommst du den Schlüssel per Mail.</p>
-    <div style="background:#edf2ff;border:1px solid #cfdcff;border-radius:9px;padding:14px 16px;margin:18px 0;color:#1b3d8f;">
-      <b style="display:block;margin-bottom:6px;color:#1747cc;">Dann:</b>
-      1. App laden: <a href="https://cockpit.mesco.cc/download/" style="color:#1747cc;">cockpit.mesco.cc/download</a><br>
-      2. Schlüssel beim ersten Start eintragen (<a href="https://cockpit.mesco.cc/hilfe/alpha-schluessel/" style="color:#1747cc;">Anleitung</a>)<br>
-      3. Nach ein paar Tagen fragt dich die App kurz, wie es läuft. Unter „Feedback geben“ kannst du jederzeit Fehler melden.
-    </div>
-    ${env.DISCORD_URL ? `<p style="margin:0 0 14px;">Austausch mit den anderen Testern: <a href="${escapeHtml(env.DISCORD_URL)}" style="color:#1f5eff;">Discord</a>.</p>` : ""}
+    ${knopf(link.href, "Alpha-Schlüssel abholen")}
+    <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Der Link führt zu Lemon Squeezy, über die cockpit später verkauft wird.
+    ${code ? `Der Code <b>${escapeHtml(code)}</b> ist schon eingetragen, du zahlst <b>0 €</b>.` : "Die Alpha-Variante kostet 0 €."}
+    Danach kommt der Schlüssel per Mail.</p>
+    ${kasten(
+      "Dann",
+      `1. App laden: ${mailLink("https://cockpit.mesco.cc/download/", "cockpit.mesco.cc/download")}<br>
+      2. Schlüssel beim ersten Start eintragen (${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
+      3. Nach ein paar Tagen fragt dich die App kurz, wie es läuft. Unter „Feedback geben“ kannst du jederzeit Fehler melden.`,
+    )}
+    ${env.DISCORD_URL ? `<p style="margin:0 0 14px;">Austausch mit den anderen Testern: ${mailLink(env.DISCORD_URL, "Discord")}.</p>` : ""}
     <p style="margin:0 0 14px;">Bei Fragen antworte einfach auf diese Mail.</p>
-    <p style="margin:0;">Viele Grüße<br>Thomas</p>`);
+    <p style="margin:0;">Viele Grüße<br>Thomas</p>`,
+    { vorschau: "Hier holst du deinen Alpha-Schlüssel ab.", grund: "Du bekommst diese Mail, weil du dich auf cockpit.mesco.cc für die Alpha angemeldet hast." },
+  );
 
   const r = await resend(env, "emails", {
     method: "POST",
@@ -135,6 +137,7 @@ async function einladen(env, benutzer, key, eintrag, ohneCode) {
       reply_to: env.MAIL_AN || "Kontakt@mesco.cc",
       subject: "Du bist in der Alpha von Bewerbungs-Cockpit",
       html,
+      text: alsText(html),
     }),
   });
   if (!r.ok) return json(502, { fehler: `Mail konnte nicht gesendet werden (Resend ${r.status}).${code ? ` Der Code ${code} ist angelegt.` : ""}` });

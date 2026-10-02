@@ -305,6 +305,37 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "geraet-abmelden", instanz: "inst-1" } }), data: ldata });
   assert.equal(r.status, 200);
 
+  // App-Prüfung und Notiz erscheinen in Liste und Detail.
+  await ldata.env.ALPHA.put("lping:7", JSON.stringify({ zeit: "2026-10-02T10:00:00Z", version: "0.1.0", system: "windows", status: "aktiv" }));
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "notiz", text: "Rabatt zugesagt" } }), data: ldata });
+  assert.equal(r.status, 200);
+  d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen"), data: ldata })).json();
+  assert.equal(d.lizenzen[0].ping.version, "0.1.0");
+  assert.equal(d.lizenzen[0].notiz, "Rabatt zugesagt");
+  lemonAntworten["license-key-instances"] = { body: { data: [{ id: "inst-1", attributes: { name: "Laptop", created_at: "2026-09-01T10:00:00Z" } }] } };
+  d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen?id=7"), data: ldata })).json();
+  assert.equal(d.lizenz.notiz, "Rabatt zugesagt");
+  assert.equal(d.geraete[0].name, "Laptop");
+  assert.ok(d.verlauf.some((e) => e.aktion === "Lizenz gesperrt"), "Verlauf aus dem Audit-Log");
+  assert.equal(d.sync, null, "ohne R2 kein Sync-Speicher");
+
+  // Mail an Kunden: Vorlage mit Logo, Text- und HTML-Fassung.
+  lemonAntworten["license-keys/7"] = { body: { data: { id: "7", attributes: { key: "SECRET-KEY-FULL-1234", user_email: "k@x.de", user_name: "Kim Muster" } } } };
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "mail", betreff: "Deine Lizenz", text: "Kurze Info zu deiner Lizenz." } }), data: { ...ldata, env: { ...ldata.env, RESEND_API_KEY: "re_x" } } });
+  assert.equal(r.status, 200);
+  const kundenmail = JSON.parse(aufrufe.findLast((a) => a.u.endsWith("/emails")).init.body);
+  assert.deepEqual(kundenmail.to, ["k@x.de"]);
+  assert.ok(kundenmail.html.includes("mail-logo.png") && kundenmail.html.includes("Hallo Kim"));
+  assert.ok(kundenmail.text.includes("Kurze Info zu deiner Lizenz."));
+  assert.ok(!kundenmail.html.includes("SECRET-KEY"));
+
+  // Sammelaktion: Verlängern für mehrere, nur erlaubte Aktionen.
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { ids: ["7", "8", "7"], aktion: "verlaengern", tage: 30 } }), data: ldata });
+  d = await r.json();
+  assert.match(d.meldung, /von 2 Lizenzen/);
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { ids: ["7"], aktion: "geraet-abmelden" } }), data: ldata });
+  assert.equal(r.status, 400);
+
   const U = await imp("../functions/api/admin/uebersicht.js");
   d = await (await U.onRequestGet({ data })).json();
   assert.equal(d.alpha.ok, true);

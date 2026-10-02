@@ -31,6 +31,7 @@
 
 import { ALPHA_OPTIONEN as O, einer, mehrere, plaetze } from "../../lib/alpha-optionen.js";
 import { mitSchluesseln } from "../../lib/admin/tresor.js";
+import { alsText, kasten, link, mailHtml, titel } from "../../lib/mail/vorlage.js";
 
 export async function onRequestPost({ request, env: roh }) {
   // Schlüssel aus dem Admin-Tresor haben Vorrang vor Umgebungsvariablen.
@@ -229,69 +230,49 @@ async function senden(schluessel, nachricht) {
       Authorization: `Bearer ${schluessel}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(nachricht),
+    body: JSON.stringify({ ...nachricht, text: nachricht.text ?? alsText(nachricht.html || "") }),
   });
   if (!r.ok) throw new Error("Resend: " + r.status);
   return r.json();
 }
 
-const RAHMEN = (inhalt) => `<!DOCTYPE html><html lang="de"><body style="margin:0;padding:0;background:#f6f8fb;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:32px 12px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border:1px solid #e4e8ee;border-radius:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-<tr><td style="padding:26px 30px 0;">
-  <div style="font-size:18px;font-weight:700;letter-spacing:-.4px;color:#0e1218;">Bewerbungs-<span style="color:#1f5eff;">Cockpit</span></div>
-</td></tr>
-<tr><td style="padding:18px 30px 30px;font-size:15px;line-height:1.65;color:#232b36;">
-${inhalt}
-</td></tr>
-<tr><td style="padding:16px 30px;border-top:1px solid #e4e8ee;font-size:12px;color:#5b6675;">
-  Thomas Graf · Erlhorst 15 · 27753 Delmenhorst<br>
-  <a href="https://cockpit.mesco.cc" style="color:#5b6675;">cockpit.mesco.cc</a> ·
-  <a href="https://cockpit.mesco.cc/impressum.html" style="color:#5b6675;">Impressum</a> ·
-  <a href="https://cockpit.mesco.cc/datenschutz.html" style="color:#5b6675;">Datenschutz</a>
-</td></tr>
-</table></td></tr></table></body></html>`;
-
 const mailAnBewerber = (name, platz, { warteliste, mac, discord }) =>
-  RAHMEN(`
-  <h1 style="font-size:21px;margin:0 0 12px;letter-spacing:-.4px;color:#0e1218;">Danke, ${escape_(name)}.</h1>
+  mailHtml(
+    `${titel(`Danke, ${name}.`)}
   ${
     warteliste
-      ? `<p style="margin:0 0 14px;">Deine Anmeldung ist angekommen — du stehst auf der
+      ? `<p style="margin:0 0 14px;">Deine Anmeldung ist angekommen. Du stehst auf der
   <b>Warteliste</b>${platz ? ` (Platz ${platz})` : ""}. ${
           mac
-            ? "cockpit gibt es noch nicht für macOS, weil ich es gerade nicht testen kann. Sobald es eine getestete Mac-Version gibt, melde ich mich bei dir."
-            : "Gerade sind alle Alpha-Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, melde ich mich — nach Reihenfolge der Anmeldung."
+            ? "cockpit gibt es noch nicht für macOS, weil ich es gerade nicht testen kann. Sobald es eine getestete Mac-Version gibt, melde ich mich."
+            : "Gerade sind alle Alpha-Plätze vergeben. Wird einer frei oder startet die nächste Runde, melde ich mich, nach Reihenfolge der Anmeldung."
         }</p>`
       : `<p style="margin:0 0 14px;">Deine Anmeldung für die geschlossene Alpha ist angekommen${
-          platz ? ` — du bist Anmeldung Nummer <b>${platz}</b>` : ""
+          platz ? `, du bist Nummer <b>${platz}</b>` : ""
         }.</p>
-  <p style="margin:0 0 14px;">Ich vergebe die Plätze persönlich und melde mich in den nächsten
-  Tagen. Wenn du dabei bist, bekommst du deinen <b>Alpha-Schlüssel</b> per Mail (Absender:
-  Lemon Squeezy). Falls es diesmal nicht klappt, sage ich dir auch das.</p>
-  <div style="background:#edf2ff;border:1px solid #cfdcff;border-radius:9px;padding:14px 16px;margin:20px 0;">
-    <b style="display:block;margin-bottom:6px;color:#1747cc;">So geht es dann weiter</b>
-    <span style="color:#1b3d8f;">1. App laden: <a href="https://cockpit.mesco.cc/download/" style="color:#1747cc;">cockpit.mesco.cc/download</a><br>
-    2. Alpha-Schlüssel beim ersten Start eintragen (<a href="https://cockpit.mesco.cc/hilfe/alpha-schluessel/" style="color:#1747cc;">Anleitung</a>)<br>
-    3. Loslegen — nach ein paar Tagen fragt dich die App kurz, wie es läuft.</span>
-  </div>
+  <p style="margin:0 0 14px;">Ich vergebe die Plätze selbst und melde mich in den nächsten Tagen.
+  Bist du dabei, kommt dein <b>Alpha-Schlüssel</b> per Mail (Absender: Lemon Squeezy). Klappt es
+  diesmal nicht, sage ich dir auch das.</p>
+  ${kasten(
+    "So geht es dann weiter",
+    `1. App laden: ${link("https://cockpit.mesco.cc/download/", "cockpit.mesco.cc/download")}<br>
+    2. Alpha-Schlüssel beim ersten Start eintragen (${link("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
+    3. Loslegen. Nach ein paar Tagen fragt dich die App kurz, wie es läuft.`,
+  )}
   <p style="margin:0 0 14px;">Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die
-  Vollversion dauerhaft — inklusive künftiger Aktualisierungen.</p>`
+  Vollversion dauerhaft, mit allen künftigen Updates.</p>`
   }
-  ${
-    discord
-      ? `<p style="margin:0 0 14px;">Magst du dich schon mit anderen austauschen? <a href="${escape_(discord)}" style="color:#1f5eff;">Komm in den Discord</a>.</p>`
-      : ""
-  }
-  <p style="margin:0 0 14px;">Diese Mail brauchst du nicht aufzubewahren, und du musst nichts weiter tun.</p>
-  <p style="margin:0;">Viele Grüße<br>Thomas</p>
-  <p style="margin:18px 0 0;font-size:13px;color:#5b6675;">Du bekommst diese Mail, weil du dich auf
-  cockpit.mesco.cc für die Alpha angemeldet hast. Antworte einfach, wenn du wieder
-  gestrichen werden möchtest.</p>`);
+  ${discord ? `<p style="margin:0 0 14px;">Magst du dich schon mit anderen austauschen? ${link(discord, "Komm in den Discord")}.</p>` : ""}
+  <p style="margin:0 0 14px;">Du musst nichts weiter tun.</p>
+  <p style="margin:0;">Viele Grüße<br>Thomas</p>`,
+    {
+      vorschau: warteliste ? "Du stehst auf der Warteliste. Ich melde mich, sobald ein Platz frei ist." : "Deine Anmeldung ist da. Ich melde mich in den nächsten Tagen.",
+      grund: "Du bekommst diese Mail, weil du dich auf cockpit.mesco.cc für die Alpha angemeldet hast. Antworte einfach, wenn du gestrichen werden möchtest.",
+    },
+  );
 
 const mailAnThomas = (e, platz) =>
-  RAHMEN(`
+  mailHtml(`
   <h1 style="font-size:19px;margin:0 0 14px;color:#0e1218;">Neue Alpha-Anmeldung${
     platz ? ` (#${platz})` : ""
   }</h1>
