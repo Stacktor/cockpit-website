@@ -13,11 +13,12 @@
  */
 import { imKontingent, json, pruefeLizenz, sha256 } from "../../../lib/app-lizenz.js";
 import { mitSchluesseln } from "../../../lib/admin/tresor.js";
+import { alarmeImHintergrund } from "../../../lib/admin/alarme.js";
 import { escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vorlage.js";
 
 const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function onRequestPost({ request, env: roh }) {
+export async function onRequestPost({ request, env: roh, waitUntil }) {
   const env = await mitSchluesseln(roh);
   const d = await request.json().catch(() => null);
   if (!d) return json(400, { ok: false, fehler: "Anfrage konnte nicht gelesen werden." });
@@ -78,5 +79,6 @@ export async function onRequestPost({ request, env: roh }) {
       }),
     }).catch(() => {});
   }
+  waitUntil?.(alarmeImHintergrund(roh));
   return json(200, { ok: true });
 }

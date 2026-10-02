@@ -1,4 +1,4 @@
-import { h, svg, ICONS, datum, zeit, relativ, zahl, euro, type Daten } from "./dom";
+import { h, svg, ICONS, datum, zeit, relativ, zahl, euro, mb, type Daten } from "./dom";
 import {
   aktion,
   api,
@@ -22,6 +22,7 @@ import {
 } from "./ui";
 
 import { dashboard } from "./uebersicht";
+import { dialogFenster, popupMenue } from "./menue";
 
 export type Bereich = (ziel: HTMLElement, neu: () => void) => Promise<void>;
 
@@ -1120,10 +1121,206 @@ export const mail: Bereich = async (ziel, neu) => {
   );
 };
 
+// ═════════════ Alarme ═════════════
+// Eigene Regeln „Kennzahl Vergleich Schwelle“. Ausgelöste Alarme stehen in der
+// Glocke; auf Wunsch kommt einmal je Auslösung eine Mail an MAIL_AN.
+
+const VERGLEICH_TEXT: Record<string, string> = { ">": "größer als", ">=": "mindestens", "<": "kleiner als", "<=": "höchstens", "=": "genau" };
+
+const alarmWert = (r: Daten) => (r.unbekannt ? "keine Daten" : `${zahl(r.wert)}${r.einheit ? ` ${r.einheit}` : ""}`);
+const alarmStatus = (r: Daten) =>
+  !r.aktiv ? badge("aus", "") : r.unbekannt ? badge("keine Daten", "warn") : r.ausgeloest ? badge("ausgelöst", r.stufe === "wichtig" ? "bad" : "warn") : badge("ok", "ok");
+
+function alarmEditor(r: Daten | null, d: Daten, neu: () => void) {
+  const name = eingabe({ value: r?.name ?? "", placeholder: "z. B. Viele offene Fehlerberichte", maxlength: 80, style: "width:100%" });
+  const metrik = h("select", { class: "a-eingabe", style: "width:100%" }, d.metriken.map((m: Daten) => h("option", { value: m.id, selected: m.id === r?.metrik }, `${m.titel}${m.einheit ? ` (${m.einheit})` : ""}`))) as HTMLSelectElement;
+  const vergleich = h("select", { class: "a-eingabe" }, d.vergleiche.map((v: string) => h("option", { value: v, selected: v === (r?.vergleich ?? ">=") }, VERGLEICH_TEXT[v] ?? v))) as HTMLSelectElement;
+  const schwelle = eingabe({ type: "number", step: "any", value: r ? String(r.schwelle) : "1", style: "width:140px" });
+  const stufe = h(
+    "select",
+    { class: "a-eingabe" },
+    h("option", { value: "wichtig", selected: r?.stufe !== "info" }, "Wichtig: roter Punkt an der Glocke"),
+    h("option", { value: "info", selected: r?.stufe === "info" }, "Hinweis: nur in der Liste der Glocke"),
+  ) as HTMLSelectElement;
+  const mail = h("input", { type: "checkbox", checked: r ? Boolean(r.mail) : true }) as HTMLInputElement;
+  const aktiv = h("input", { type: "checkbox", checked: r ? Boolean(r.aktiv) : true }) as HTMLInputElement;
+  const vorschau = h("p", { class: "a-klein", style: "color:var(--a-muted);margin:0" });
+  const zeige = () => {
+    const m = d.metriken.find((x: Daten) => x.id === metrik.value);
+    vorschau.textContent = `Löst aus, wenn „${m?.titel ?? metrik.value}“ ${VERGLEICH_TEXT[vergleich.value]} ${schwelle.value || "?"}${m?.einheit ? ` ${m.einheit}` : ""} ist.`;
+  };
+  [metrik, vergleich, schwelle].forEach((e) => e.addEventListener("input", zeige));
+  zeige();
+  const speichern = knopf("Speichern", async (ev) => {
+    const ok = await aktion(
+      ev.currentTarget as HTMLButtonElement,
+      () => api("alarme", { aktion: "speichern", regel: { id: r?.id, name: name.value, metrik: metrik.value, vergleich: vergleich.value, schwelle: schwelle.value, stufe: stufe.value, mail: mail.checked, aktiv: aktiv.checked } }),
+      neu,
+    );
+    if (ok) zu();
+  }, "a-p");
+  const zu = dialogFenster(
+    r ? "Alarm bearbeiten" : "Neuer Alarm",
+    h(
+      "div",
+      { style: "display:grid;gap:4px" },
+      feld("Name", name),
+      feld("Kennzahl", metrik),
+      h("div", { class: "a-werkzeuge" }, feld("Bedingung", vergleich), feld("Schwelle", schwelle)),
+      vorschau,
+      feld("Stufe", stufe),
+      h("label", { class: "a-werkzeuge", style: "gap:8px" }, mail, h("span", {}, `Mail an ${d.empfaenger}, einmal je Auslösung`)),
+      h("label", { class: "a-werkzeuge", style: "gap:8px" }, aktiv, h("span", {}, "Regel ist eingeschaltet")),
+      h("div", { class: "a-werkzeuge", style: "justify-content:flex-end;margin-top:10px" }, knopf("Abbrechen", () => zu()), speichern),
+    ),
+    { untertitel: "Geprüft wird beim Öffnen des Admins und im Hintergrund, wenn Anmeldungen, Fehlerberichte oder Lizenzprüfungen eingehen." },
+  );
+  name.focus();
+}
+
+export const alarme: Bereich = async (ziel, neu) => {
+  const d = await api("alarme");
+  const regeln: Daten[] = d.regeln;
+  const aus = regeln.filter((r) => r.ausgeloest);
+  const zeilenMenue = (r: Daten) =>
+    h(
+      "button",
+      {
+        class: "a-rund",
+        type: "button",
+        "aria-label": `${r.name}: Optionen`,
+        onclick: (ev: Event) => {
+          ev.stopPropagation();
+          popupMenue(ev.currentTarget as HTMLElement, [
+            { text: "Bearbeiten", icon: "einstellungen", aktion: () => alarmEditor(r, d, neu) },
+            { text: r.aktiv ? "Ausschalten" : "Einschalten", icon: "glocke", aktion: () => void aktion(null, () => api("alarme", { aktion: "umschalten", id: r.id }), neu) },
+            { text: "Test-Mail senden", icon: "mail", aus: !d.mailBereit, aktion: () => void aktion(null, () => api("alarme", { aktion: "test", id: r.id })) },
+            "trenner",
+            {
+              text: "Löschen",
+              icon: "x",
+              gefahr: true,
+              aktion: async () => {
+                if (await bestaetigen("Alarm löschen?", `„${r.name}“ wird entfernt.`, "Löschen")) aktion(null, () => api("alarme", { aktion: "loeschen", id: r.id }), neu);
+              },
+            },
+          ]);
+        },
+      },
+      svg("M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z|M19 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z|M5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z", 16),
+    );
+  const vorhanden = new Set(regeln.map((r) => `${r.metrik}|${r.vergleich}|${r.schwelle}`));
+  const vorlagen: Daten[] = d.vorlagen.filter((v: Daten) => !vorhanden.has(`${v.metrik}|${v.vergleich}|${v.schwelle}`));
+  fuege(
+    ziel,
+    raster(
+      "a-r3",
+      kpi("Regeln", zahl(regeln.length), `${regeln.filter((r) => r.aktiv).length} eingeschaltet`),
+      kpi("Ausgelöst", zahl(aus.length), aus.length ? aus.slice(0, 2).map((r) => r.name).join(", ") : "alles ruhig"),
+      kpi("Mail an", d.empfaenger, d.mailBereit ? "über Resend, änderbar unter Einstellungen (MAIL_AN)" : "Resend-Schlüssel fehlt, Mails gehen noch nicht"),
+    ),
+    karteMitKopf(
+      "Regeln",
+      h(
+        "div",
+        { class: "a-werkzeuge" },
+        knopf("Jetzt prüfen", (ev) => aktion(ev.currentTarget as HTMLButtonElement, () => api("alarme", { aktion: "pruefen" }), neu), "", "neu"),
+        knopf("Neuer Alarm", () => alarmEditor(null, d, neu), "a-p", "plus"),
+      ),
+      tabelle(
+        [
+          { titel: "Status", wert: alarmStatus },
+          { titel: "Name", wert: (r) => h("b", {}, r.name) },
+          { titel: "Bedingung", wert: (r) => r.bedingung },
+          { titel: "Jetzt", wert: alarmWert },
+          { titel: "Mail", wert: (r) => (r.mail ? "ja" : "nein") },
+          { titel: "Seit", wert: (r) => (r.ausgeloest && r.seit ? relativ(r.seit) : "") },
+          { titel: "", wert: zeilenMenue },
+        ],
+        regeln,
+        { beiKlick: (r) => alarmEditor(r, d, neu), leerText: "Noch keine Alarme. Leg einen an oder übernimm unten eine Vorlage." },
+      ),
+    ),
+    vorlagen.length
+      ? karte(
+          "Vorlagen",
+          h(
+            "div",
+            { class: "a-wliste" },
+            vorlagen.map((v) =>
+              h(
+                "div",
+                { class: "a-wzeile" },
+                h("span", { class: "a-wzeile-text" }, h("b", {}, v.name), ` · ${v.bedingung}${v.mail ? " · mit Mail" : ""}`),
+                h("span", { class: "a-wzeile-meta" }, knopf("Übernehmen", (ev) => aktion(ev.currentTarget as HTMLButtonElement, () => api("alarme", { aktion: "speichern", regel: v }), neu), "", "plus")),
+              ),
+            ),
+          ),
+        )
+      : null,
+    karte(
+      "Verlauf",
+      tabelle(
+        [
+          { titel: "Zeit", wert: (p) => zeit(p.zeit) },
+          { titel: "Ereignis", wert: (p) => badge(p.aktion.replace(/^Alarm /, ""), /ausgelöst/.test(p.aktion) ? "bad" : /beendet/.test(p.aktion) ? "ok" : "") },
+          { titel: "Details", wert: (p) => h("span", { class: "a-klein" }, p.details) },
+          { titel: "Von", wert: (p) => (p.benutzer === "Alarm" ? "automatisch" : p.benutzer) },
+        ],
+        d.verlauf,
+        { leerText: "Noch nichts passiert." },
+      ),
+    ),
+  );
+};
+
 // ═════════════ Einstellungen ═════════════
 
+/** Sync-Server: Status des R2-Bindings, Belegung oder Schritt-für-Schritt-Anleitung. */
+function syncKarte(sync: Daten | null, d: Daten, neu: () => void) {
+  const konto = (d.tresor?.einstellungen ?? []).find((x: Daten) => x.name === "CF_ACCOUNT_ID")?.wert;
+  const cf = (pfad: string) => (konto ? `https://dash.cloudflare.com/${konto}/${pfad}` : "https://dash.cloudflare.com/");
+  const kopf = h(
+    "div",
+    { class: "a-werkzeuge" },
+    badge(sync?.eingerichtet ? "verbunden" : "nicht eingerichtet", sync?.eingerichtet ? "ok" : "warn"),
+    knopf("Erneut prüfen", neu, "", "neu"),
+  );
+  if (sync?.eingerichtet) {
+    const liste: Daten[] = sync.lizenzen ?? [];
+    const belegt = liste.reduce((s2, x) => s2 + (x.belegt || 0), 0);
+    return karteMitKopf(
+      "Sync-Server (R2)",
+      kopf,
+      h("p", { style: "margin:0 0 8px" }, `Der Bucket ist gebunden. ${mb(belegt)} belegt von ${liste.length} ${liste.length === 1 ? "Lizenz" : "Lizenzen"}, Grenze je Lizenz ${mb(sync.grenze)}.`),
+      h("p", { class: "a-klein", style: "color:var(--a-faint);margin:0" }, "Die Daten sind Ende-zu-Ende verschlüsselt. Speicher je Lizenz siehst und leerst du im Detail unter „Lizenzen“. Einen Alarm für volle Speicher legst du unter „Alarme“ an."),
+    );
+  }
+  const schritt = (titel: string, ...inhalt: (Node | string)[]) => h("li", {}, h("b", {}, titel), h("div", { class: "a-klein", style: "color:var(--a-muted)" }, ...inhalt));
+  const code = (t: string) => h("code", {}, t);
+  return karteMitKopf(
+    "Sync-Server (R2)",
+    kopf,
+    h("p", { style: "margin:0 0 10px" }, "Für den Sync über den cockpit-Server (Pro und Alpha) braucht die Website einen R2-Bucket mit dem Namen ", code("SYNC"), ". Bis dahin antwortet der Server mit 503, der Ordner-Sync in der App läuft trotzdem."),
+    h(
+      "ol",
+      { class: "a-schritte" },
+      schritt("Bucket anlegen", "Cloudflare → R2 Object Storage → „Create bucket“. Name ", code("cockpit-sync"), ", Standort „Automatic“, Klasse „Standard“. Öffentlichen Zugriff aus lassen. R2 will beim ersten Mal eine Zahlungsmethode, das Gratis-Kontingent reicht für die Alpha."),
+      schritt("An die Website binden", "Workers & Pages → cockpit-website → Settings → Bindings → Add → R2 bucket. Variable name ", code("SYNC"), ", Bucket ", code("cockpit-sync"), ". Für Production und Preview."),
+      schritt("Neu deployen", "Deployments → beim neuesten Eintrag „Retry deployment“. Bindings gelten erst ab dem nächsten Deploy."),
+      schritt("Prüfen", "Hier auf „Erneut prüfen“ klicken. Steht oben „verbunden“, ist alles fertig."),
+    ),
+    h(
+      "div",
+      { class: "a-werkzeuge", style: "margin-top:12px" },
+      h("a", { class: "a-knopf a-p", href: cf("r2/overview"), target: "_blank", rel: "noopener" }, svg(ICONS.extern, 15), "R2 in Cloudflare öffnen"),
+      h("a", { class: "a-knopf", href: cf("workers-and-pages"), target: "_blank", rel: "noopener" }, svg(ICONS.extern, 15), "Workers & Pages öffnen"),
+    ),
+  );
+}
+
 export const einstellungen: Bereich = async (ziel, neu) => {
-  const d = await api("einstellungen");
+  const [d, sync] = await Promise.all([api("einstellungen"), api("sync").catch(() => null)]);
   const s = d.schutz;
   const t = d.tresor;
   fuege(ziel, 
@@ -1148,6 +1345,7 @@ export const einstellungen: Bereich = async (ziel, neu) => {
           )
         : null,
     ),
+    syncKarte(sync, d, neu),
     karte(
       "API-Schlüssel",
       h(

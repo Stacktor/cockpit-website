@@ -9,7 +9,7 @@
  * Bereich. Zusatzdaten (Analytics, Builds, Doku) werden nur geladen, wenn eine
  * passende Kachel auf dem Dashboard liegt.
  */
-import { h, svg, ICONS, datum, relativ, zahl, euro, type Daten } from "./dom";
+import { h, svg, ICONS, datum, relativ, zahl, euro, mb, type Daten } from "./dom";
 import { api, badge, balken, hinweisKachel, karte, leer, toast, verlauf } from "./ui";
 import { dialogFenster, menueZu, popupMenue, type MenuePunkt } from "./menue";
 
@@ -566,6 +566,7 @@ const KATALOG: Widget[] = [
         ["Lemon Squeezy", d.lizenzen],
         ["Resend", d.mails],
         ["GitHub", d.downloads],
+        ["Sync-Speicher (R2)", d.sync],
       ];
       return kachelKarte(
         w,
@@ -597,6 +598,7 @@ const KATALOG: Widget[] = [
             ["Rundmail schreiben", "#/mail", "mail"],
             ["Fehler sichten", "#/fehler", "fehler"],
             ["Builds ansehen", "#/builds", "builds"],
+            ["Alarme verwalten", "#/alarme", "glocke"],
             ["Doku öffnen", "#/doku", "doku"],
           ].map(([t, href, icon]) => h("a", { class: "a-schnell-knopf", href }, svg(ICONS[icon as keyof typeof ICONS], 16), t)),
         ),
@@ -664,6 +666,56 @@ const KATALOG: Widget[] = [
       );
     },
   },
+  {
+    id: "sync",
+    titel: "Sync-Speicher",
+    text: "Belegung des cockpit-Sync-Servers (R2) oder Hinweis zur Einrichtung.",
+    icon: "speicher",
+    ziel: "#/einstellungen",
+    groessen: KPI,
+    standard: "s",
+    render: ({ d }, w) => {
+      const s = d.sync;
+      if (!s?.ok) return kennzahl(w, "—", s?.einrichten ? "Nicht eingerichtet. Anleitung unter Einstellungen" : nichtVerbunden(s));
+      const anteil = Math.round((s.maxAnteil || 0) * 100);
+      return kennzahl(w, mb(s.belegt), `${zahl(s.lizenzen)} ${s.lizenzen === 1 ? "Lizenz" : "Lizenzen"} · vollste ${anteil} %`, fortschritt(s.maxAnteil || 0, `Vollste Lizenz zu ${anteil} % belegt`));
+    },
+  },
+  {
+    id: "alarme",
+    titel: "Alarme",
+    text: "Eigene Regeln mit Status: ausgelöst, ok oder ohne Daten.",
+    icon: "glocke",
+    ziel: "#/alarme",
+    groessen: BLOCK,
+    standard: "m",
+    render: ({ d }, w) => {
+      const a = d.alarme;
+      if (!a?.ok) return kachelKarte(w, hinweisKachel(a) ?? leer("Alarme nicht verfügbar."));
+      const liste: Daten[] = [...(a.auswertung ?? [])].sort((x, y) => Number(y.ausgeloest) - Number(x.ausgeloest));
+      if (!liste.length) return kachelKarte(w, leer("Noch keine Alarme. Unter „Alarme“ eigene Regeln anlegen."));
+      return kachelKarte(
+        w,
+        h(
+          "div",
+          { class: "a-wliste" },
+          liste.slice(0, 6).map((x) =>
+            h(
+              "a",
+              { class: "a-wzeile", href: "#/alarme" },
+              h("span", { class: "a-wzeile-text" }, x.name),
+              h(
+                "span",
+                { class: "a-wzeile-meta" },
+                x.unbekannt ? "keine Daten" : `${zahl(x.wert)}${x.einheit ? ` ${x.einheit}` : ""}`,
+                !x.aktiv ? badge("aus", "") : x.unbekannt ? badge("?", "warn") : x.ausgeloest ? badge("ausgelöst", x.stufe === "wichtig" ? "bad" : "warn") : badge("ok", "ok"),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  },
 ];
 const NACH_ID = new Map(KATALOG.map((w) => [w.id, w]));
 
@@ -700,6 +752,8 @@ const STANDARD: Einstellungen = {
     { id: "quellen", groesse: "m" },
     { id: "fehlerliste", groesse: "m" },
     { id: "aktivitaet", groesse: "m" },
+    { id: "alarme", groesse: "m" },
+    { id: "sync", groesse: "s" },
   ],
 };
 const SPEICHER = "cockpit-admin-dashboard";
@@ -1096,6 +1150,8 @@ interface Meldung {
 export function meldungen(d: Daten | null): Meldung[] {
   if (!d) return [];
   const m: Meldung[] = [];
+  for (const a of (d.alarme?.auswertung ?? []).filter((x: Daten) => x.ausgeloest))
+    m.push({ text: a.name, unter: `${a.bedingung} · jetzt ${zahl(a.wert)}${a.einheit ? ` ${a.einheit}` : ""}`, href: "#/alarme", icon: "glocke", wichtig: a.stufe === "wichtig" });
   const neuAnm = d.alpha?.ok ? (d.alpha.nachStatus ?? []).find((x: Daten) => x.name === "neu")?.anzahl ?? 0 : 0;
   if (d.fehler?.ok && d.fehler.offen) m.push({ text: `${d.fehler.offen} offene Fehlerberichte`, unter: "neu oder in Arbeit", href: "#/fehler", icon: "fehler", wichtig: true });
   if (neuAnm) m.push({ text: `${neuAnm} neue Anmeldungen`, unter: "warten auf Prüfung", href: "#/alpha", icon: "alpha", wichtig: true });
@@ -1108,6 +1164,7 @@ export function meldungen(d: Daten | null): Meldung[] {
   ] as [string, Daten, string][]) {
     if (x && x.ok === false) m.push({ text: `${name} nicht verbunden`, unter: x.text || "Schlüssel prüfen", href, icon: "einstellungen", wichtig: false });
   }
+  if (d.sync?.einrichten) m.push({ text: "Sync-Server nicht eingerichtet", unter: "R2-Bucket SYNC binden, Anleitung unter Einstellungen", href: "#/einstellungen", icon: "speicher", wichtig: false });
   return m;
 }
 

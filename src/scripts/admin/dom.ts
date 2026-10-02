@@ -68,6 +68,8 @@ export const ICONS = {
   plus: "M12 5v14|M5 12h14",
   uhr: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z|M12 6v6l4 2",
   blitz: "M13 2 3 14h9l-1 8 10-12h-9l1-8z",
+  glocke: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9|M10.3 21a1.94 1.94 0 0 0 3.4 0",
+  speicher: "M22 12H2|M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z|M6 16h.01|M10 16h.01",
   doku: "M12 7v14|M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
 };
 
@@ -84,6 +86,8 @@ export function relativ(iso?: string | null): string {
   if (s < 86400 * 30) return `vor ${Math.round(s / 86400)} Tagen`;
   return datum(iso);
 }
+/** Bytes als MB mit einer Nachkommastelle. */
+export const mb = (bytes?: number | null) => (typeof bytes === "number" ? `${(bytes / 1048576).toLocaleString("de-DE", { maximumFractionDigits: 1 })} MB` : "—");
 export const zahl = (n?: number | null) => (typeof n === "number" ? n.toLocaleString("de-DE") : "—");
 export const euro = (n?: number | null, w = "EUR") =>
   typeof n === "number" ? n.toLocaleString("de-DE", { style: "currency", currency: w || "EUR" }) : "—";

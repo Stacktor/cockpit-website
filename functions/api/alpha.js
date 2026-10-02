@@ -31,9 +31,10 @@
 
 import { ALPHA_OPTIONEN as O, einer, mehrere, plaetze } from "../../lib/alpha-optionen.js";
 import { mitSchluesseln } from "../../lib/admin/tresor.js";
+import { alarmeImHintergrund } from "../../lib/admin/alarme.js";
 import { alsText, kasten, link, mailHtml, titel } from "../../lib/mail/vorlage.js";
 
-export async function onRequestPost({ request, env: roh }) {
+export async function onRequestPost({ request, env: roh, waitUntil }) {
   // Schlüssel aus dem Admin-Tresor haben Vorrang vor Umgebungsvariablen.
   const env = await mitSchluesseln(roh);
   try {
@@ -176,6 +177,7 @@ export async function onRequestPost({ request, env: roh }) {
       ]);
     }
 
+    waitUntil?.(alarmeImHintergrund(roh));
     return antwort(200, null, { ok: true, platz, warteliste });
   } catch (fehler) {
     return antwort(500, "Unerwarteter Fehler. Bitte schreib mir direkt an Kontakt@mesco.cc.");

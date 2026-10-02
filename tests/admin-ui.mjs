@@ -45,6 +45,11 @@ kv.m.set("bug:" + tag(2) + ":2", JSON.stringify({ beschreibung: "AppImage starte
 kv.m.set("lping:100", JSON.stringify({ zeit: tag(0.2), version: "0.1.0", system: "windows x86_64", status: "aktiv" }));
 kv.m.set("lping:102", JSON.stringify({ zeit: tag(40), version: "0.1.0", system: "linux x86_64", status: "aktiv" }));
 kv.m.set("lnotiz:101", JSON.stringify({ text: "Hat Fehler beim Import gemeldet, Rückruf vereinbart.", zeit: tag(1) }));
+kv.m.set("alarme:regeln", JSON.stringify([
+  { id: "a1b2c3d4", name: "Neuer Fehlerbericht", metrik: "fehler_offen", vergleich: ">=", schwelle: 1, stufe: "wichtig", mail: true, aktiv: true },
+  { id: "e5f6g7h8", name: "Sync-Speicher fast voll", metrik: "sync_max_prozent", vergleich: ">=", schwelle: 80, stufe: "info", mail: true, aktiv: true },
+  { id: "i9j0k1l2", name: "Wenige Alpha-Plätze", metrik: "plaetze_frei", vergleich: "<=", schwelle: 5, stufe: "info", mail: false, aktiv: false },
+]));
 kv.m.set("audit:" + tag(2) + ":b", JSON.stringify({ zeit: tag(2), benutzer: "thomas@example.org", aktion: "Lizenz um 30 Tage verlängert", details: "Lizenz 100" }));
 kv.m.set("audit:" + tag(0.1) + ":a", JSON.stringify({ zeit: tag(0.1), benutzer: "thomas@example.org", aktion: "Alpha-Einladung gesendet", details: "jonas.wolf@example.org (Code ALPHAK3F9Q)" }));
 
@@ -120,7 +125,7 @@ try {
     for (let v = 0; v < 40; v++) {
       try { await page.goto("http://localhost:4329/admin/", { waitUntil: "networkidle" }); break; } catch { await new Promise((r) => setTimeout(r, 500)); }
     }
-    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "builds", "doku", "einstellungen"]) {
+    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "builds", "alarme", "doku", "einstellungen"]) {
       await page.goto(`http://localhost:4329/admin/#/${bereich}`, { waitUntil: "networkidle" });
       await page.waitForTimeout(700);
       const text = await page.locator("#a-inhalt").innerText();
@@ -172,7 +177,7 @@ try {
       await page.waitForTimeout(500);
       await page.click("#a-glocke");
       const glocke = await page.locator(".a-popup").innerText();
-      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
+      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke) || !/Neuer Fehlerbericht/.test(glocke) || !/Sync-Server nicht eingerichtet/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
       await page.screenshot({ path: `${OUT}/desktop-glocke.png` });
       await page.keyboard.press("Escape");
       if (await page.locator(".a-popup").count()) funde.push("Glocke: Escape schließt nicht");

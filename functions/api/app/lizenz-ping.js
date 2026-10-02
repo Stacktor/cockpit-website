@@ -8,11 +8,12 @@
  * Inhalte aus der App, kein Schlüssel.
  */
 import { imKontingent, json, pruefeLizenz } from "../../../lib/app-lizenz.js";
+import { alarmeImHintergrund } from "../../../lib/admin/alarme.js";
 
 const TTL = 400 * 86400;
 const kurz = (v, n) => String(v ?? "").trim().slice(0, n);
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const d = await request.json().catch(() => null);
   if (!d) return json(400, { ok: false, fehler: "Anfrage konnte nicht gelesen werden." });
   if (!env.ALPHA) return json(503, { ok: false, fehler: "Gerade nicht erreichbar." });
@@ -28,5 +29,6 @@ export async function onRequestPost({ request, env }) {
     instanz: kurz(d.instanz, 60),
   };
   await env.ALPHA.put(`lping:${p.lizenz.id}`, JSON.stringify(eintrag), { expirationTtl: TTL });
+  waitUntil?.(alarmeImHintergrund(env));
   return json(200, { ok: true });
 }
