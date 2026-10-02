@@ -1,0 +1,106 @@
+---
+import Base from "../layouts/Base.astro";
+import Seitenkopf from "../components/Seitenkopf.astro";
+import Vergleich from "../components/Vergleich.astro";
+import Faq from "../components/Faq.astro";
+import Icon from "../components/Icon.astro";
+
+const fragen = [
+  {
+    frage: "Warum kostet cockpit so viel weniger?",
+    antwort:
+      "<p>cockpit braucht keine Server für deine Daten und bezahlt keine KI für dich mit: Du nimmst deinen eigenen Schlüssel oder ein lokales Modell. Die Kosten, die Teal und Huntr mit dem Abo decken, entstehen bei cockpit gar nicht erst.</p>",
+  },
+  {
+    frage: "Kann ich von Teal oder Huntr umziehen?",
+    antwort:
+      "<p>Teal und Huntr exportieren als CSV. Einen direkten Import gibt es in der Alpha noch nicht; er steht auf der <a href=\"/roadmap/\">Roadmap</a>. Bis dahin legst du laufende Bewerbungen am schnellsten über die Browser-Erweiterung neu an.</p>",
+  },
+  {
+    frage: "Warum keine Konten?",
+    antwort:
+      "<p>Weil deine Bewerbungen dich verraten: aktueller Arbeitgeber, Wunschgehalt, Absagen. Ohne Konto gibt es keinen Datenbestand, der verloren gehen oder ausgewertet werden kann. Wer mehrere Geräte nutzt, gleicht sie verschlüsselt ab.</p>",
+  },
+];
+---
+
+<Base
+  title="cockpit, Teal oder Huntr? Der Vergleich"
+  description="cockpit, Teal, Huntr und Excel im Vergleich: Preise, wo die Daten liegen, Kontolimit, KI, deutsche Stellenquellen, Browser-Erweiterung und Sync. Stand Oktober 2026."
+>
+  <Seitenkopf
+    eyebrow="Vergleich"
+    titel="cockpit, Teal, Huntr oder eine Tabelle?"
+    lead="Alle vier helfen beim Überblick. Sie unterscheiden sich darin, wo deine Daten liegen, was es kostet und wie gut sie zum deutschen Arbeitsmarkt passen."
+    krumen={[["Vergleich", "/vergleich/"]]}
+  />
+
+  <section class="abschnitt">
+    <div class="wrap">
+      <Vergleich />
+    </div>
+  </section>
+
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="raster r2 ehrlich">
+        <div class="rv">
+          <h2>Wo Teal und Huntr vorn liegen</h2>
+          <ul>
+            <li><Icon name="check" size={17} /> Ausgereifte Lebenslauf-Editoren mit vielen Vorlagen.</li>
+            <li><Icon name="check" size={17} /> Die Erweiterung steht schon im Chrome Web Store; bei cockpit wird sie noch von Hand geladen.</li>
+            <li><Icon name="check" size={17} /> Sync ohne Einrichtung, weil alles beim Anbieter liegt.</li>
+            <li><Icon name="check" size={17} /> Gebaut für den englischsprachigen Markt, mit Funktionen rund um LinkedIn.</li>
+            <li><Icon name="check" size={17} /> Für Mac und im Browser nutzbar; cockpit gibt es zum Start für Windows und Linux.</li>
+          </ul>
+        </div>
+        <div class="rv" style="--d:1">
+          <h2>Wofür cockpit gemacht ist</h2>
+          <ul>
+            <li><Icon name="check" size={17} /> Deine Daten bleiben auf deinem Rechner, ohne Konto.</li>
+            <li><Icon name="check" size={17} /> Stellen der Arbeitsagentur und weiterer Quellen in einer Suche.</li>
+            <li><Icon name="check" size={17} /> Anschreiben auf Deutsch, mit deiner KI oder einem lokalen Modell, ohne Kontingent.</li>
+            <li><Icon name="check" size={17} /> Interview-Training, Skill-Test und Mail-Postfach in derselben App.</li>
+            <li><Icon name="check" size={17} /> Tracking ohne Grenze und kostenlos, auch nach der Alpha.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abschnitt">
+    <div class="wrap eng">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow">Häufige Fragen</div>
+        <h2>Zum Umstieg</h2>
+      </div>
+      <Faq fragen={fragen} />
+      <p style="margin-top:28px;text-align:center">
+        <a href="/alpha/" class="btn btn-p">Alpha-Zugang anfragen <Icon name="arrow-right" size={17} /></a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ehrlich h2 {
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+  .ehrlich ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .ehrlich li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .ehrlich li :global(svg) {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--accent);
+  }
+</style>

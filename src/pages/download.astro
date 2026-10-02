@@ -5,7 +5,7 @@ import Icon from "../components/Icon.astro";
 import { DOWNLOADS, SITE } from "../config";
 ---
 
-<Base title="Download" description="cockpit für Windows und Linux herunterladen. macOS ist in Arbeit. Kostenlos, ohne Konto.">
+<Base title="Download" description="cockpit für Windows und Linux herunterladen, dazu die Browser-Erweiterung für Chrome und Edge. macOS ist in Arbeit. Kostenlos, ohne Konto.">
   <Seitenkopf
     eyebrow="Download"
     titel="cockpit herunterladen"
@@ -26,7 +26,7 @@ import { DOWNLOADS, SITE } from "../config";
         <div class="system karte rv" data-system="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
           <a href={DOWNLOADS.windows} class="btn btn-p" data-dl>Installer (.exe) <Icon name="download" size={16} /></a>
-          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket</a>
+          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket für Firmenrechner und Softwareverteilung</a>
           <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
         </div>
         <div class="system karte rv" style="--d:1" data-system="linux">
@@ -40,6 +40,25 @@ import { DOWNLOADS, SITE } from "../config";
           <span class="btn btn-s" aria-disabled="true">Noch nicht verfügbar</span>
           <p class="micro">Ich habe gerade keinen Mac zum Testen, und ungetestete Installer gebe ich nicht raus. <a href="/alpha/">Melde dich an</a> — du kommst auf die Mac-Warteliste.</p>
         </div>
+      </div>
+
+      <div class="erweiterung karte rv">
+        <span class="ic"><Icon name="puzzle" /></span>
+        <div>
+          <h2>Browser-Erweiterung für Chrome und Edge</h2>
+          <p>
+            Speichert Stellenanzeigen mit einem Klick in cockpit und füllt Bewerbungsformulare aus (Pro).
+            Sie spricht nur mit cockpit auf deinem Rechner.
+          </p>
+          <ol>
+            <li>ZIP laden und entpacken.</li>
+            <li><code>chrome://extensions</code> bzw. <code>edge://extensions</code> öffnen, den Entwicklermodus einschalten.</li>
+            <li>„Entpackte Erweiterung laden“ und den Ordner wählen.</li>
+            <li>In cockpit unter Einstellungen → Verbindungen einen Kopplungscode erzeugen und im Popup eingeben.</li>
+          </ol>
+          <p class="micro">In den Chrome Web Store kommt sie nach der Alpha.</p>
+        </div>
+        <a href={DOWNLOADS.erweiterung} class="btn btn-s" data-dl>Erweiterung (.zip) <Icon name="download" size={16} /></a>
       </div>
 
       <div class="danach raster r3">
@@ -88,6 +107,32 @@ import { DOWNLOADS, SITE } from "../config";
 <style>
   .version :global(a) {
     color: var(--accent-ink);
+  }
+  .erweiterung {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: start;
+    padding: 26px;
+    margin-top: 20px;
+  }
+  .erweiterung h2 {
+    font-size: 19px;
+    margin: 0 0 6px;
+  }
+  .erweiterung ol {
+    margin: 10px 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 4px;
+  }
+  .erweiterung .ic {
+    margin: 0;
+  }
+  @media (max-width: 760px) {
+    .erweiterung {
+      grid-template-columns: 1fr;
+    }
   }
   .systeme {
     display: grid;

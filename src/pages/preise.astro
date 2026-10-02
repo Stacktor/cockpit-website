@@ -7,18 +7,19 @@ import Faq from "../components/Faq.astro";
 const fragen = [
   { frage: "Warum steht der Preis noch nicht fest?", antwort: "<p>Weil ich ihn mit den Menschen festlegen will, die cockpit wirklich benutzen. Alpha-Tester beantworten nach zwei Wochen in der App einen Fragebogen — unter anderem, ab welchem Preis cockpit zu billig, günstig, teuer oder zu teuer wäre und ob sie lieber einmal kaufen oder ein Abo hätten. Daraus ergibt sich der Preis zum Start.</p>" },
   { frage: "Einmalkauf oder Abo?", antwort: "<p>Auch das ist offen und Teil der Umfrage. Fest steht: Weil cockpit keine Server und keine KI-Kosten pro Nutzer hat, muss es kein Abo sein.</p>" },
-  { frage: "Bleibt die kostenlose Version wirklich kostenlos?", antwort: "<p>Ja, dauerhaft — mit bis zu 10 aktiven Bewerbungen gleichzeitig und KI mit deinem eigenen Schlüssel ohne Grenze.</p>" },
+  { frage: "Bleibt die kostenlose Version wirklich kostenlos?", antwort: "<p>Ja, dauerhaft und ohne Grenze bei den Bewerbungen. Pipeline, Stellensuche, Kontakte, Aufgaben, Stichwort-Abgleich, Anschreiben mit deiner KI, Interview-Training und der Sync über einen eigenen Ordner bleiben frei.</p>" },
+  { frage: "Was bringt Pro?", antwort: '<p>Komfort für alle, die viel bewerben: den Auto-Modus, der Bewerbungen vorbereitet, den cockpit-Sync-Server (Sync ohne eigenen Cloud-Ordner), den Lebenslauf je Stelle, das automatische Ausfüllen von Formularen mit der Browser-Erweiterung und die erweiterte Analyse. <a href="/vergleich/">Vergleich mit Teal und Huntr</a></p>' },
   { frage: "Was passiert mit meiner Alpha-Lizenz nach der Alpha?", antwort: "<p>Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft — inklusive künftiger Aktualisierungen. Das ist mein Dank fürs Mitmachen.</p>" },
   { frage: "Bekomme ich eine ordentliche Rechnung?", antwort: "<p>Ja. Verkauft wird über Lemon Squeezy als Händler; du bekommst automatisch eine Rechnung mit korrekt ausgewiesener Umsatzsteuer. Unternehmen können ihre USt-IdNr. angeben.</p>" },
   { frage: "Kann ich zurückgeben?", antwort: '<p>Sobald der Verkauf startet: 30 Tage Geld zurück, ohne Begründung, eine Mail genügt. Einzelheiten in der <a href="/widerruf/">Widerrufsbelehrung</a>.</p>' },
 ];
 ---
 
-<Base title="Preise" description="cockpit: Grundversion dauerhaft kostenlos, Pro-Preis wird mit den Alpha-Testern festgelegt. Alpha-Tester behalten die Vollversion.">
+<Base title="Preise" description="cockpit: Bewerbungen ohne Grenze und dauerhaft kostenlos. Pro bringt Komfortfunktionen; der Preis wird mit den Alpha-Testern festgelegt.">
   <Seitenkopf
     eyebrow="Preise"
     titel="Ehrlich gerechnet — und gemeinsam festgelegt."
-    lead="Die Grundversion bleibt dauerhaft kostenlos. Was Pro kostet, entscheide ich mit den Alpha-Testern."
+    lead="Bewerbungen verfolgen ist kostenlos, ohne Grenze. Pro bringt Komfort, und was Pro kostet, entscheide ich mit den Alpha-Testern."
     krumen={[["Preise", "/preise/"]]}
     zentriert
   />
@@ -29,13 +30,14 @@ const fragen = [
         <div class="plan rv">
           <div class="name">Kostenlos</div>
           <div class="preis">0 <small>€ dauerhaft</small></div>
-          <p class="notiz">Für gelegentliche Suchen und zum Ausprobieren.</p>
+          <p class="notiz">Alles, was du zum Bewerben brauchst. Ohne Grenze bei den Bewerbungen.</p>
           <a href="/download/" class="btn btn-s">Herunterladen</a>
           <ul>
-            <li><Icon name="check" size={17} /> Bis zu 10 aktive Bewerbungen</li>
-            <li><Icon name="check" size={17} /> Pipeline, Stellensuche, Erinnerungen</li>
-            <li><Icon name="check" size={17} /> KI mit eigenem Schlüssel — ohne Grenze</li>
-            <li><Icon name="check" size={17} /> Alle Daten lokal, kein Konto</li>
+            <li><Icon name="check" size={17} /> Bewerbungen ohne Grenze, mit Kontakten und Aufgaben</li>
+            <li><Icon name="check" size={17} /> Stellensuche mit Arbeitsagentur und Stichwort-Abgleich</li>
+            <li><Icon name="check" size={17} /> Anschreiben und Interview-Training mit deiner KI</li>
+            <li><Icon name="check" size={17} /> Browser-Erweiterung: Stellen mit einem Klick speichern</li>
+            <li><Icon name="check" size={17} /> Sync über deinen eigenen Cloud-Ordner, verschlüsselt</li>
           </ul>
         </div>
 
@@ -56,13 +58,15 @@ const fragen = [
         <div class="plan rv" style="--d:2">
           <div class="name">Pro</div>
           <div class="preis">Preis <small>noch offen</small></div>
-          <p class="notiz">Ab dem Verkaufsstart. Einmalkauf oder Abo — entscheiden die Alpha-Tester mit.</p>
+          <p class="notiz">Komfort für alle, die viel bewerben. Ab dem Verkaufsstart; Einmalkauf oder Abo entscheiden die Alpha-Tester mit.</p>
           <span class="btn btn-s" aria-disabled="true">Ab Verkaufsstart</span>
           <ul>
-            <li><Icon name="check" size={17} /> Unbegrenzt aktive Bewerbungen</li>
-            <li><Icon name="check" size={17} /> Bis zu 3 Geräte</li>
-            <li><Icon name="check" size={17} /> Direkter Draht zur Entwicklung</li>
-            <li class="offen"><Icon name="clock" size={17} /> Weitere Pro-Funktionen: werden mit der Alpha festgelegt</li>
+            <li><Icon name="check" size={17} /> Alles aus Kostenlos</li>
+            <li><Icon name="check" size={17} /> Auto-Modus: passende Stellen, Bewerbung vorbereitet</li>
+            <li><Icon name="check" size={17} /> Lebenslauf je Stelle mit KI</li>
+            <li><Icon name="check" size={17} /> Formulare ausfüllen mit der Erweiterung</li>
+            <li><Icon name="check" size={17} /> cockpit-Sync-Server, bis zu 3 Geräte</li>
+            <li><Icon name="check" size={17} /> Erweiterte Analyse</li>
           </ul>
         </div>
       </div>

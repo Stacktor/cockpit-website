@@ -6,6 +6,7 @@ import ScreenSlider from "../components/ScreenSlider.astro";
 import HeldFluss from "../components/HeldFluss.astro";
 import CardRail from "../components/CardRail.astro";
 import Faq from "../components/Faq.astro";
+import Vergleich from "../components/Vergleich.astro";
 import { SITE } from "../config";
 
 const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
@@ -248,25 +249,12 @@ const fragen = [
       <div class="abschnitt-kopf">
         <div class="eyebrow rv">Vergleich</div>
         <h2 class="rv" style="--d:1">Warum nicht einfach Teal, Huntr oder Excel?</h2>
-        <p class="lead rv" style="--d:2">Die anderen Werkzeuge sind gut — nur für einen anderen Markt und ein anderes Datenschutzverständnis gebaut.</p>
+        <p class="lead rv" style="--d:2">Teal und Huntr sind gute Werkzeuge. Sie sind nur für einen anderen Markt gebaut und speichern alles bei sich.</p>
       </div>
-      <div class="tabelle rv" style="--d:2">
-        <table>
-          <thead>
-            <tr><th><span class="sr-only">Merkmal</span></th><th class="ich">cockpit</th><th>Teal / Huntr</th><th>ChatGPT</th><th>Excel</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Daten bleiben auf deinem Gerät</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
-            <tr><td>Ohne Benutzerkonto nutzbar</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
-            <tr><td>Deutsche Stellenquellen (Arbeitsagentur)</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="nein">Nein</td></tr>
-            <tr><td>Anschreiben auf Deutsch, in deinem Ton</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
-            <tr><td>Eigener KI-Schlüssel oder lokales Modell</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td>–</td></tr>
-            <tr><td>Interview-Training</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
-            <tr><td>Grundversion dauerhaft kostenlos</td><td class="ich ja">Ja</td><td>eingeschränkt</td><td>eingeschränkt</td><td class="ja">Ja</td></tr>
-          </tbody>
-        </table>
+      <div class="rv" style="--d:2">
+        <Vergleich kompakt />
       </div>
-      <p class="micro" style="margin-top:14px">Angaben zu anderen Werkzeugen laut deren öffentlichen Seiten, Stand Juli 2026.</p>
+      <p style="margin-top:18px"><a href="/vergleich/" class="mehr">Alle Unterschiede, auch wo Teal und Huntr vorn liegen <Icon name="arrow-right" size={15} /></a></p>
     </div>
   </section>
 
@@ -585,57 +573,6 @@ const fragen = [
     flex-wrap: wrap;
     gap: 8px;
     margin: 24px 0 18px;
-  }
-
-  .tabelle {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: var(--r);
-    background: var(--card);
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14.5px;
-    min-width: 620px;
-  }
-  th,
-  td {
-    padding: 13px 14px;
-    text-align: left;
-    border-bottom: 1px solid var(--line);
-  }
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-  th {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-  .ich {
-    background: var(--accent-soft);
-  }
-  th.ich {
-    color: var(--accent-ink);
-  }
-  td:first-child {
-    font-weight: 560;
-  }
-  .ja {
-    color: var(--ok);
-    font-weight: 700;
-  }
-  .nein {
-    color: var(--faint);
-    font-weight: 600;
-  }
-  tbody tr {
-    transition: background 0.2s;
-  }
-  tbody tr:hover {
-    background: var(--soft);
   }
 
   .alpha-band {

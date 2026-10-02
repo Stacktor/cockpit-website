@@ -27,4 +27,4 @@ In der Pipeline stehen dein aktueller Arbeitgeber, Wunschgehälter und jede Absa
 
 ## In der kostenlosen Stufe
 
-Bis zu **10 aktive Bewerbungen** gleichzeitig. Abgeschlossene zählen nicht mit. Alpha-Tester haben keine Grenze.
+Ohne Grenze. Du kannst so viele Bewerbungen anlegen, wie du willst, auch in der kostenlosen Version.

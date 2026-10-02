@@ -7,7 +7,7 @@ import { globSync, mkdirSync, writeFileSync } from "node:fs";
 
 const PORT = 4329;
 const OUT = ".tmp/audit";
-const SEITEN = ["/", "/funktionen/", "/funktionen/pipeline/", "/preise/", "/download/", "/alpha/", "/hilfe/", "/hilfe/erste-schritte/", "/blog/", "/blog/alpha-startet/", "/changelog/", "/ueber/", "/datenschutz/", "/impressum/", "/gibt-es-nicht/"];
+const SEITEN = ["/", "/funktionen/", "/funktionen/pipeline/", "/preise/", "/vergleich/", "/roadmap/", "/download/", "/alpha/", "/hilfe/", "/hilfe/erste-schritte/", "/blog/", "/blog/alpha-startet/", "/changelog/", "/ueber/", "/datenschutz/", "/impressum/", "/gibt-es-nicht/"];
 const GERAETE = { desktop: { width: 1280, height: 860 }, handy: { width: 390, height: 844 } };
 
 mkdirSync(OUT, { recursive: true });
