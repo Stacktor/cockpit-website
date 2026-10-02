@@ -4,13 +4,13 @@ import Seitenkopf from "../components/Seitenkopf.astro";
 import Icon from "../components/Icon.astro";
 import { SITE } from "../config";
 
-/** Neueste Version oben. Texte für Nutzer — die technische Fassung steht im App-Repo. */
+/** Neueste Version oben. Texte für Nutzer; die technische Fassung steht im App-Repo. */
 const versionen = [
   {
     version: "0.1.0",
     titel: "0.1 Alpha",
     datum: "Alpha-Start, Herbst 2026",
-    intro: "Die erste Version für Tester — für Windows und Linux.",
+    intro: "Die erste Version für Tester, für Windows und Linux.",
     neu: [
       "Bewerbungen ohne Grenze, auch kostenlos. Pro bringt Komfort, nicht mehr Platz.",
       "Bewerbung im Detail: Gehalt, Arbeitsort, Tags, Priorität, Verlauf, Notizen, Kontakte, Aufgaben und Dokumente in einem Seitenpanel.",
@@ -38,7 +38,7 @@ const versionen = [
 ];
 ---
 
-<Base title="Changelog" description="Alle Änderungen an cockpit je Version — neue Funktionen, Verbesserungen und Fehlerbehebungen.">
+<Base title="Changelog" description="Alle Änderungen an cockpit je Version: neue Funktionen, Verbesserungen, behobene Fehler.">
   <Seitenkopf eyebrow="Changelog" titel="Was sich geändert hat" lead="Jede Version mit ihren Neuerungen. Updates bekommst du direkt in der App." krumen={[["Changelog", "/changelog/"]]} />
   <section class="abschnitt">
     <div class="wrap eng">

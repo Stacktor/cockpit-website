@@ -83,7 +83,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <div class="feld">
           <label for="f-grund">Was ist beim Bewerben gerade deine größte Hürde?</label>
           <textarea class="eingabe" id="f-grund" name="grund" required placeholder="Ein, zwei Sätze genügen. Zum Beispiel: Ich verliere bei vielen Bewerbungen den Überblick und brauche ewig für Anschreiben."></textarea>
-          <p class="hilfe">Hilft mir bei der Auswahl — ich nehme Leute, die das Werkzeug wirklich brauchen.</p>
+          <p class="hilfe">Hilft mir bei der Auswahl. Ich nehme vor allem Leute, die gerade wirklich suchen.</p>
         </div>
       </fieldset>
 
@@ -140,7 +140,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
       </svg>
     </div>
     <h3 data-fertig-titel>Angekommen.</h3>
-    <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. Ich melde mich in den nächsten Tagen persönlich bei dir — mit deinem Alpha-Schlüssel, wenn du dabei bist.</p>
+    <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. In den nächsten Tagen melde ich mich bei dir. Bist du dabei, steht dein Alpha-Schlüssel gleich mit drin.</p>
     <div class="fertig-links">
       <a href="/hilfe/erste-schritte/" class="btn btn-s btn-sm">Schon mal reinlesen: Erste Schritte</a>
       {SITE.discord && <a href={SITE.discord} class="btn btn-s btn-sm">Zum Discord</a>}
@@ -291,7 +291,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
       } catch {
         weiter.disabled = false;
         weiter.textContent = "Anmeldung abschicken";
-        zeigeFehler("Keine Verbindung. Bitte versuch es gleich noch einmal — oder schreib an Kontakt@mesco.cc.");
+        zeigeFehler("Keine Verbindung. Versuch es gleich noch einmal oder schreib an Kontakt@mesco.cc.");
       }
     });
   }
