@@ -285,22 +285,28 @@ export const uebersicht: Bereich = async (ziel) => {
   const glocke = document.querySelector("#a-glocke .a-punkt") as HTMLElement | null;
   if (glocke) glocke.hidden = !(d.fehler.ok && d.fehler.offen > 0);
 
+  // Vollbild-Raster: die Bereiche ordnen sich je nach Breite in 3, 2 oder 1
+  // Spalten (siehe .a-bento in admin.css) — nichts wird gequetscht.
+  const feld = (bereich: string, inhalt: Node) => h("div", { class: `a-feld-${bereich}` }, inhalt);
   fuege(
     ziel,
     h(
       "div",
       { class: "a-bento" },
-      h("div", { class: "a-spalte" }, heldKarte(a), h("div", { class: "a-zwei" }, neuesteAnmeldungen(a), plaetzeKarte(a))),
-      h("div", { class: "a-spalte" }, betrieb(d), trichter(d)),
-    ),
-    raster(
-      "a-r2",
-      karte("Woher die Anmeldungen kommen", hinweisKachel(a) || balken(a.quellen)),
-      karte(
-        "Letzte Aktivität",
-        Array.isArray(d.protokoll) && d.protokoll.length
-          ? h("div", { class: "a-balken" }, d.protokoll.slice(0, 8).map((p: Daten) => h("div", { class: "a-zitat" }, `${p.aktion}${p.details ? ` — ${p.details}` : ""}`, h("small", {}, `${p.benutzer} · ${relativ(p.zeit)}`))))
-          : leer("Noch keine Änderungen protokolliert."),
+      feld("held", heldKarte(a)),
+      feld("betrieb", betrieb(d)),
+      feld("neu", neuesteAnmeldungen(a)),
+      feld("platz", plaetzeKarte(a)),
+      feld("trichter", trichter(d)),
+      feld("quellen", karte("Woher die Anmeldungen kommen", hinweisKachel(a) || balken(a.quellen, 6))),
+      feld(
+        "akt",
+        karte(
+          "Letzte Aktivität",
+          Array.isArray(d.protokoll) && d.protokoll.length
+            ? h("div", { class: "a-balken" }, d.protokoll.slice(0, 5).map((p: Daten) => h("div", { class: "a-zitat" }, `${p.aktion}${p.details ? ` — ${p.details}` : ""}`, h("small", {}, `${p.benutzer} · ${relativ(p.zeit)}`))))
+            : leer("Noch keine Änderungen protokolliert."),
+        ),
       ),
     ),
   );

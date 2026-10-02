@@ -92,7 +92,7 @@ for (let i = 0; i < 60; i++) {
 const browser = await chromium.launch({ executablePath: globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome").sort().reverse()[0] });
 const funde = [];
 try {
-  for (const [geraet, viewport] of [["desktop", { width: 1440, height: 900 }], ["handy", { width: 390, height: 844 }]]) {
+  for (const [geraet, viewport] of [["breit", { width: 1920, height: 1080 }], ["desktop", { width: 1440, height: 900 }], ["handy", { width: 390, height: 844 }]]) {
     const page = await browser.newPage({ viewport });
     page.on("pageerror", (e) => funde.push(`${geraet}: ${e.message}`));
     page.on("console", (m) => m.type() === "error" && funde.push(`${geraet}: ${m.text()}`));

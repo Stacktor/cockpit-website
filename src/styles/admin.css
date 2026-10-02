@@ -45,7 +45,7 @@
   color-scheme: light;
   margin: 0;
   min-height: 100vh;
-  background: var(--a-rahmen);
+  background: var(--a-flaeche);
   color: var(--a-ink);
   font: 400 14px/1.6 var(--a-sans);
   -webkit-font-smoothing: antialiased;
@@ -83,22 +83,26 @@
 
 /* ───────────── Rahmen & Kopf ───────────── */
 
+/* Vollbild: die Arbeitsfläche nutzt die ganze Breite; Ränder wachsen mit. */
+.admin {
+  --a-rand-x: clamp(16px, 3vw, 56px);
+}
 .a-rahmen {
-  max-width: 1400px;
-  min-height: calc(100vh - 64px);
-  margin: 32px auto;
-  padding: 40px;
-  background: var(--a-flaeche);
-  border-radius: 2.5rem;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 .a-kopf {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   display: flex;
   align-items: center;
   gap: 24px;
-  margin-bottom: 40px;
+  padding: 14px var(--a-rand-x);
+  background: rgb(255 255 255 / 0.86);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--a-linie);
 }
 .a-marke {
   display: flex;
@@ -238,6 +242,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
+  padding: 40px var(--a-rand-x) 0;
   margin-bottom: 32px;
 }
 .a-seitenkopf h1 {
@@ -280,8 +285,9 @@
 .a-inhalt {
   flex: 1;
   display: grid;
-  gap: 32px;
+  gap: 24px;
   align-content: start;
+  padding: 0 var(--a-rand-x);
 }
 .a-auftritt {
   animation: a-auftritt 0.6s var(--a-gleiten) both;
@@ -649,10 +655,40 @@ textarea.a-eingabe {
 
 /* ───────────── Übersicht (Bento wie die Referenz) ───────────── */
 
+/* Übersicht: 3 Spalten auf großen Bildschirmen, 2 auf mittleren, 1 auf kleinen. */
 .a-bento {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 32px;
+  gap: 24px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    "held held held held held held held held betrieb betrieb betrieb betrieb"
+    "neu neu neu neu platz platz platz platz betrieb betrieb betrieb betrieb"
+    "trichter trichter trichter trichter quellen quellen quellen quellen akt akt akt akt";
+  align-items: start;
+}
+.a-bento > div {
+  min-width: 0;
+}
+.a-feld-held { grid-area: held; }
+.a-feld-betrieb { grid-area: betrieb; }
+.a-feld-neu { grid-area: neu; }
+.a-feld-platz { grid-area: platz; }
+.a-feld-trichter { grid-area: trichter; }
+.a-feld-quellen { grid-area: quellen; }
+.a-feld-akt { grid-area: akt; }
+.a-feld-held > .a-karte,
+.a-feld-platz > .a-promo,
+.a-feld-trichter > .a-karte,
+.a-feld-quellen > .a-karte,
+.a-feld-akt > .a-karte {
+  height: 100%;
+}
+.a-feld-betrieb {
+  padding: 24px;
+  border-radius: var(--a-r);
+  border: 1px solid var(--a-linie-2);
+  background: var(--a-karte);
+  box-shadow: var(--a-schatten);
 }
 .a-spalte {
   display: flex;
@@ -1405,6 +1441,8 @@ a.a-kachel:hover {
   justify-content: space-between;
   gap: 16px;
   margin-top: 48px;
+  padding: 20px var(--a-rand-x) 28px;
+  border-top: 1px solid var(--a-linie);
   font: 600 12px/1.2 var(--a-mono);
   color: var(--a-faint);
 }
@@ -1487,6 +1525,17 @@ a.a-kachel:hover {
     display: none;
   }
 }
+@media (max-width: 1500px) {
+  .a-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "held held"
+      "neu platz"
+      "betrieb betrieb"
+      "trichter quellen"
+      "akt akt";
+  }
+}
 @media (max-width: 1180px) {
   .a-hauptnav {
     display: none;
@@ -1497,24 +1546,19 @@ a.a-kachel:hover {
   .a-aktionen {
     margin-left: auto;
   }
+}
+@media (max-width: 900px) {
   .a-bento {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "held" "betrieb" "neu" "platz" "trichter" "quellen" "akt";
   }
 }
 @media (max-width: 760px) {
-  .admin {
-    background: var(--a-flaeche);
-  }
-  .a-rahmen {
-    margin: 0;
-    padding: 16px;
-    border-radius: 0;
-    box-shadow: none;
-    min-height: 100vh;
-  }
   .a-kopf {
-    margin-bottom: 24px;
     gap: 12px;
+  }
+  .a-seitenkopf {
+    padding-top: 24px;
   }
   .a-marke small {
     display: none;
