@@ -175,3 +175,105 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   v = await (await version(req)).json(); assert.equal(v.version, null);
   console.log("Umfrage-Ende und Versionsabfrage: ok");
 }
+
+// ───────────── Sync-Server (R2 simuliert) ─────────────
+{
+  class R2 {
+    constructor() { this.m = new Map(); }
+    async put(k, v) { this.m.set(k, { data: new Uint8Array(v), uploaded: new Date() }); }
+    async get(k) { const o = this.m.get(k); return o ? { body: o.data, size: o.data.byteLength } : null; }
+    async head(k) { const o = this.m.get(k); return o ? { size: o.data.byteLength } : null; }
+    async delete(k) { for (const x of [k].flat()) this.m.delete(x); }
+    async list({ prefix, cursor, limit = 1000 }) {
+      const keys = [...this.m.keys()].filter((k) => k.startsWith(prefix)).sort();
+      const start = cursor ? Number(cursor) : 0;
+      const objects = keys.slice(start, start + limit).map((key) => ({ key, size: this.m.get(key).data.byteLength, uploaded: this.m.get(key).uploaded }));
+      const truncated = start + limit < keys.length;
+      return { objects, truncated, cursor: truncated ? String(start + limit) : undefined };
+    }
+  }
+  const S = new URL("../functions/api/sync/", import.meta.url).href;
+  const { onRequestGet: liste } = await import(S + "liste.js");
+  const datei = await import(S + "datei.js");
+  const { onRequestGet: speicher } = await import(S + "speicher.js");
+  const { onRequestDelete: alles } = await import(S + "alles.js");
+  const { gueltigerName, alleObjekte } = await import(new URL("../lib/sync.js", import.meta.url).href);
+
+  const LIZ = {
+    "PRO-1": { valid: true, license_key: { id: 222 }, meta: { variant_name: "Pro" } },
+    "ALPHA-2": { valid: true, license_key: { id: 333 }, meta: { variant_name: "Alpha" } },
+  };
+  globalThis.fetch = async (u, o) => {
+    if (String(u).includes("lemonsqueezy")) {
+      const k = new URLSearchParams(o.body).get("license_key");
+      return new Response(JSON.stringify(LIZ[k] ?? { valid: false, error: "license_key not found" }));
+    }
+    throw new Error("unerwartet " + u);
+  };
+  const env = { ALPHA: new KV(), SYNC: new R2() };
+  const anfrage = (pfad, { methode = "GET", lizenz = "PRO-1", body } = {}) => ({
+    request: new Request(`https://cockpit.mesco.cc/api/sync/${pfad}`, {
+      method: methode,
+      headers: lizenz ? { "X-Cockpit-Lizenz": lizenz, "X-Cockpit-Instanz": "inst" } : {},
+      body,
+    }),
+    env,
+  });
+  const j = async (r) => [r.status, await r.json()];
+
+  // Namen
+  assert.ok(gueltigerName("geraete/abc/0000000001.paket"));
+  for (const n of ["../x", "/abs", "a//b", "a b", "", "x".repeat(201)]) assert.ok(!gueltigerName(n), n);
+
+  // Ohne/mit ungültiger Lizenz, ohne Bucket
+  let [st, d] = await j(await liste(anfrage("liste", { lizenz: null }))); assert.equal(st, 400);
+  [st, d] = await j(await liste(anfrage("liste", { lizenz: "FALSCH" }))); assert.equal(st, 403); assert.match(d.fehler, /Pro- oder Alpha/);
+  [st] = await j(await liste({ ...anfrage("liste"), env: { ALPHA: new KV() } })); assert.equal(st, 503);
+
+  // Schreiben, lesen, listen
+  const bytes = new Uint8Array([67, 75, 83, 49, 1, 2, 3]);
+  [st] = await j(await datei.onRequestPut(anfrage("datei?name=geraete/g1/0000000001.paket", { methode: "PUT", body: bytes })));
+  assert.equal(st, 200);
+  [st] = await j(await datei.onRequestPut(anfrage("datei?name=cockpit-sync.json", { methode: "PUT", body: "{}" })));
+  const r = await datei.onRequestGet(anfrage("datei?name=geraete/g1/0000000001.paket"));
+  assert.equal(r.status, 200); assert.deepEqual(new Uint8Array(await r.arrayBuffer()), bytes);
+  [st] = await j(await datei.onRequestGet(anfrage("datei?name=fehlt.paket"))); assert.equal(st, 404);
+  [st] = await j(await datei.onRequestGet(anfrage("datei?name=../x"))); assert.equal(st, 400);
+  [st, d] = await j(await liste(anfrage("liste?praefix=geraete/")));
+  assert.deepEqual(d.dateien, [{ name: "geraete/g1/0000000001.paket", groesse: 7 }]);
+
+  // Namensräume getrennt: Alpha-Lizenz sieht nichts von Pro
+  [st, d] = await j(await liste(anfrage("liste", { lizenz: "ALPHA-2" }))); assert.deepEqual(d.dateien, []);
+  [st] = await j(await datei.onRequestGet(anfrage("datei?name=cockpit-sync.json", { lizenz: "ALPHA-2" }))); assert.equal(st, 404);
+
+  // Speicher, Grenzen
+  [st, d] = await j(await speicher(anfrage("speicher"))); assert.equal(d.belegt, 9); assert.equal(d.dateien, 2);
+  const gross = new Uint8Array(11 * 1024 * 1024 + 1);
+  [st] = await j(await datei.onRequestPut(anfrage("datei?name=dateien/x.datei", { methode: "PUT", body: gross }))); assert.equal(st, 413);
+  for (let i = 0; i < 18; i++) env.SYNC.m.set(`l/222/dateien/f${i}.datei`, { data: new Uint8Array(11 * 1024 * 1024), uploaded: new Date() });
+  [st, d] = await j(await datei.onRequestPut(anfrage("datei?name=dateien/neu.datei", { methode: "PUT", body: new Uint8Array(10 * 1024 * 1024) })));
+  assert.equal(st, 507); assert.match(d.fehler, /voll/);
+  // Überschreiben einer vorhandenen Datei zählt die alte Größe nicht doppelt
+  [st] = await j(await datei.onRequestPut(anfrage("datei?name=dateien/f0.datei", { methode: "PUT", body: new Uint8Array(11 * 1024 * 1024) }))); assert.equal(st, 200);
+
+  // Löschen, alles löschen (mit Seiten über 1000 Objekte)
+  [st] = await j(await datei.onRequestDelete(anfrage("datei?name=geraete/g1/0000000001.paket", { methode: "DELETE" }))); assert.equal(st, 200);
+  for (let i = 0; i < 1500; i++) env.SYNC.m.set(`l/222/geraete/g2/${String(i).padStart(10, "0")}.paket`, { data: new Uint8Array(1), uploaded: new Date() });
+  assert.equal((await alleObjekte(env.SYNC, "l/222/")).length, 1500 + 18 + 1);
+  [st, d] = await j(await alles(anfrage("alles", { methode: "DELETE" }))); assert.equal(st, 200); assert.equal(d.geloescht, 1519);
+  [st, d] = await j(await speicher(anfrage("speicher"))); assert.equal(d.belegt, 0);
+
+  // Admin-Übersicht und Leeren
+  const admin = await import(new URL("../functions/api/admin/sync.js", import.meta.url).href);
+  env.SYNC.m.set("l/333/cockpit-sync.json", { data: new Uint8Array(5), uploaded: new Date() });
+  let a = await (await admin.onRequestGet({ request: new Request("https://x/api/admin/sync"), data: { env } })).json();
+  assert.deepEqual(a.lizenzen.map((l) => [l.lizenz, l.belegt]), [["333", 5]]);
+  a = await (await admin.onRequestGet({ request: new Request("https://x/api/admin/sync?lizenz=333"), data: { env } })).json();
+  assert.equal(a.dateien, 1);
+  const leer = await admin.onRequestPost({
+    request: new Request("https://x", { method: "POST", body: JSON.stringify({ lizenz: "333", aktion: "leeren" }) }),
+    data: { env, benutzer: "admin@example.org" },
+  });
+  assert.equal((await leer.json()).geloescht, 1);
+  console.log("Sync-Server: alle Prüfungen ok");
+}

@@ -55,6 +55,14 @@ npm run audit        # nach build: jede Seite auf Desktop/Handy, hell/dunkel
 | Changelog | `src/pages/changelog.astro`, neueste Version oben |
 | Screenshots | `light-<id>.png` / `dark-<id>.png` (1440 × 900) in `src/assets/screens/` ersetzen |
 
+## Sync-Server
+
+`/api/sync/*` speichert die Ende-zu-Ende verschlüsselten Sync-Pakete der App (Pro und Alpha).
+Dafür braucht das Pages-Projekt einen R2-Bucket mit dem Binding `SYNC`
+(Einstellungen → Functions → R2-Bucket-Bindungen). Ohne Binding antwortet die API mit 503 und
+die App meldet „Sync-Server noch nicht eingerichtet“. Grenzen: 11 MB je Datei, 200 MB je Lizenz.
+Im Admin zeigt `/api/admin/sync` den Speicher je Lizenz und kann ihn leeren.
+
 ## Datenschutz
 
 Die Anmeldung zur Alpha und Fehlerberichte aus der App landen in Cloudflare KV. Fehlerberichte
