@@ -185,22 +185,22 @@ const ressourcen = [
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 18px;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
     text-decoration: none;
     color: var(--ink);
     white-space: nowrap;
   }
   .logo b {
     color: var(--accent-ink);
-    font-weight: 700;
+    font-weight: 600;
   }
   .marke {
     width: 30px;
     height: 30px;
-    border-radius: 9px;
-    background: var(--accent);
+    border-radius: var(--r);
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
     color: #fff;
     display: grid;
     place-items: center;
@@ -234,8 +234,8 @@ const ressourcen = [
     cursor: pointer;
     text-decoration: none;
     color: var(--muted);
-    font-size: 14.5px;
-    font-weight: 560;
+    font-size: 14px;
+    font-weight: 500;
     transition:
       color 0.15s,
       background 0.15s;
@@ -314,7 +314,7 @@ const ressourcen = [
     gap: 12px;
     align-items: flex-start;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: var(--r);
     text-decoration: none;
     color: var(--ink);
     transition: background 0.15s;
@@ -336,7 +336,7 @@ const ressourcen = [
   .mega-link b {
     display: block;
     font-size: 14.5px;
-    font-weight: 620;
+    font-weight: 500;
   }
   .mega-link small {
     display: block;
@@ -347,7 +347,7 @@ const ressourcen = [
   .mega-seite {
     background: var(--soft);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--r);
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -399,8 +399,8 @@ const ressourcen = [
     color: var(--ink);
   }
   .thema button[aria-pressed="true"] {
-    background: var(--accent);
-    color: #fff;
+    background: var(--cta);
+    color: var(--cta-ink);
   }
   .thema.breit {
     display: flex;
