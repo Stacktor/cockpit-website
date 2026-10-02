@@ -312,3 +312,67 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   assert.equal(d.fehler.gesamt, 1);
   console.log("Fehler, Mail, Einstellungen, Lizenzen, Übersicht: ok");
 }
+
+// ───────────── Doku (privates Repo, nur lesend) ─────────────
+{
+  const { onRequestGet: doku } = await imp("../functions/api/admin/doku.js");
+  const gh = [];
+  let baum = { status: 200, body: { tree: [{ path: "zz/b.md", type: "blob", size: 1 }, { path: "a.md", type: "blob", size: 1 }, { path: "README.md", type: "blob", size: 1 }, { path: "logo.png", type: "blob", size: 1 }, { path: "ordner", type: "tree" }] } };
+  const vorher = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    const u = String(url);
+    gh.push({ u, init });
+    if (u.includes("/git/trees/")) return new Response(JSON.stringify(baum.body), { status: baum.status });
+    if (u.includes("/contents/")) return u.endsWith("/contents/fehlt.md") ? new Response("{}", { status: 404 }) : new Response("<h1>Hallo</h1>", { status: 200 });
+    return vorher(url, init);
+  };
+  const lauf = async (pfad, env) => (await doku({ request: new Request(ORIGIN + "/api/admin/doku" + pfad), data: { env } })).json();
+
+  let d = await lauf("", {});
+  assert.equal(d.ok, false, "ohne Token kein Zugriff");
+  assert.match(d.text, /GitHub-Token/);
+  assert.equal(gh.length, 0, "ohne Token kein Aufruf");
+
+  const env = { GITHUB_TOKEN: "ghp_test" };
+  d = await lauf("", env);
+  assert.equal(d.ok, true);
+  assert.equal(d.repo, "Stacktor/cockpit-docs", "Standard-Repo");
+  assert.deepEqual(d.dateien.map((x) => x.pfad), ["README.md", "a.md", "zz/b.md"], "nur Markdown, README zuerst");
+  assert.equal(gh[0].init.headers.Authorization, "Bearer ghp_test");
+
+  d = await lauf("", { ...env, DOCS_REPO: "Stacktor/andere-doku" });
+  assert.ok(gh.at(-1).u.includes("repos/Stacktor/andere-doku/"), "eigenes Repo aus der Einstellung");
+  d = await lauf("", { ...env, DOCS_REPO: "kaputt" });
+  assert.equal(d.ok, false, "ungültiges Repo abgelehnt");
+
+  baum = { status: 404, body: {} };
+  d = await lauf("", env);
+  assert.equal(d.ok, false);
+  assert.match(d.text, /nicht erreichbar/);
+  baum = { status: 409, body: {} };
+  d = await lauf("", env);
+  assert.deepEqual(d.dateien, [], "leeres Repo");
+
+  const zahl = gh.length;
+  for (const boese of ["../geheim.md", "a/../../x.md", "/etc/passwd.md", "README.txt", "a.md?x=1", "%2e%2e/x.md"]) {
+    d = await lauf("?pfad=" + encodeURIComponent(boese), env);
+    assert.equal(d.ok, false, `abgelehnt: ${boese}`);
+  }
+  assert.equal(gh.length, zahl, "abgelehnte Pfade erreichen GitHub nicht");
+
+  d = await lauf("?pfad=" + encodeURIComponent("betrieb/Über uns.md"), env);
+  assert.equal(d.ok, true);
+  assert.equal(d.html, "<h1>Hallo</h1>");
+  assert.ok(gh.at(-1).u.endsWith("/contents/betrieb/%C3%9Cber%20uns.md"), "Pfad kodiert");
+  assert.equal(gh.at(-1).init.headers.Accept, "application/vnd.github.html+json", "GitHub rendert HTML");
+  d = await lauf("?pfad=fehlt.md", env);
+  assert.equal(d.ok, false);
+
+  const { setzeEinstellung } = tresor;
+  const kv = { ALPHA: new KV(), ADMIN_MASTER_KEY: "test-master-schluessel-1234" };
+  await assert.rejects(() => setzeEinstellung(kv, "DOCS_REPO", "nur-name", "t"), /besitzer\/name/);
+  await setzeEinstellung(kv, "DOCS_REPO", "Stacktor/cockpit-docs", "t");
+
+  globalThis.fetch = vorher;
+  console.log("Doku: ok");
+}

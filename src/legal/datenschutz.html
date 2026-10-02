@@ -1,5 +1,5 @@
 <h1>Datenschutzerklärung</h1>
-<p class="upd">Stand: 28.09.2026</p>
+<p class="upd">Stand: 02.10.2026</p>
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
@@ -141,11 +141,12 @@
   <li><b>Keine Weitergabe</b> an Dritte über die unten genannten Auftragsverarbeiter hinaus.</li>
 </ul>
 
-<h2 id="appfeedback">3c · Umfragen und Fehlerberichte aus der App (Alpha)</h2>
+<h2 id="appfeedback">3c · Umfragen und Fehlerberichte aus der App</h2>
 <p>
-  Als Alpha-Tester kannst du in der App Umfragen beantworten und über „Fehler melden“
-  Probleme schicken. Übertragen wird nur, was du aktiv absendest — es gibt keine
-  automatische Nutzungsauswertung (keine Telemetrie).
+  Als Alpha-Tester kannst du in der App Umfragen beantworten. Über „Fehler melden“ kann jede
+  Nutzerin und jeder Nutzer Probleme schicken — mit Lizenz zugeordnet, ohne Lizenz anonym.
+  Übertragen wird nur, was du aktiv absendest — es gibt keine automatische
+  Nutzungsauswertung (keine Telemetrie).
 </p>
 <table>
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
@@ -154,6 +155,8 @@
     <tr><td>E-Mail-Adresse und Name aus deiner Lizenz</td><td>Rückfragen zu deiner Antwort oder deinem Fehlerbericht</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Antworten auf Umfragen</td><td>Verbesserung der App, Festlegung von Preis und Lizenzmodell</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Fehlerbeschreibung, optional technisches Protokoll (App-Version, Betriebssystem, letzte Fehlermeldungen, keine Bewerbungsdaten)</td><td>Fehlerbehebung</td><td>Cloudflare Workers KV, Resend (Benachrichtigung an mich)</td></tr>
+    <tr><td>Bei Fehlerberichten ohne Lizenz: freiwillig angegebene E-Mail-Adresse</td><td>Rückfragen zum Bericht</td><td>Cloudflare Workers KV, Resend</td></tr>
+    <tr><td>Bei Fehlerberichten ohne Lizenz: IP-Adresse, nur als Prüfsumme mit Tagesdatum (nicht umkehrbar, die IP selbst wird nicht gespeichert)</td><td>Schutz vor massenhaften Meldungen (höchstens 5 je Stunde)</td><td>Cloudflare Workers KV, max. 2 Stunden</td></tr>
   </tbody>
 </table>
 <ul style="margin-top:14px">

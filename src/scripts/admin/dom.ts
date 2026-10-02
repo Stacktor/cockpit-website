@@ -67,6 +67,7 @@ export const ICONS = {
   runter: "m6 9 6 6 6-6",
   plus: "M12 5v14|M5 12h14",
   uhr: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z|M12 6v6l4 2",
+  doku: "M12 7v14|M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
 };
 
 export const datum = (iso?: string | null) =>
