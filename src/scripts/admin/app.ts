@@ -5,6 +5,8 @@
  */
 import { h, svg, ICONS } from "./dom";
 import { ApiFehler, schubladeZu, tokenAusAdresse } from "./ui";
+import { menueZu } from "./menue";
+import { glockeOeffnen } from "./uebersicht";
 import * as B from "./bereiche";
 
 type Id = keyof typeof B;
@@ -112,6 +114,7 @@ async function lade() {
   zeichneNavigation();
   schubladeZu();
   blattZu();
+  menueZu();
   inhalt.replaceChildren(h("div", { class: "a-lade" }, h("div"), h("div"), h("div")));
   const ziel = h("div");
   try {
@@ -144,6 +147,8 @@ async function lade() {
 tokenAusAdresse();
 addEventListener("hashchange", lade);
 document.getElementById("a-neu")!.addEventListener("click", lade);
+const glocke = document.getElementById("a-glocke")!;
+glocke.addEventListener("click", () => void glockeOeffnen(glocke));
 menue.addEventListener("click", () => (blatt.hidden ? blattAuf() : blattZu()));
 document.querySelector("[data-blatt-zu]")!.addEventListener("click", blattZu);
 document.getElementById("a-schleier")!.addEventListener("click", schubladeZu);
