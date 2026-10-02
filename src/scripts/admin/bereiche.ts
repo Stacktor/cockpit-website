@@ -995,6 +995,173 @@ export const analytics: Bereich = async (ziel) => {
   );
 };
 
+// ═════════════ Doku ═════════════
+// Interne Doku aus einem privaten GitHub-Repo (nur lesend). GitHub rendert das
+// Markdown; bevor es ins DOM kommt, lässt `saeubern` nur harmlose Elemente und
+// Attribute durch — die einzige Stelle im Admin, an der HTML eingefügt wird.
+
+const DOKU_TAGS = new Set(
+  "A P BR HR H1 H2 H3 H4 H5 H6 UL OL LI PRE CODE BLOCKQUOTE TABLE THEAD TBODY TR TH TD EM STRONG B I DEL S KBD SUP SUB DL DT DD DETAILS SUMMARY IMG INPUT DIV SPAN".split(" "),
+);
+const DOKU_WEG = new Set(["SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "FORM", "TEMPLATE", "NOSCRIPT", "svg", "math"]);
+const DOKU_ATTR = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "align", "type", "checked", "disabled", "open", "id"]);
+const SICHERE_URL = /^(https?:\/\/|#|mailto:)|^(?!\/\/)[\p{L}\p{N}_.\/()-]+(#[\w-]*)?$/u;
+
+function saeubern(html: string): DocumentFragment {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const raus: Element[] = [];
+  for (const el of Array.from(doc.body.querySelectorAll("*"))) {
+    if (!DOKU_TAGS.has(el.tagName) || (el.tagName === "INPUT" && el.getAttribute("type") !== "checkbox")) {
+      raus.push(el);
+      continue;
+    }
+    for (const a of Array.from(el.attributes)) {
+      const n = a.name.toLowerCase();
+      if (!DOKU_ATTR.has(n) || ((n === "href" || n === "src") && !SICHERE_URL.test(a.value.trim()))) el.removeAttribute(a.name);
+    }
+    if (el.tagName === "INPUT") el.setAttribute("disabled", "");
+  }
+  // Verbotene Elemente samt Inhalt entfernen, unbekannte nur „auspacken".
+  for (const el of raus) {
+    if (!el.isConnected) continue;
+    if (DOKU_WEG.has(el.tagName) || el.namespaceURI !== "http://www.w3.org/1999/xhtml") el.remove();
+    else el.replaceWith(...Array.from(el.childNodes));
+  }
+  const frag = document.createDocumentFragment();
+  frag.append(...Array.from(doc.body.childNodes).map((k) => document.importNode(k, true)));
+  return frag;
+}
+
+/** Relativen Link aus einer Doku-Datei gegen deren Ordner auflösen. */
+function dokuZiel(von: string, href: string): string | null {
+  const [pfad] = href.split("#");
+  if (!pfad || /^[a-z]+:/i.test(pfad) || !/\.md$/i.test(pfad)) return null;
+  const teile = pfad.startsWith("/") ? [] : von.split("/").slice(0, -1);
+  for (const t of pfad.split("/")) {
+    if (!t || t === ".") continue;
+    if (t === "..") teile.pop();
+    else teile.push(t);
+  }
+  return teile.join("/");
+}
+
+let dokuAktuell = "";
+
+export const doku: Bereich = async (ziel) => {
+  const d = await api("doku");
+  if (!d.ok) {
+    fuege(
+      ziel,
+      hinweisKachel(d),
+      karte(
+        "So richtest du die Doku ein",
+        h(
+          "ol",
+          { class: "a-doku-schritte" },
+          h("li", {}, "Auf GitHub ein privates Repo anlegen, z. B. ", h("code", {}, "Stacktor/cockpit-docs"), "."),
+          h("li", {}, "Einen Fine-grained Token mit „Contents: Read“ für dieses Repo erstellen (oder den vorhandenen Token erweitern)."),
+          h("li", {}, "Unter Einstellungen den GitHub-Token eintragen; bei anderem Namen auch „Doku-Repo (privat)“ setzen."),
+        ),
+      ),
+    );
+    return;
+  }
+  const dateien: Daten[] = d.dateien;
+  if (!dateien.length) {
+    fuege(ziel, leer(`${d.repo} enthält noch keine Markdown-Dateien.`));
+    return;
+  }
+  if (!dateien.some((x) => x.pfad === dokuAktuell)) dokuAktuell = dateien[0].pfad;
+
+  const text = h("article", { class: "a-karte a-doku-text", "aria-live": "polite" });
+  const liste = h("nav", { class: "a-doku-liste", "aria-label": "Dokumente" });
+  const suche = eingabe({ type: "search", placeholder: "Dokument suchen …", "aria-label": "Dokument suchen" });
+
+  const zeichneListe = () => {
+    const q = suche.value.trim().toLowerCase();
+    const gruppen = new Map<string, Daten[]>();
+    for (const x of dateien) {
+      if (q && !x.pfad.toLowerCase().includes(q)) continue;
+      const ordner = x.pfad.includes("/") ? x.pfad.slice(0, x.pfad.lastIndexOf("/")) : "";
+      if (!gruppen.has(ordner)) gruppen.set(ordner, []);
+      gruppen.get(ordner)!.push(x);
+    }
+    liste.replaceChildren(
+      ...[...gruppen].map(([ordner, xs]) =>
+        h(
+          "div",
+          { class: "a-doku-gruppe" },
+          ordner ? h("div", { class: "a-doku-ordner" }, ordner) : null,
+          ...xs.map((x) =>
+            h(
+              "button",
+              { type: "button", class: "a-doku-link", "aria-current": x.pfad === dokuAktuell ? "page" : null, onclick: () => oeffne(x.pfad) },
+              x.pfad.split("/").pop()!.replace(/\.md$/i, ""),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (!gruppen.size) liste.append(h("p", { class: "a-klein" }, "Nichts gefunden."));
+  };
+
+  async function oeffne(pfad: string) {
+    dokuAktuell = pfad;
+    zeichneListe();
+    text.replaceChildren(h("div", { class: "a-laden" }, "Lädt …"));
+    try {
+      const x = await api(`doku?pfad=${encodeURIComponent(pfad)}`);
+      if (!x.ok) {
+        text.replaceChildren(hinweisKachel(x)!);
+        return;
+      }
+      const kopf = h(
+        "div",
+        { class: "a-doku-kopf" },
+        h("span", { class: "a-mono" }, pfad),
+        h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", class: "a-knopf a-klein" }, svg(ICONS.extern, 14), "Auf GitHub"),
+      );
+      const inhalt = h("div", { class: "a-doku-inhalt" });
+      inhalt.append(saeubern(x.html));
+      inhalt.addEventListener("click", (ev) => {
+        const a = (ev.target as HTMLElement).closest("a");
+        const href = a?.getAttribute("href");
+        if (!a || !href) return;
+        if (href.startsWith("#")) {
+          ev.preventDefault();
+          const id = decodeURIComponent(href.slice(1));
+          (inhalt.querySelector(`[id="user-content-${CSS.escape(id)}"]`) || inhalt.querySelector(`[id="${CSS.escape(id)}"]`))?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        const zielPfad = dokuZiel(pfad, href);
+        if (zielPfad) {
+          ev.preventDefault();
+          oeffne(zielPfad);
+        } else if (/^https?:/.test(href)) {
+          a.setAttribute("target", "_blank");
+          a.setAttribute("rel", "noopener noreferrer");
+        }
+      });
+      text.replaceChildren(kopf, inhalt);
+    } catch (e) {
+      text.replaceChildren(h("div", { class: "a-hinweis a-fehler" }, (e as Error).message));
+    }
+  }
+
+  suche.addEventListener("input", zeichneListe);
+  fuege(
+    ziel,
+    h(
+      "div",
+      { class: "a-doku" },
+      h("aside", { class: "a-karte a-doku-seite" }, h("div", { class: "a-doku-repo a-mono" }, svg(ICONS.lizenz, 13), d.repo, " · privat"), suche, liste),
+      text,
+    ),
+  );
+  zeichneListe();
+  await oeffne(dokuAktuell);
+};
+
 // ═════════════ Downloads & Builds ═════════════
 
 export const builds: Bereich = async (ziel) => {

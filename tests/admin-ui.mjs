@@ -44,7 +44,13 @@ kv.m.set("bug:" + tag(0.3) + ":1", JSON.stringify({ beschreibung: "Beim Speicher
 kv.m.set("bug:" + tag(2) + ":2", JSON.stringify({ beschreibung: "AppImage startet unter Fedora nicht ohne libfuse2.", version: "0.1.0", system: "Linux x86_64", email: "noah.klein@example.org", zeit: tag(2), status: "erledigt" }));
 kv.m.set("audit:" + tag(0.1) + ":a", JSON.stringify({ zeit: tag(0.1), benutzer: "thomas@example.org", aktion: "Alpha-Einladung gesendet", details: "jonas.wolf@example.org (Code ALPHAK3F9Q)" }));
 
-const env = { ALPHA: kv, ADMIN_MASTER_KEY: "vorschau-master-schluessel-123", CF_ACCOUNT_ID: "abc", CF_ZONE_ID: "zone1", LEMONSQUEEZY_API_KEY: "ls_test_1234", RESEND_API_KEY: "re_test_5678", CF_ANALYTICS_TOKEN: "cf_9999", LS_STORE_ID: "1", LS_ALPHA_VARIANT_ID: "2", LS_ALPHA_CHECKOUT_URL: "https://cockpit.lemonsqueezy.com/checkout/buy/x" };
+const env = { ALPHA: kv, ADMIN_MASTER_KEY: "vorschau-master-schluessel-123", CF_ACCOUNT_ID: "abc", CF_ZONE_ID: "zone1", LEMONSQUEEZY_API_KEY: "ls_test_1234", RESEND_API_KEY: "re_test_5678", CF_ANALYTICS_TOKEN: "cf_9999", LS_STORE_ID: "1", LS_ALPHA_VARIANT_ID: "2", LS_ALPHA_CHECKOUT_URL: "https://cockpit.lemonsqueezy.com/checkout/buy/x", GITHUB_TOKEN: "ghp_vorschau" };
+
+// Doku-Repo: absichtlich mit gefährlichem HTML, um die Säuberung zu prüfen.
+const DOKU_HTML = {
+  "README.md": '<div id="file" class="md"><article class="markdown-body"><div class="markdown-heading"><h1 class="heading-element">cockpit — interne Doku</h1><a id="user-content-cockpit" class="anchor" href="#cockpit"><svg class="octicon"><path d="M0"></path></svg></a></div><p>Start hier. Weiter zu <a href="betrieb/cloudflare.md">Cloudflare</a> und <a href="https://example.org">extern</a>.</p><script>window.__xss = 1</script><img alt="bild" onerror="window.__xss = 2"><a href="javascript:window.__xss=3" id="boese">klick</a><img src="//tracker.example/p.png" id="pixel"><table><tr><th>Name</th><th>Wert</th></tr><tr><td>Plätze</td><td>50</td></tr></table><pre><code>npm run build</code></pre></article></div>',
+  "betrieb/cloudflare.md": '<article class="markdown-body"><h1>Cloudflare Pages</h1><p>Zurück zur <a href="../README.md">Übersicht</a>.</p><ul><li><input type="checkbox" checked> erledigt</li><li><input type="text" value="x"> weg</li></ul></article>',
+};
 
 // ── Externe Dienste ──
 const lizenz = (i) => ({ id: String(100 + i), attributes: { key_short: `XXXX-${1000 + i}`, status: i === 3 ? "expired" : "active", disabled: i === 4, activation_usage: i % 3, activation_limit: 3, user_email: `k${i}@example.org`, user_name: namen[i], product_name: "Bewerbungs-Cockpit", created_at: tag(i * 3), expires_at: null } });
@@ -68,6 +74,11 @@ globalThis.fetch = async (url, init = {}) => {
   }
   if (u.includes("cockpit-releases/releases")) return j([{ tag_name: "v0.1.0", name: "cockpit v0.1.0 (Alpha)", published_at: tag(5), html_url: "#", assets: [{ name: "cockpit-windows-setup.exe", download_count: 38 }, { name: "cockpit-linux-x86_64.AppImage", download_count: 12 }, { name: "latest.json", download_count: 410 }] }]);
   if (u.includes("actions/runs")) return j({ workflow_runs: [{ name: "CI", display_title: "0.1 Alpha · Etappe 1–3", status: "completed", conclusion: "success", head_branch: "main", event: "push", created_at: tag(0.5), html_url: "#" }, { name: "Release", display_title: "Testbuild", status: "completed", conclusion: "failure", head_branch: "main", event: "workflow_dispatch", created_at: tag(1), html_url: "#" }] });
+  if (u.includes("cockpit-docs/git/trees")) return j({ tree: [{ path: "betrieb", type: "tree" }, { path: "betrieb/cloudflare.md", type: "blob", size: 900 }, { path: "entscheidungen.md", type: "blob", size: 400 }, { path: "README.md", type: "blob", size: 300 }, { path: "bild.png", type: "blob", size: 9 }], truncated: false });
+  if (u.includes("cockpit-docs/contents/")) {
+    const pfad = decodeURIComponent(u.split("/contents/")[1]);
+    return DOKU_HTML[pfad] ? new Response(DOKU_HTML[pfad], { status: 200 }) : j({ message: "Not Found" }, 404);
+  }
   if (u.includes("/issues")) return j([]);
   if (u.includes("api.github.com")) return j([]);
   return j({}, 404);
@@ -105,7 +116,7 @@ try {
     for (let v = 0; v < 40; v++) {
       try { await page.goto("http://localhost:4329/admin/", { waitUntil: "networkidle" }); break; } catch { await new Promise((r) => setTimeout(r, 500)); }
     }
-    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "builds", "einstellungen"]) {
+    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "builds", "doku", "einstellungen"]) {
       await page.goto(`http://localhost:4329/admin/#/${bereich}`, { waitUntil: "networkidle" });
       await page.waitForTimeout(700);
       const text = await page.locator("#a-inhalt").innerText();
@@ -126,6 +137,34 @@ try {
       await page.getByRole("button", { name: "Bearbeiten" }).first().click();
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/desktop-umfragen-editor.png` });
+
+      // Doku: Säuberung und Navigation zwischen Dateien.
+      await page.goto("http://localhost:4329/admin/#/doku", { waitUntil: "networkidle" });
+      await page.waitForTimeout(600);
+      const pruef = await page.evaluate(() => {
+        const t = document.querySelector(".a-doku-inhalt");
+        return {
+          xss: window.__xss ?? 0,
+          script: t?.querySelectorAll("script").length ?? -1,
+          onAttr: t ? [...t.querySelectorAll("*")].some((e) => [...e.attributes].some((a) => a.name.startsWith("on"))) : true,
+          boese: t?.querySelector("#boese")?.getAttribute("href") ?? null,
+          pixel: t?.querySelector("#pixel")?.getAttribute("src") ?? null,
+          svg: t?.querySelectorAll("svg").length ?? -1,
+          tabelle: t?.querySelectorAll("td").length ?? 0,
+          links: [...document.querySelectorAll(".a-doku-link")].map((b) => b.textContent),
+        };
+      });
+      if (pruef.xss || pruef.script || pruef.onAttr || pruef.boese || pruef.pixel || pruef.svg) funde.push(`Doku-Säuberung: ${JSON.stringify(pruef)}`);
+      if (pruef.tabelle !== 2) funde.push(`Doku: Tabelle fehlt (${pruef.tabelle})`);
+      if (pruef.links.join(",") !== "README,entscheidungen,cloudflare") funde.push(`Doku: Liste ${pruef.links.join(",")}`);
+      await page.locator(".a-doku-inhalt a", { hasText: "Cloudflare" }).click();
+      await page.waitForTimeout(500);
+      if (!(await page.locator(".a-doku-inhalt h1").innerText()).includes("Cloudflare Pages")) funde.push("Doku: interner Link öffnet nicht");
+      if ((await page.locator('.a-doku-inhalt input[type="text"]').count()) !== 0) funde.push("Doku: Textfeld nicht entfernt");
+      await page.screenshot({ path: `${OUT}/desktop-doku-unterseite.png` });
+      await page.locator(".a-doku-inhalt a", { hasText: "Übersicht" }).click();
+      await page.waitForTimeout(500);
+      if (!(await page.locator(".a-doku-inhalt h1").innerText()).includes("interne Doku")) funde.push("Doku: ../README.md öffnet nicht");
     }
     await page.close();
   }
