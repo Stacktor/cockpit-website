@@ -1,13 +1,20 @@
 /**
- * POST /api/app/fehler — „Fehler melden“ aus der App.
+ * POST /api/app/fehler — „Fehler melden“ aus der App, für alle Nutzer.
  *
- * Körper: { schluessel, instanz, beschreibung, protokoll?, version?, system? }
+ * Körper: { schluessel?, instanz?, beschreibung, protokoll?, kontakt?, version?, system? }
+ * - Mit gültiger Lizenz (Alpha oder Pro) wird der Bericht ihr zugeordnet; die
+ *   E-Mail für Rückfragen kommt dann von Lemon Squeezy.
+ * - Ohne (gültige) Lizenz kommt er anonym an; `kontakt` ist eine freiwillige
+ *   E-Mail für Rückfragen. Gegen Missbrauch: 5 Berichte je Stunde und
+ *   Absender. Die IP wird dafür nur gehasht (mit Tagesdatum) und nie gespeichert.
  * Das Protokoll hat die App vor dem Senden angezeigt (Version, System, letzte
- * Fehlermeldungen — keine Bewerbungsdaten). Gespeichert unter
- * `bug:<zeit>:<lizenzId>`, optional Benachrichtigung per Resend.
+ * Fehlermeldungen — keine Bewerbungsdaten). Gespeichert unter `bug:<zeit>:<id>`,
+ * optional Benachrichtigung per Resend.
  */
-import { imKontingent, json, pruefeAlphaLizenz } from "../../../lib/app-lizenz.js";
+import { imKontingent, json, pruefeLizenz, sha256 } from "../../../lib/app-lizenz.js";
 import { mitSchluesseln } from "../../../lib/admin/tresor.js";
+
+const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function onRequestPost({ request, env: roh }) {
   const env = await mitSchluesseln(roh);
@@ -18,17 +25,29 @@ export async function onRequestPost({ request, env: roh }) {
   if (beschreibung.length < 5)
     return json(422, { ok: false, fehler: "Beschreib bitte kurz, was passiert ist." });
 
-  const pruefung = await pruefeAlphaLizenz(env, d.schluessel, d.instanz);
-  if (!pruefung.ok) return json(pruefung.status, { ok: false, fehler: pruefung.fehler });
-  if (!(await imKontingent(env, pruefung.lizenz.id, "fehler", 10)))
+  let lizenz = null;
+  if (d.schluessel && d.instanz) {
+    const pruefung = await pruefeLizenz(env, d.schluessel, d.instanz, { nurAlpha: false });
+    // Eine ungültige Lizenz ist kein Grund, den Bericht zu verlieren → dann anonym.
+    if (pruefung.ok) lizenz = pruefung.lizenz;
+  }
+  const kontaktRoh = String(d.kontakt || "").trim();
+  const kontakt = kontaktRoh.length <= 200 && MAIL.test(kontaktRoh) ? kontaktRoh : null;
+
+  const ip = request.headers.get("cf-connecting-ip") || "unbekannt";
+  const kennung = lizenz
+    ? lizenz.id
+    : "anon-" + (await sha256(`${ip}|${new Date().toISOString().slice(0, 10)}`)).slice(0, 16);
+  if (!(await imKontingent(env, kennung, "fehler", lizenz ? 10 : 5)))
     return json(429, { ok: false, fehler: "Zu viele Meldungen in kurzer Zeit — danke für deine Geduld." });
   if (!env.ALPHA) return json(503, { ok: false, fehler: "Fehlerberichte sind gerade nicht erreichbar." });
 
   const zeit = new Date().toISOString();
   const bericht = {
-    lizenzId: pruefung.lizenz.id,
-    email: pruefung.lizenz.email,
-    name: pruefung.lizenz.name,
+    lizenzId: lizenz?.id ?? null,
+    quelle: lizenz ? (lizenz.alpha ? "alpha" : "lizenz") : "anonym",
+    email: lizenz?.email ?? kontakt,
+    name: lizenz?.name ?? null,
     beschreibung,
     protokoll: d.protokoll ? String(d.protokoll).slice(0, 12000) : null,
     version: String(d.version || "").slice(0, 20),
@@ -36,7 +55,8 @@ export async function onRequestPost({ request, env: roh }) {
     status: "neu",
     zeit,
   };
-  await env.ALPHA.put(`bug:${zeit}:${pruefung.lizenz.id}`, JSON.stringify(bericht));
+  const id = lizenz ? lizenz.id : `anonym-${crypto.randomUUID().slice(0, 8)}`;
+  await env.ALPHA.put(`bug:${zeit}:${id}`, JSON.stringify(bericht));
 
   if (env.RESEND_API_KEY) {
     await fetch("https://api.resend.com/emails", {
@@ -46,8 +66,8 @@ export async function onRequestPost({ request, env: roh }) {
         from: env.MAIL_VON || "Bewerbungs-Cockpit <onboarding@resend.dev>",
         to: [env.MAIL_AN || "Kontakt@mesco.cc"],
         ...(bericht.email ? { reply_to: bericht.email } : {}),
-        subject: `Fehlerbericht ${bericht.version || ""} (${bericht.system || "?"})`,
-        text: `${bericht.email || "unbekannt"}\n\n${beschreibung}\n\n---\n${bericht.protokoll || "(kein Protokoll)"}`,
+        subject: `Fehlerbericht ${bericht.version || ""} (${bericht.system || "?"}) · ${bericht.quelle}`,
+        text: `${bericht.email || "ohne E-Mail"} · ${bericht.quelle}\n\n${beschreibung}\n\n---\n${bericht.protokoll || "(kein Protokoll)"}`,
       }),
     }).catch(() => {});
   }

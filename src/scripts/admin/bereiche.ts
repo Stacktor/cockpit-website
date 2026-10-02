@@ -892,7 +892,7 @@ export const fehler: Bereich = async (ziel, neu) => {
           { titel: "Beschreibung", wert: (x) => h("div", { style: "max-width:520px" }, String(x.beschreibung || "").slice(0, 140)), suche: (x) => `${x.beschreibung} ${x.email}` },
           { titel: "Version", wert: (x) => x.version },
           { titel: "System", wert: (x) => x.system },
-          { titel: "Von", wert: (x) => x.email || x.name },
+          { titel: "Von", wert: (x) => x.email || x.name || badge("anonym"), suche: (x) => `${x.email || ""} ${x.quelle || ""}` },
           { titel: "Status", wert: (x) => badge(x.status) },
           { titel: "Zeit", wert: (x) => h("span", { title: zeit(x.zeit) }, relativ(x.zeit)) },
         ],
@@ -913,7 +913,8 @@ function fehlerDetail(x: Daten, status: string[], neu: () => void) {
   schublade(
     "Fehlerbericht",
     liste([
-      ["Von", x.email ? h("a", { href: `mailto:${x.email}?subject=${encodeURIComponent("Dein Fehlerbericht zu cockpit")}` }, x.email) : x.name],
+      ["Von", x.email ? h("a", { href: `mailto:${x.email}?subject=${encodeURIComponent("Dein Fehlerbericht zu cockpit")}` }, x.email) : x.name || "anonym (ohne E-Mail)"],
+      ["Herkunft", x.quelle === "alpha" ? "Alpha-Lizenz" : x.quelle === "lizenz" ? "Pro-Lizenz" : x.quelle === "anonym" ? "ohne Lizenz" : "Alpha-Lizenz"],
       ["Version", x.version],
       ["System", x.system],
       ["Zeit", zeit(x.zeit)],

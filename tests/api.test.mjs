@@ -81,6 +81,29 @@ assert.equal(mails.at(-1).reply_to, "anna@example.org");
 for (let i = 0; i < 9; i++) await call(fehler, { ...alpha, beschreibung: "Noch ein Fehler " + i });
 [st, d] = await call(fehler, { ...alpha, beschreibung: "Elfter Fehler" }); assert.equal(st, 429);
 
+// Ohne Lizenz: anonym angenommen, freiwillige E-Mail übernommen, IP nie gespeichert
+{
+  const r = await fehler({ request: new Request("https://x", { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" }, body: JSON.stringify({ beschreibung: "Suche hängt", kontakt: "gast@example.org", version: "0.1.0" }) }), env });
+  assert.equal(r.status, 200);
+  const anon = [...env.ALPHA.m.entries()].filter(([k]) => k.startsWith("bug:") && k.includes(":anonym-"));
+  assert.equal(anon.length, 1);
+  const b = JSON.parse(anon[0][1]);
+  assert.equal(b.quelle, "anonym"); assert.equal(b.email, "gast@example.org"); assert.equal(b.lizenzId, null);
+  assert.ok(![...env.ALPHA.m.keys(), ...env.ALPHA.m.values()].some((x) => String(x).includes("203.0.113.7")), "IP darf nicht gespeichert werden");
+  assert.equal(mails.at(-1).reply_to, "gast@example.org");
+  // Ungültige E-Mail wird verworfen, ungültige Lizenz → anonym statt Fehler
+  const r2 = await fehler({ request: new Request("https://x", { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" }, body: JSON.stringify({ schluessel: "GIBTSNICHT", instanz: "i", beschreibung: "Noch was kaputt", kontakt: "kein-mail" }) }), env });
+  assert.equal(r2.status, 200);
+  // Pro-Lizenz wird zugeordnet (Fehlerberichte gibt es für alle)
+  const r3 = await fehler({ request: new Request("https://x", { method: "POST", body: JSON.stringify({ schluessel: "PRO-1", instanz: "i", beschreibung: "Pro-Fehler" }) }), env });
+  assert.equal(r3.status, 200);
+  assert.ok([...env.ALPHA.m.keys()].some((k) => k.startsWith("bug:") && k.endsWith(":222")));
+  // Kontingent anonym: 5/h je Absender
+  for (let i = 0; i < 3; i++) await fehler({ request: new Request("https://x", { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" }, body: JSON.stringify({ beschreibung: "Spam " + i }) }), env });
+  const r4 = await fehler({ request: new Request("https://x", { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" }, body: JSON.stringify({ beschreibung: "Spam zu viel" }) }), env });
+  assert.equal(r4.status, 429);
+}
+
 // Admin-definierte Umfrage ersetzt die Standards
 env.ALPHA.m.set("survey:def:eigene", JSON.stringify({ id: "eigene", titel: "Test", aktiv: true, ausloeser: { art: "sofort" }, fragen: [{ id: "a", typ: "text", text: "?", pflicht: false }] }));
 [st, d] = await call(umfragen, alpha); assert.deepEqual(d.umfragen.map(u => u.id), ["eigene"]);
