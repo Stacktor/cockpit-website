@@ -138,6 +138,64 @@ try {
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/desktop-umfragen-editor.png` });
 
+      // Dashboard: anklickbar, Glocke, Anpassen (hinzufügen, verschieben, Größe, entfernen), gespeichert.
+      await page.goto("http://localhost:4329/admin/#/uebersicht", { waitUntil: "networkidle" });
+      await page.waitForTimeout(600);
+      const reihenfolge = () => page.$$eval(".a-brett > .a-platz[data-id]", (els) => els.map((e) => e.getAttribute("data-id")));
+      const start = await reihenfolge();
+      if (start.length < 12) funde.push(`Dashboard: nur ${start.length} Kacheln`);
+      await page.locator('.a-platz[data-id="fehler"] a.a-wkpi').click();
+      await page.waitForTimeout(300);
+      if ((await page.evaluate(() => location.hash)) !== "#/fehler") funde.push("Dashboard: Kennzahl-Kachel führt nicht in den Bereich");
+      await page.goto("http://localhost:4329/admin/#/uebersicht", { waitUntil: "networkidle" });
+      await page.waitForTimeout(500);
+      await page.click("#a-glocke");
+      const glocke = await page.locator(".a-popup").innerText();
+      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
+      await page.screenshot({ path: `${OUT}/desktop-glocke.png` });
+      await page.keyboard.press("Escape");
+      if (await page.locator(".a-popup").count()) funde.push("Glocke: Escape schließt nicht");
+
+      await page.getByRole("button", { name: "Anpassen" }).click();
+      await page.getByRole("button", { name: "Kachel hinzufügen" }).first().click();
+      await page.locator("dialog.a-dialog").waitFor();
+      await page.screenshot({ path: `${OUT}/desktop-katalog.png` });
+      await page.locator(".a-katalog-eintrag", { hasText: "Website-Besucher" }).click();
+      await page.waitForTimeout(900);
+      if (!(await page.locator('.a-platz[data-id="besucher"] svg[role=img]').count())) funde.push("Dashboard: Besucher-Kachel ohne Diagramm");
+      // Tastatur: erste Kachel eins nach hinten.
+      const vorher = await reihenfolge();
+      await page.locator(`.a-platz[data-id="${vorher[0]}"] .a-griff`).first().focus();
+      await page.keyboard.press("ArrowRight");
+      const nachTaste = await reihenfolge();
+      if (nachTaste[1] !== vorher[0]) funde.push(`Dashboard: Pfeiltaste verschiebt nicht (${nachTaste.slice(0, 3)})`);
+      // Ziehen (beide sichtbar): dritte Kachel vor die erste.
+      const letzte = nachTaste[2];
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.locator(`.a-platz[data-id="${letzte}"]`).dragTo(page.locator(`.a-platz[data-id="${nachTaste[0]}"]`), { targetPosition: { x: 5, y: 20 } });
+      const nachZiehen = await reihenfolge();
+      if (nachZiehen[0] !== letzte) funde.push(`Dashboard: Ziehen wirkt nicht (${nachZiehen.slice(0, 3)})`);
+      // Größe über das Kachel-Menü.
+      await page.getByRole("button", { name: "Anmeldungen im Verlauf: Optionen" }).click();
+      await page.getByRole("menuitemradio", { name: "Ganze Breite" }).click();
+      if (!(await page.locator('.a-platz[data-id="verlauf"].g-voll').count())) funde.push("Dashboard: Größe ändert sich nicht");
+      await page.getByRole("button", { name: "Verbindungen entfernen" }).count().then(async (n) => {
+        if (n) await page.getByRole("button", { name: "Verbindungen entfernen" }).click();
+      });
+      await page.getByRole("button", { name: "NPS entfernen" }).click();
+      if (await page.locator('.a-platz[data-id="nps"]').count()) funde.push("Dashboard: Entfernen wirkt nicht");
+      await page.screenshot({ path: `${OUT}/desktop-anpassen.png`, fullPage: true });
+      await page.getByRole("button", { name: "Fertig" }).click();
+      await page.waitForTimeout(900);
+      const gespeichert = JSON.parse(kv.m.get("admin:layout:thomas@example.org") || "null");
+      if (!gespeichert || gespeichert.layout[0].id !== letzte || gespeichert.layout.some((x) => x.id === "nps")) funde.push(`Dashboard: Layout nicht gespeichert (${JSON.stringify(gespeichert)?.slice(0, 160)})`);
+      await page.evaluate(() => localStorage.clear());
+      await page.reload({ waitUntil: "networkidle" });
+      await page.waitForTimeout(800);
+      const nachLaden = await reihenfolge();
+      if (nachLaden[0] !== letzte || nachLaden.includes("nps")) funde.push(`Dashboard: Layout nach Neuladen weg (${nachLaden.slice(0, 3)})`);
+      await page.screenshot({ path: `${OUT}/desktop-dashboard-angepasst.png`, fullPage: true });
+
       // Doku: Säuberung und Navigation zwischen Dateien.
       await page.goto("http://localhost:4329/admin/#/doku", { waitUntil: "networkidle" });
       await page.waitForTimeout(600);

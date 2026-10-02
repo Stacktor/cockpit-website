@@ -376,3 +376,28 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   globalThis.fetch = vorher;
   console.log("Doku: ok");
 }
+
+// ───────────── Dashboard-Layout ─────────────
+{
+  const { onRequestGet, onRequestPost, pruefeLayout } = await imp("../functions/api/admin/layout.js");
+  const env = { ALPHA: new KV() };
+  const data = { env, benutzer: "Thomas@Example.org" };
+  const lies = async () => (await onRequestGet({ data })).json();
+  const schreibe = (body) => onRequestPost({ request: new Request(ORIGIN + "/api/admin/layout", { method: "POST", body: JSON.stringify(body) }), data });
+
+  assert.deepEqual(await lies(), { layout: null }, "ohne gespeichertes Layout");
+  let r = await schreibe({ layout: [{ id: "fehler", groesse: "s" }, { id: "verlauf", groesse: "voll" }], tage: 30, auto: 5 });
+  assert.equal(r.status, 200);
+  const d = await lies();
+  assert.deepEqual(d.layout, [{ id: "fehler", groesse: "s" }, { id: "verlauf", groesse: "voll" }]);
+  assert.equal(d.tage, 30);
+  assert.equal(d.auto, 5);
+  assert.ok(env.ALPHA.m.has("admin:layout:thomas@example.org"), "je Person, klein geschrieben");
+
+  // Unsinn wird bereinigt bzw. abgelehnt.
+  const sauber = pruefeLayout({ layout: [{ id: "a" }, { id: "a" }, { id: "<script>" }, { id: "b", groesse: "riesig" }, null], tage: 99, auto: 7 });
+  assert.deepEqual(sauber, { layout: [{ id: "a", groesse: "m" }, { id: "b", groesse: "m" }], tage: 7, auto: 0 });
+  assert.equal((await schreibe({ layout: "kaputt" })).status, 400);
+  assert.equal((await schreibe({ layout: Array.from({ length: 61 }, (_, i) => ({ id: `k${i}` })) })).status, 400);
+  console.log("Dashboard-Layout: ok");
+}
