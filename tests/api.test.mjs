@@ -345,3 +345,49 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   assert.match(pruefeDefinition({ ...basis, verzoegerungStunden: 9999 }).fehler, /Verzögerung/);
   console.log("Umfrage-Zeitplan: ok");
 }
+
+// ───────────── Anonyme Nutzungsstatistik der App ─────────────
+{
+  const { onRequestPost: melden } = await import(new URL("../functions/api/app/nutzung.js", import.meta.url).href);
+  const { onRequestGet: admin } = await import(new URL("../functions/api/admin/nutzung.js", import.meta.url).href);
+  const { pruefeMeldung, auswerten } = await import(new URL("../lib/nutzung.js", import.meta.url).href);
+  const env = { ALPHA: new KV() };
+  const gestern = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  const vorgestern = new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10);
+  const post = async (body, ip = "1.2.3.4") =>
+    melden({ request: new Request("https://x/api/app/nutzung", { method: "POST", headers: { "cf-connecting-ip": ip }, body: JSON.stringify(body) }), env });
+
+  // Prüfung: ungültige Namen, Zukunft, alte Tage und Unsinn fliegen raus.
+  const p = pruefeMeldung({
+    version: "0.1.0<script>",
+    system: "windows",
+    tage: { [gestern]: { ansicht_pipeline: 3, "Böse": 9, anschreiben: "2", null: 0 }, "2019-01-01": { x: 1 }, morgen: { y: 1 } },
+  });
+  assert.deepEqual(p.tage, [[gestern, { ansicht_pipeline: 3, anschreiben: 2 }]]);
+  assert.equal(p.version, "0.1.0script");
+  assert.equal(pruefeMeldung({ tage: {} }).fehler, "Keine gültigen Tage.");
+  assert.equal(pruefeMeldung({ system: "beos", tage: { [gestern]: { a: 1 } } }).system, "andere");
+
+  let r = await post({ version: "0.1.0", system: "windows", tage: { [gestern]: { ansicht_pipeline: 3, anschreiben: 1 }, [vorgestern]: { ansicht_dashboard: 2 } } });
+  assert.equal(r.status, 200);
+  r = await post({ version: "0.1.1", system: "linux", tage: { [gestern]: { ansicht_pipeline: 1, ansicht_jobs: 4 } } }, "5.6.7.8");
+  assert.equal(r.status, 200);
+  assert.equal((await post({ tage: { [gestern]: { "x y": 1 } } })).status, 422);
+  const tag = JSON.parse(env.ALPHA.m.get(`nutzung:${gestern}`));
+  assert.deepEqual(tag.funktionen, { ansicht_pipeline: 4, anschreiben: 1, ansicht_jobs: 4 });
+  assert.equal(tag.berichte, 2);
+  assert.deepEqual(tag.systeme, { windows: 1, linux: 1 });
+  assert.ok(![...env.ALPHA.m.keys()].some((k) => k.includes("1.2.3.4")), "IP wird nicht gespeichert");
+
+  const a = await (await admin({ data: { env } })).json();
+  assert.equal(a.berichte, 3);
+  assert.deepEqual(
+    Object.fromEntries(a.ansichten.map((x) => [x.name, x.anzahl])),
+    { pipeline: 4, jobs: 4, dashboard: 2 },
+  );
+  assert.equal(a.ansichten.at(-1).name, "dashboard", "sortiert nach Häufigkeit");
+  assert.deepEqual(a.aktionen, [{ name: "anschreiben", anzahl: 1 }]);
+  assert.equal(a.proTag.length, 30);
+  assert.equal(auswerten([["2026-01-01", null]]).schnittGeraete, 0);
+  console.log("Nutzungsstatistik: ok");
+}

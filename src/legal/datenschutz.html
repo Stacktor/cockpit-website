@@ -222,7 +222,7 @@
     <tr><td>Automatische Sicherungen (Datenbank und Dokumente)</td><td>Ordner „Cockpit Backups“ in deinen Dokumenten oder ein Ordner deiner Wahl auf deinem Gerät</td><td>nur du</td></tr>
     <tr><td>Zugangsdaten und API-Schlüssel</td><td>Schlüsselbund deines Betriebssystems</td><td>nur du</td></tr>
     <tr><td>Anfragen an ein KI-Modell</td><td>bei deinem selbst gewählten Anbieter — oder rein lokal</td><td>der von dir gewählte Anbieter</td></tr>
-    <tr><td>Abruf von Stellenanzeigen</td><td>offizielle Schnittstellen der jeweiligen Anbieter</td><td>der jeweilige Anbieter</td></tr>
+    <tr><td>Abruf von Stellenanzeigen</td><td>offizielle Schnittstellen der jeweiligen Anbieter; nur wenn du es einschaltest, auch die öffentlichen Suchseiten von LinkedIn, StepStone und Indeed</td><td>der jeweilige Anbieter</td></tr>
     <tr><td>Optionaler Geräte-Sync</td><td>ein Ordner deiner Wahl (z.&nbsp;B. in deinem Cloud-Speicher), deine iCloud oder der cockpit-Sync-Server (siehe 5a), immer Ende-zu-Ende verschlüsselt</td><td>nur du</td></tr>
     <tr><td>Suche nach Updates (App-Version, IP-Adresse)</td><td>Abfrage der Datei <code>latest.json</code> bei GitHub</td><td>GitHub, Inc.</td></tr>
   </tbody>
@@ -257,6 +257,32 @@
   <li><b>Löschen:</b> in der App unter Einstellungen → Sync &amp; Geräte → „Daten auf dem Server
     löschen“ (Cloud-Sicherungen unter Einstellungen → Sicherungen), oder per Mail an uns. Endet deine Lizenz, lässt sich der Sync-Server nicht mehr
     nutzen; die gespeicherten Pakete löschen wir auf Wunsch sofort.</li>
+</ul>
+
+<h2 id="nutzung">5b · Anonyme Nutzungsstatistik der App</h2>
+<p>
+  Damit ich sehe, welche Funktionen gebraucht werden, zählt die App, wie oft du welche Ansicht
+  öffnest oder welche Funktion du nutzt, zum Beispiel „Pipeline“ oder „Anschreiben erstellt“.
+  Gezählt werden nur diese Namen, je Tag. Einmal am Tag schickt die App die Zahlen der
+  abgeschlossenen Tage an cockpit.mesco.cc und löscht sie danach auf deinem Gerät.
+</p>
+<table>
+  <thead><tr><th>Was mitgeht</th><th>Was nicht mitgeht</th></tr></thead>
+  <tbody>
+    <tr><td>Funktionsnamen mit Anzahl je Tag, App-Version, Betriebssystem (z.&nbsp;B. „windows“)</td><td>Lizenzschlüssel, Geräte-ID, Name, E-Mail, Bewerbungen, Firmen, Texte oder sonstige Inhalte</td></tr>
+  </tbody>
+</table>
+<ul style="margin-top:14px">
+  <li><b>Speicherung:</b> Der Server addiert die Zahlen aller Geräte zu Tagessummen und
+    speichert nur diese in Cloudflare Workers KV, höchstens 400 Tage. Einzelne Meldungen
+    werden nicht aufbewahrt. Gegen Missbrauch wird deine IP-Adresse mit dem Tagesdatum
+    gehasht und nur kurz zum Zählen der Anfragen genutzt, nie gespeichert.</li>
+  <li><b>Abschalten:</b> in der App unter Einstellungen → System → „Anonyme
+    Nutzungsstatistik“. Dann wird nichts mehr gezählt, und bereits Gesammeltes wird gelöscht.
+    Dort siehst du auch, was gerade gesammelt ist.</li>
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse ist,
+    die App nach dem tatsächlichen Bedarf weiterzuentwickeln. Weil keine Kennung mitgeht,
+    lassen sich die Zahlen keiner Person zuordnen.</li>
 </ul>
 
 <h2>6 · Kontaktaufnahme</h2>

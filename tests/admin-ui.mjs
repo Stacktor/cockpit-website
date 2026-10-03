@@ -52,6 +52,16 @@ kv.m.set("alarme:regeln", JSON.stringify([
 ]));
 kv.m.set("audit:" + tag(2) + ":b", JSON.stringify({ zeit: tag(2), benutzer: "thomas@example.org", aktion: "Lizenz um 30 Tage verlängert", details: "Lizenz 100" }));
 kv.m.set("audit:" + tag(0.1) + ":a", JSON.stringify({ zeit: tag(0.1), benutzer: "thomas@example.org", aktion: "Alpha-Einladung gesendet", details: "jonas.wolf@example.org (Code ALPHAK3F9Q)" }));
+// Anonyme Nutzungsstatistik der App: zwei Wochen Tagessummen.
+for (let i = 1; i <= 14; i++) {
+  const t = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
+  kv.m.set(`nutzung:${t}`, JSON.stringify({
+    berichte: 3 + (i % 4),
+    funktionen: { ansicht_dashboard: 8 + i, ansicht_pipeline: 12 + (i % 5), ansicht_jobs: 9 + (i % 3), ansicht_profile: 2, ansicht_cv: 1 + (i % 2), anschreiben: 2 + (i % 3), passung_bewerten: 3, stelle_details: 14, suche_arbeitsagentur: 4, lebenslauf_pdf: i % 2 },
+    versionen: { "0.1.0": 3, "0.1.1": i % 4 },
+    systeme: { windows: 2 + (i % 3), linux: 1 },
+  }));
+}
 
 // R2-Bucket des Sync-Servers (nur Liste und Löschen werden gebraucht).
 const r2 = {
