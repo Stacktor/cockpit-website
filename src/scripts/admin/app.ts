@@ -19,6 +19,7 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
   { id: "umsatz", titel: "Kunden & Umsatz", kurz: "Umsatz", text: "Bestellungen, Kunden, Erstattungen und Rabattcodes." },
   { id: "mail", titel: "Mail", kurz: "Mail", text: "Zustellung prüfen und Rundmails an Tester schicken." },
   { id: "analytics", titel: "Analytics", kurz: "Analytics", text: "Besuche, Quellen, Kampagnen und der Weg zur Anmeldung." },
+  { id: "speicher", titel: "Speicher", kurz: "Speicher", text: "Der Sync-Bucket: Belegung je Lizenz und Gerät, aufräumen." },
   { id: "builds", titel: "Downloads & Builds", kurz: "Builds", text: "Releases, Downloads je Plattform und Build-Läufe." },
   { id: "alarme", titel: "Alarme", kurz: "Alarme", text: "Eigene Regeln, wann das Admin dich warnt, auf Wunsch per Mail." },
   { id: "doku", titel: "Doku", kurz: "Doku", text: "Interne Doku aus dem privaten Repo. Nur du siehst sie." },
@@ -104,6 +105,45 @@ function einblenden() {
   });
 }
 
+// ───────────── Neue Version ─────────────
+// Ein Tab, der über ein Deployment hinweg offen bleibt, hätte sonst altes
+// Skript gegen die neue API (z. B. „Cannot read properties of undefined“).
+// Vergleicht die eingebundenen Skripte mit denen der aktuellen Seite.
+const skripte = (d: Document) =>
+  [...d.querySelectorAll("script[src]")]
+    .map((s) => new URL(s.getAttribute("src") ?? "", location.href).pathname)
+    .filter((p) => p.startsWith("/_astro/"))
+    .sort()
+    .join(" ");
+const MEINE_SKRIPTE = skripte(document);
+const PRUEF_ABSTAND = 5 * 60_000;
+let geprueft = Date.now();
+
+async function neueVersion(): Promise<boolean> {
+  geprueft = Date.now();
+  try {
+    const r = await fetch(location.pathname, { cache: "no-store", credentials: "same-origin" });
+    if (!r.ok) return false;
+    const dort = skripte(new DOMParser().parseFromString(await r.text(), "text/html"));
+    return !!dort && !!MEINE_SKRIPTE && dort !== MEINE_SKRIPTE;
+  } catch {
+    return false;
+  }
+}
+
+/** Lädt die Seite neu (Bereich bleibt über den Hash erhalten), höchstens einmal je Minute. */
+function neuLaden(): boolean {
+  try {
+    const zuletzt = Number(sessionStorage.getItem("admin-neu-geladen") || 0);
+    if (Date.now() - zuletzt < 60_000) return false;
+    sessionStorage.setItem("admin-neu-geladen", String(Date.now()));
+  } catch {
+    // Ohne sessionStorage trotzdem neu laden.
+  }
+  location.reload();
+  return true;
+}
+
 let lauf = 0;
 async function lade() {
   const id = aktuell();
@@ -117,6 +157,8 @@ async function lade() {
   blattZu();
   menueZu();
   inhalt.replaceChildren(h("div", { class: "a-lade" }, h("div"), h("div"), h("div")));
+  if (Date.now() - geprueft > PRUEF_ABSTAND && (await neueVersion()) && neuLaden()) return;
+  if (meinLauf !== lauf) return;
   const ziel = h("div");
   try {
     await B[id](ziel, lade);
@@ -138,7 +180,18 @@ async function lade() {
         ),
       );
     } else {
-      inhalt.replaceChildren(h("div", { class: "a-hinweis a-fehler" }, `Konnte nicht geladen werden: ${f.message}`));
+      // Ein Programmfehler statt einer API-Antwort: oft nur eine veraltete Seite.
+      if (!(err instanceof ApiFehler) && (await neueVersion()) && neuLaden()) return;
+      if (meinLauf !== lauf) return;
+      inhalt.replaceChildren(
+        h(
+          "div",
+          { class: "a-hinweis a-fehler" },
+          `Konnte nicht geladen werden: ${f.message}`,
+          " ",
+          h("button", { type: "button", class: "a-knopf a-klein", onclick: () => location.reload() }, "Seite neu laden"),
+        ),
+      );
     }
   }
 }

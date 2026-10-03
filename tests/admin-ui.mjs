@@ -53,7 +53,23 @@ kv.m.set("alarme:regeln", JSON.stringify([
 kv.m.set("audit:" + tag(2) + ":b", JSON.stringify({ zeit: tag(2), benutzer: "thomas@example.org", aktion: "Lizenz um 30 Tage verlängert", details: "Lizenz 100" }));
 kv.m.set("audit:" + tag(0.1) + ":a", JSON.stringify({ zeit: tag(0.1), benutzer: "thomas@example.org", aktion: "Alpha-Einladung gesendet", details: "jonas.wolf@example.org (Code ALPHAK3F9Q)" }));
 
-const env = { ALPHA: kv, ADMIN_MASTER_KEY: "vorschau-master-schluessel-123", CF_ACCOUNT_ID: "abc", CF_ZONE_ID: "zone1", LEMONSQUEEZY_API_KEY: "ls_test_1234", RESEND_API_KEY: "re_test_5678", CF_ANALYTICS_TOKEN: "cf_9999", LS_STORE_ID: "1", LS_ALPHA_VARIANT_ID: "2", LS_ALPHA_CHECKOUT_URL: "https://cockpit.lemonsqueezy.com/checkout/buy/x", GITHUB_TOKEN: "ghp_vorschau" };
+// R2-Bucket des Sync-Servers (nur Liste und Löschen werden gebraucht).
+const r2 = {
+  m: new Map(),
+  async list({ prefix }) {
+    const objects = [...this.m.entries()].filter(([k]) => k.startsWith(prefix)).map(([key, o]) => ({ key, size: o.size, uploaded: o.uploaded }));
+    return { objects, truncated: false };
+  },
+  async delete(k) {
+    for (const x of [k].flat()) this.m.delete(x);
+  },
+};
+for (const [lizenz, geraete, tageAlt] of [["100", ["a1b2c3d4e5f6", "f9e8d7c6b5a4"], 0.2], ["101", ["0aa1bb2cc3dd"], 3], ["105", ["99ff88ee77dd"], 220]]) {
+  for (const [gi, g] of geraete.entries()) for (let i = 1; i <= 4 + gi * 3; i++) r2.m.set(`l/${lizenz}/geraete/${g}/${String(i).padStart(10, "0")}.paket`, { size: 180_000 * i, uploaded: new Date(Date.now() - (tageAlt + i / 24) * 864e5) });
+  r2.m.set(`l/${lizenz}/sicherungen/${geraete[0]}/2026-10-01_12-00-00_automatisch/teil-0001.datei`, { size: 7_000_000, uploaded: new Date(Date.now() - tageAlt * 864e5) });
+  r2.m.set(`l/${lizenz}/sicherungen/${geraete[0]}/2026-10-01_12-00-00_automatisch/info.datei`, { size: 400, uploaded: new Date(Date.now() - tageAlt * 864e5) });
+}
+const env = { ALPHA: kv, SYNC: r2, ADMIN_MASTER_KEY: "vorschau-master-schluessel-123", CF_ACCOUNT_ID: "abc", CF_ZONE_ID: "zone1", LEMONSQUEEZY_API_KEY: "ls_test_1234", RESEND_API_KEY: "re_test_5678", CF_ANALYTICS_TOKEN: "cf_9999", LS_STORE_ID: "1", LS_ALPHA_VARIANT_ID: "2", LS_ALPHA_CHECKOUT_URL: "https://cockpit.lemonsqueezy.com/checkout/buy/x", GITHUB_TOKEN: "ghp_vorschau" };
 
 // Doku-Repo: absichtlich mit gefährlichem HTML, um die Säuberung zu prüfen.
 const DOKU_HTML = {
@@ -132,7 +148,7 @@ try {
     for (let v = 0; v < 40; v++) {
       try { await page.goto("http://localhost:4329/admin/", { waitUntil: "networkidle" }); break; } catch { await new Promise((r) => setTimeout(r, 500)); }
     }
-    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "builds", "alarme", "doku", "einstellungen"]) {
+    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "speicher", "builds", "alarme", "doku", "einstellungen"]) {
       await page.goto(`http://localhost:4329/admin/#/${bereich}`, { waitUntil: "networkidle" });
       await page.waitForTimeout(700);
       const text = await page.locator("#a-inhalt").innerText();
@@ -211,7 +227,7 @@ try {
       await page.waitForTimeout(500);
       await page.click("#a-glocke");
       const glocke = await page.locator(".a-popup").innerText();
-      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke) || !/Neuer Fehlerbericht/.test(glocke) || !/Sync-Server nicht eingerichtet/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
+      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke) || !/Neuer Fehlerbericht/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
       await page.screenshot({ path: `${OUT}/desktop-glocke.png` });
       await page.keyboard.press("Escape");
       if (await page.locator(".a-popup").count()) funde.push("Glocke: Escape schließt nicht");

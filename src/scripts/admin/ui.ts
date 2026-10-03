@@ -254,8 +254,8 @@ export const badge = (text: string, farbe?: string) =>
 export const leer = (text: string) => h("div", { class: "a-leer" }, text);
 
 /** Waagerechte Balken für Verteilungen. */
-export function balken(liste: { name: string; anzahl: number }[], max = 10, skala?: number) {
-  const top = liste.slice(0, max);
+export function balken(liste: { name: string; anzahl: number }[] | null | undefined, max = 10, skala?: number) {
+  const top = (liste ?? []).slice(0, max);
   const groesst = skala ?? Math.max(1, ...top.map((x) => x.anzahl));
   if (!top.length || top.every((x) => !x.anzahl)) return leer("Noch keine Daten.");
   return h(
@@ -275,11 +275,11 @@ export function balken(liste: { name: string; anzahl: number }[], max = 10, skal
 
 /** Flächendiagramm für Tageswerte. */
 export function verlauf(
-  werte: { tag: string; wert: number }[],
+  werte: { tag: string; wert: number }[] | null | undefined,
   farbe = "#0f172a",
   zweite?: { werte: { tag: string; wert: number }[]; farbe?: string; name: string; erste: string },
 ) {
-  if (!werte.length) return leer("Noch keine Daten.");
+  if (!werte?.length) return leer("Noch keine Daten.");
   const B = 600;
   const H = 150;
   const max = Math.max(1, ...werte.map((w) => w.wert));
