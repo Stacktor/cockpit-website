@@ -6,6 +6,7 @@ import ScreenSlider from "../components/ScreenSlider.astro";
 import HeldFluss from "../components/HeldFluss.astro";
 import CardRail from "../components/CardRail.astro";
 import Faq from "../components/Faq.astro";
+import Vergleich from "../components/Vergleich.astro";
 import { SITE } from "../config";
 
 const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
@@ -13,11 +14,11 @@ const beitraege = (await getCollection("blog")).sort((a, b) => +b.data.datum - +
 
 const folien = [
   { id: "start", label: "Start", text: "Kennzahlen, offene Erinnerungen und neue passende Stellen auf einen Blick." },
-  { id: "pipeline", label: "Pipeline", text: "Jede Bewerbung als Karte — von „Entwurf“ bis „Abgeschlossen“." },
+  { id: "pipeline", label: "Pipeline", text: "Jede Bewerbung als Karte, von „Entwurf“ bis „Abgeschlossen“." },
   { id: "stellen", label: "Stellen", text: "Arbeitsagentur, Arbeitnow, Adzuna und RSS in einer Suche, mit Match-Score." },
   { id: "inbox", label: "Inbox", text: "Bewerbungs-Mails zusammengefasst, einsortiert und mit der Bewerbung verknüpft." },
   { id: "interview", label: "Interview", text: "Üben mit Fragen zur Stelle, Bewertung und Musterantworten." },
-  { id: "lebenslauf", label: "Lebenslauf", text: "Aus deinem Profil ein sauberes PDF — drei Vorlagen, Deutsch oder Englisch." },
+  { id: "lebenslauf", label: "Lebenslauf", text: "Aus deinem Profil ein sauberes PDF. Drei Vorlagen, Deutsch oder Englisch." },
 ];
 
 const quellen = ["Bundesagentur für Arbeit", "Arbeitnow", "Adzuna", "RSS-Feeds", "IMAP-Postfächer", "Anthropic", "OpenAI", "Google Gemini", "Perplexity", "xAI", "Ollama", "LM Studio"];
@@ -26,22 +27,22 @@ const fragen = [
   {
     frage: "Was kostet cockpit?",
     antwort:
-      "<p>Die Grundversion bleibt dauerhaft kostenlos. Was Pro kostet und ob als Einmalkauf oder Abo, lege ich gemeinsam mit den Alpha-Testern fest — deshalb steht der Preis noch nicht fest. Alpha-Tester, die bis zum Ende Rückmeldung geben, behalten die Vollversion dauerhaft.</p>",
+      "<p>Bewerbungen verfolgen ist kostenlos, ohne Grenze bei der Anzahl. Pro bringt Komfort dazu, etwa den Auto-Modus und den Sync-Server. Was Pro kostet und ob als Einmalkauf oder Abo, lege ich mit den Alpha-Testern fest. Deshalb steht noch kein Preis da. Alpha-Tester, die bis zum Ende Rückmeldung geben, behalten die Vollversion dauerhaft.</p>",
   },
   {
     frage: "Brauche ich einen kostenpflichtigen KI-Zugang?",
     antwort:
-      '<p>Nein. Du kannst einen eigenen API-Schlüssel nutzen (meist wenige Cent pro Anschreiben) oder ein lokales Modell über Ollama oder LM Studio — das ist kostenlos. Ohne KI funktioniert cockpit auch, dann ohne Entwürfe. <a href="/hilfe/ki-einrichten/">KI einrichten</a></p>',
+      '<p>Nein. Du kannst einen eigenen API-Schlüssel nutzen (meist wenige Cent pro Anschreiben) oder ein lokales Modell über Ollama oder LM Studio, das kostet nichts. Ohne KI funktioniert cockpit auch, dann ohne Entwürfe. <a href="/hilfe/ki-einrichten/">KI einrichten</a></p>',
   },
   {
     frage: "Wo liegen meine Daten?",
     antwort:
-      '<p>In einer Datenbank-Datei auf deinem Rechner, Passwörter und Schlüssel im Schlüsselbund deines Betriebssystems. Es gibt keinen cockpit-Server, der deine Bewerbungen annimmt. <a href="/blog/warum-local-first/">Warum local-first</a></p>',
+      '<p>In einer Datenbank-Datei auf deinem Rechner, Passwörter und Schlüssel im Schlüsselbund deines Betriebssystems. Wenn du mehrere Geräte abgleichst, verschlüsselt cockpit vorher alles mit deiner Passphrase. Weder dein Cloud-Ordner noch der cockpit-Server können die Daten lesen. <a href="/blog/warum-local-first/">Warum local-first</a></p>',
   },
   {
     frage: "Gibt es cockpit für den Mac?",
     antwort:
-      "<p>Noch nicht. macOS ist in Arbeit, aber ich habe gerade keinen Mac zum Testen — und ungetestete Installer gebe ich nicht raus. Du kannst dich trotzdem anmelden und kommst auf die Mac-Warteliste.</p>",
+      "<p>Noch nicht. macOS ist in Arbeit, aber mir fehlt gerade ein Mac zum Testen, und ungetestete Installer gebe ich nicht raus. Du kannst dich trotzdem anmelden und kommst auf die Mac-Warteliste.</p>",
   },
   {
     frage: "Wie komme ich in die Alpha?",
@@ -51,7 +52,7 @@ const fragen = [
 ---
 
 <Base
-  title="Bewerbungs-Cockpit — Bewerbungen organisieren. Ohne Cloud, ohne Konto."
+  title="Bewerbungs-Cockpit: Bewerbungen organisieren. Ohne Cloud, ohne Konto."
   description="Der Bewerbungsmanager, der deine Daten auf deinem Gerät lässt: Pipeline, Stellensuche, KI-Anschreiben mit eigenem Schlüssel, Inbox und Interview-Training. Für Windows und Linux."
 >
   <!-- ───────── Hero ───────── -->
@@ -66,7 +67,7 @@ const fragen = [
           <span class="zeile">Bewerbungen im Griff.</span> <span class="zeile">Ohne Cloud.</span> <span class="zeile verlauf">Auf deinem Gerät.</span>
         </h1>
         <p class="lead rv an" style="--d:2">
-          cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App — und speichert alles auf <b>deinem Rechner</b>. Kein Konto, keine Cloud, kein Abo-Zwang.
+          cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App. Gespeichert wird alles auf <b>deinem Rechner</b>. Kein Konto, keine Cloud, kein Abo-Zwang.
         </p>
         <div class="cta rv an" style="--d:3">
           <a href="/alpha/" class="btn btn-p btn-lg">Alpha-Zugang anfragen <Icon name="arrow-up-right" size={17} /></a>
@@ -128,7 +129,7 @@ const fragen = [
     <div class="wrap">
       <div class="abschnitt-kopf">
         <div class="eyebrow rv">Das Problem</div>
-        <h2 class="rv" style="--d:1">Bewerben ist Projektarbeit — nur ohne Werkzeug.</h2>
+        <h2 class="rv" style="--d:1">Bewerben ist Projektarbeit. Nur meist ohne Werkzeug.</h2>
         <p class="lead rv" style="--d:2">
           Fünf Portale, drei Postfächer, eine Tabelle, die niemand pflegt. Und ein Anschreiben, das 45 Minuten kostet und trotzdem generisch klingt.
         </p>
@@ -142,7 +143,7 @@ const fragen = [
         <div class="karte rv" style="--d:2">
           <div class="ic"><Icon name="clock" /></div>
           <h3>Anschreiben fressen Zeit</h3>
-          <p>30 bis 60 Minuten pro Stück. ChatGPT hilft — aber du kopierst deinen Werdegang jedes Mal neu hinein.</p>
+          <p>30 bis 60 Minuten pro Stück. ChatGPT hilft, aber du kopierst deinen Werdegang jedes Mal neu hinein.</p>
         </div>
         <div class="karte rv" style="--d:3">
           <div class="ic"><Icon name="shield-check" /></div>
@@ -160,7 +161,7 @@ const fragen = [
         <div slot="kopf">
           <div class="eyebrow rv">Die Lösung</div>
           <h2 class="rv" style="--d:1">Alles an einem Ort. Auf deinem Gerät.</h2>
-          <p class="lead rv" style="--d:2">Acht Werkzeuge, ein gemeinsamer Kern.</p>
+          <p class="lead rv" style="--d:2">Zehn Werkzeuge, die auf dieselben Daten zugreifen.</p>
         </div>
         {
           funktionen.map((f) => (
@@ -193,12 +194,12 @@ const fragen = [
         <li class="rv" style="--d:1">
           <span class="schritt-nr">1</span>
           <h3>Installieren</h3>
-          <p>Windows-Installer oder AppImage laden, starten. Kein Konto, keine Registrierung.</p>
+          <p>Installer für Windows oder Linux laden und starten. Kein Konto, keine Registrierung.</p>
         </li>
         <li class="rv" style="--d:2">
           <span class="schritt-nr">2</span>
           <h3>Lebenslauf einlesen</h3>
-          <p>cockpit baut daraus dein Profil — Grundlage für Suche, Match-Score und Anschreiben.</p>
+          <p>cockpit baut daraus dein Profil. Darauf bauen Suche, Match-Score und Anschreiben auf.</p>
         </li>
         <li class="rv" style="--d:3">
           <span class="schritt-nr">3</span>
@@ -209,14 +210,38 @@ const fragen = [
     </div>
   </section>
 
+  <!-- ───────── Erweiterung & Sync ───────── -->
+  <section class="abschnitt soft">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow rv">Drumherum</div>
+        <h2 class="rv" style="--d:1">Im Browser speichern. Auf jedem Gerät weiterarbeiten.</h2>
+      </div>
+      <div class="raster r2">
+        <a href="/funktionen/browser-erweiterung/" class="karte rv" style="--d:1">
+          <div class="ic"><Icon name="puzzle" /></div>
+          <h3>Browser-Erweiterung für Chrome und Edge</h3>
+          <p>Du liest eine Anzeige auf StepStone, Indeed oder der Jobbörse der Arbeitsagentur? Ein Klick, und sie liegt als Entwurf in cockpit. Mit Pro füllt die Erweiterung auch Bewerbungsformulare aus. Sie redet nur mit cockpit auf deinem Rechner.</p>
+          <span class="mehr">Zur Erweiterung <Icon name="arrow-right" size={15} /></span>
+        </a>
+        <a href="/funktionen/geraete-sync/" class="karte rv" style="--d:2">
+          <div class="ic"><Icon name="refresh-cw" /></div>
+          <h3>Geräte-Sync, verschlüsselt</h3>
+          <p>Laptop und PC auf demselben Stand: kostenlos über einen Ordner in deinem Cloud-Speicher oder mit Pro über den cockpit-Server. Verschlüsselt wird vorher auf deinem Gerät, mit einer Passphrase, die nur du kennst.</p>
+          <span class="mehr">Wie der Sync funktioniert <Icon name="arrow-right" size={15} /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ───────── Datenschutz ───────── -->
-  <section class="abschnitt soft" id="datenschutz">
+  <section class="abschnitt" id="datenschutz">
     <div class="wrap zwei">
       <div>
         <div class="eyebrow rv">Datenschutz</div>
         <h2 class="rv" style="--d:1">Das ist keine Funktion. Das ist die Architektur.</h2>
         <p class="lead rv" style="--d:2">
-          Bewerbungsdaten gehören zu den sensibelsten Daten, die du hast. cockpit ist so gebaut, dass sie dein Gerät nicht verlassen — nicht, weil ich es verspreche, sondern weil es keinen Server gibt, der sie annehmen könnte.
+          Bewerbungsdaten gehören zu den sensibelsten Daten, die du hast. cockpit ist so gebaut, dass sie auf deinem Gerät bleiben. Es gibt kein Konto und keinen Server, der deine Bewerbungen im Klartext annimmt. Gleichst du Geräte ab, gehen nur verschlüsselte Pakete raus.
         </p>
         <div class="chips rv" style="--d:3">
           <span class="chip"><i></i>SQLite auf deiner Festplatte</span>
@@ -225,7 +250,7 @@ const fragen = [
           <span class="chip"><i></i>Keine Telemetrie</span>
           <span class="chip"><i></i>Nur offizielle Stellenquellen</span>
         </div>
-        <a href="/blog/warum-local-first/" class="mehr rv" style="--d:4">Was cockpit ins Netz schickt — vollständig <Icon name="arrow-right" size={15} /></a>
+        <a href="/blog/warum-local-first/" class="mehr rv" style="--d:4">Alles, was cockpit ins Netz schickt <Icon name="arrow-right" size={15} /></a>
       </div>
       <div class="raster">
         <div class="karte rv" style="--d:2">
@@ -243,55 +268,42 @@ const fragen = [
   </section>
 
   <!-- ───────── Vergleich ───────── -->
-  <section class="abschnitt" id="vergleich">
+  <section class="abschnitt soft" id="vergleich">
     <div class="wrap">
       <div class="abschnitt-kopf">
         <div class="eyebrow rv">Vergleich</div>
         <h2 class="rv" style="--d:1">Warum nicht einfach Teal, Huntr oder Excel?</h2>
-        <p class="lead rv" style="--d:2">Die anderen Werkzeuge sind gut — nur für einen anderen Markt und ein anderes Datenschutzverständnis gebaut.</p>
+        <p class="lead rv" style="--d:2">Teal und Huntr sind gute Werkzeuge. Sie sind nur für einen anderen Markt gebaut und speichern alles bei sich.</p>
       </div>
-      <div class="tabelle rv" style="--d:2">
-        <table>
-          <thead>
-            <tr><th><span class="sr-only">Merkmal</span></th><th class="ich">cockpit</th><th>Teal / Huntr</th><th>ChatGPT</th><th>Excel</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Daten bleiben auf deinem Gerät</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
-            <tr><td>Ohne Benutzerkonto nutzbar</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="ja">Ja</td></tr>
-            <tr><td>Deutsche Stellenquellen (Arbeitsagentur)</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td class="nein">Nein</td></tr>
-            <tr><td>Anschreiben auf Deutsch, in deinem Ton</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
-            <tr><td>Eigener KI-Schlüssel oder lokales Modell</td><td class="ich ja">Ja</td><td class="nein">Nein</td><td class="nein">Nein</td><td>–</td></tr>
-            <tr><td>Interview-Training</td><td class="ich ja">Ja</td><td>teilweise</td><td>manuell</td><td class="nein">Nein</td></tr>
-            <tr><td>Grundversion dauerhaft kostenlos</td><td class="ich ja">Ja</td><td>eingeschränkt</td><td>eingeschränkt</td><td class="ja">Ja</td></tr>
-          </tbody>
-        </table>
+      <div class="rv" style="--d:2">
+        <Vergleich kompakt />
       </div>
-      <p class="micro" style="margin-top:14px">Angaben zu anderen Werkzeugen laut deren öffentlichen Seiten, Stand Juli 2026.</p>
+      <p style="margin-top:18px"><a href="/vergleich/" class="mehr">Alle Unterschiede, auch wo Teal und Huntr vorn liegen <Icon name="arrow-right" size={15} /></a></p>
     </div>
   </section>
 
   <!-- ───────── Preis & Alpha ───────── -->
-  <section class="abschnitt soft">
+  <section class="abschnitt">
     <div class="wrap">
       <div class="alpha-band rv">
         <div>
           <div class="eyebrow">Geschlossene Alpha</div>
           <h2>{SITE.alphaPlaetze} Plätze. Kostenlos. Und du behältst sie.</h2>
           <p>
-            Die App ist fertig — jetzt soll sie auf fremden Rechnern funktionieren. Dafür suche ich Menschen, die gerade wirklich auf Jobsuche sind. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
+            Die App läuft bei mir. Jetzt muss sie auf fremden Rechnern bestehen. Dafür suche ich Menschen, die gerade wirklich auf Jobsuche sind. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
           </p>
           <p class="micro" data-alpha-plaetze hidden></p>
         </div>
         <div class="alpha-knoepfe">
           <a href="/alpha/" class="btn btn-p btn-lg">Jetzt anmelden <Icon name="arrow-right" size={17} /></a>
-          <a href="/preise/" class="btn btn-s">Preise: noch offen — du bestimmst mit</a>
+          <a href="/preise/" class="btn btn-s">Preis noch offen, du bestimmst mit</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ───────── Blog ───────── -->
-  <section class="abschnitt">
+  <section class="abschnitt soft">
     <div class="wrap">
       <div class="abschnitt-kopf kopf-zeile">
         <div>
@@ -320,7 +332,7 @@ const fragen = [
   </section>
 
   <!-- ───────── Fragen ───────── -->
-  <section class="abschnitt soft">
+  <section class="abschnitt">
     <div class="wrap eng">
       <div class="abschnitt-kopf">
         <div class="eyebrow rv">Fragen</div>
@@ -585,57 +597,6 @@ const fragen = [
     flex-wrap: wrap;
     gap: 8px;
     margin: 24px 0 18px;
-  }
-
-  .tabelle {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: var(--r);
-    background: var(--card);
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14.5px;
-    min-width: 620px;
-  }
-  th,
-  td {
-    padding: 13px 14px;
-    text-align: left;
-    border-bottom: 1px solid var(--line);
-  }
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-  th {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-  .ich {
-    background: var(--accent-soft);
-  }
-  th.ich {
-    color: var(--accent-ink);
-  }
-  td:first-child {
-    font-weight: 560;
-  }
-  .ja {
-    color: var(--ok);
-    font-weight: 700;
-  }
-  .nein {
-    color: var(--faint);
-    font-weight: 600;
-  }
-  tbody tr {
-    transition: background 0.2s;
-  }
-  tbody tr:hover {
-    background: var(--soft);
   }
 
   .alpha-band {

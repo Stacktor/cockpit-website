@@ -55,7 +55,7 @@ const basis = `sl-${Math.random().toString(36).slice(2, 8)}`;
             aria-labelledby={`${basis}-t${i}`}
             aria-hidden={i === 0 ? undefined : "true"}
           >
-            <Screen id={f.id} alt={`cockpit: ${f.label} — ${f.text}`} eager={i === 0} />
+            <Screen id={f.id} alt={`cockpit: ${f.label}. ${f.text}`} eager={i === 0} />
           </figure>
         ))
       }

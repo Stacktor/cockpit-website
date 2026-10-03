@@ -38,4 +38,14 @@ const hilfe = defineCollection({
   }),
 });
 
-export const collections = { funktionen, blog, hilfe };
+/** Roadmap — je Vorhaben eine Datei; Status bestimmt die Spalte auf /roadmap/. */
+const roadmap = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./src/content/roadmap" }),
+  schema: z.object({
+    titel: z.string(),
+    status: z.enum(["erledigt", "jetzt", "naechstes", "spaeter"]),
+    reihenfolge: z.number(),
+  }),
+});
+
+export const collections = { funktionen, blog, hilfe, roadmap };

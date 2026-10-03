@@ -7,20 +7,22 @@ import Screen from "../../components/Screen.astro";
 
 const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
 const extras = [
-  { icon: "bot", titel: "KI-Assistent", text: "Fragt nach deinen Bewerbungen, fasst zusammen, schlägt nächste Schritte vor — mit dem Kontext der Ansicht, in der du gerade bist." },
+  { icon: "bot", titel: "KI-Assistent", text: "Fragt nach deinen Bewerbungen, fasst zusammen, schlägt nächste Schritte vor. Dabei weiß er, in welcher Ansicht du gerade bist." },
   { icon: "bell", titel: "Erinnerungen", text: "Gespräche, Fristen, Nachfassen: cockpit erinnert dich, auch als Systembenachrichtigung." },
   { icon: "search", titel: "Befehlspalette", text: "Strg+K öffnet jede Ansicht und jede Bewerbung mit ein paar Buchstaben." },
   { icon: "hard-drive", titel: "Sicherung", text: "Alle Daten als Datei sichern und auf einem anderen Rechner wieder einlesen." },
+  { icon: "users", titel: "Kontakte", text: "Recruiter und Ansprechpartner mit Firma, letztem Kontakt und der passenden Bewerbung." },
+  { icon: "mail", titel: "Mail-Vorlagen", text: "Nachfassen, Danke nach dem Gespräch, Angebot annehmen: fertige Vorlagen mit deinen Daten." },
   { icon: "download", titel: "Automatische Updates", text: "Die App meldet neue Versionen und installiert sie auf Klick." },
-  { icon: "moon", titel: "Hell und Dunkel", text: "Ein ruhiges Design, das sich nach deinem System richtet — oder nach dir." },
+  { icon: "moon", titel: "Hell und Dunkel", text: "Ein ruhiges Design. Es richtet sich nach deinem System oder nach dir." },
 ];
 ---
 
-<Base title="Funktionen" description="Alle Funktionen von cockpit: Pipeline, Stellensuche, KI-Anschreiben, Auto-Modus, Inbox, Interview-Training, Lebenslauf, Skill-Test und Analyse.">
+<Base title="Funktionen" description="Alle Funktionen von cockpit: Pipeline, Stellensuche, KI-Anschreiben, Browser-Erweiterung, Auto-Modus, Inbox, Interview-Training, Lebenslauf, Skill-Test, Analyse und Geräte-Sync.">
   <Seitenkopf
     eyebrow="Funktionen"
     titel="Alles, was eine Jobsuche braucht."
-    lead="Acht Werkzeuge mit einem gemeinsamen Kern — dein Profil. Einmal gepflegt, arbeiten Suche, Anschreiben und Training damit."
+    lead="Zehn Werkzeuge, ein gemeinsamer Kern: dein Profil. Du pflegst es einmal, und Suche, Anschreiben und Training arbeiten damit."
     krumen={[["Funktionen", "/funktionen/"]]}
   />
 

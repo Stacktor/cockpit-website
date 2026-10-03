@@ -5,11 +5,11 @@ import Icon from "../components/Icon.astro";
 import { DOWNLOADS, SITE } from "../config";
 ---
 
-<Base title="Download" description="cockpit für Windows und Linux herunterladen. macOS ist in Arbeit. Kostenlos, ohne Konto.">
+<Base title="Download" description="cockpit für Windows und Linux herunterladen, dazu die Browser-Erweiterung für Chrome und Edge. macOS ist in Arbeit. Kostenlos, ohne Konto.">
   <Seitenkopf
     eyebrow="Download"
     titel="cockpit herunterladen"
-    lead="Für Windows und Linux. Kostenlos, ohne Konto — mit Alpha-Schlüssel sind alle Funktionen frei."
+    lead="Für Windows und Linux. Kostenlos und ohne Konto. Mit Alpha-Schlüssel sind alle Funktionen frei."
     krumen={[["Download", "/download/"]]}
     zentriert
   >
@@ -20,13 +20,13 @@ import { DOWNLOADS, SITE } from "../config";
     <div class="wrap">
       <div class="hinweis warn center" data-noch-nicht hidden style="margin-bottom:28px">
         <b>Die erste öffentliche Version erscheint mit dem Start der Alpha.</b>
-        Melde dich für die <a href="/alpha/">Alpha</a> an — du bekommst eine Mail, sobald es losgeht.
+        Melde dich für die <a href="/alpha/">Alpha</a> an. Sobald es losgeht, bekommst du eine Mail.
       </div>
       <div class="systeme">
         <div class="system karte rv" data-system="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
           <a href={DOWNLOADS.windows} class="btn btn-p" data-dl>Installer (.exe) <Icon name="download" size={16} /></a>
-          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket</a>
+          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket für Firmenrechner und Softwareverteilung</a>
           <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
         </div>
         <div class="system karte rv" style="--d:1" data-system="linux">
@@ -38,12 +38,31 @@ import { DOWNLOADS, SITE } from "../config";
         <div class="system karte rv aus" style="--d:2">
           <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS <span class="wip">in Arbeit</span></h2><p class="micro">Apple Silicon und Intel</p></div></div>
           <span class="btn btn-s" aria-disabled="true">Noch nicht verfügbar</span>
-          <p class="micro">Ich habe gerade keinen Mac zum Testen, und ungetestete Installer gebe ich nicht raus. <a href="/alpha/">Melde dich an</a> — du kommst auf die Mac-Warteliste.</p>
+          <p class="micro">Ich habe gerade keinen Mac zum Testen, und ungetestete Installer gebe ich nicht raus. Wenn du dich <a href="/alpha/">anmeldest</a>, kommst du auf die Mac-Warteliste.</p>
         </div>
       </div>
 
+      <div class="erweiterung karte rv">
+        <span class="ic"><Icon name="puzzle" /></span>
+        <div>
+          <h2>Browser-Erweiterung für Chrome und Edge</h2>
+          <p>
+            Speichert Stellenanzeigen mit einem Klick in cockpit und füllt Bewerbungsformulare aus (Pro).
+            Sie spricht nur mit cockpit auf deinem Rechner.
+          </p>
+          <ol>
+            <li>ZIP laden und entpacken.</li>
+            <li><code>chrome://extensions</code> bzw. <code>edge://extensions</code> öffnen, den Entwicklermodus einschalten.</li>
+            <li>„Entpackte Erweiterung laden“ und den Ordner wählen.</li>
+            <li>In cockpit unter Einstellungen → Verbindungen einen Kopplungscode erzeugen und im Popup eingeben.</li>
+          </ol>
+          <p class="micro">In den Chrome Web Store kommt sie nach der Alpha.</p>
+        </div>
+        <a href={DOWNLOADS.erweiterung} class="btn btn-s" data-dl>Erweiterung (.zip) <Icon name="download" size={16} /></a>
+      </div>
+
       <div class="danach raster r3">
-        <a href="/hilfe/erste-schritte/" class="karte rv"><div class="ic"><Icon name="rocket" /></div><h3>Erste Schritte</h3><p>Installieren, einrichten, erste Bewerbung — in zehn Minuten.</p></a>
+        <a href="/hilfe/erste-schritte/" class="karte rv"><div class="ic"><Icon name="rocket" /></div><h3>Erste Schritte</h3><p>Installieren, einrichten, erste Bewerbung. Dauert etwa zehn Minuten.</p></a>
         <a href="/hilfe/alpha-schluessel/" class="karte rv" style="--d:1"><div class="ic"><Icon name="key-round" /></div><h3>Alpha-Schlüssel eintragen</h3><p>Wo du ihn einträgst und was er freischaltet.</p></a>
         <a href="/changelog/" class="karte rv" style="--d:2"><div class="ic"><Icon name="git-commit" /></div><h3>Was ist neu?</h3><p>Alle Änderungen je Version im Changelog.</p></a>
       </div>
@@ -88,6 +107,32 @@ import { DOWNLOADS, SITE } from "../config";
 <style>
   .version :global(a) {
     color: var(--accent-ink);
+  }
+  .erweiterung {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: start;
+    padding: 26px;
+    margin-top: 20px;
+  }
+  .erweiterung h2 {
+    font-size: 19px;
+    margin: 0 0 6px;
+  }
+  .erweiterung ol {
+    margin: 10px 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 4px;
+  }
+  .erweiterung .ic {
+    margin: 0;
+  }
+  @media (max-width: 760px) {
+    .erweiterung {
+      grid-template-columns: 1fr;
+    }
   }
   .systeme {
     display: grid;

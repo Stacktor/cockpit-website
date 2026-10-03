@@ -1,30 +1,27 @@
 ---
 titel: Pipeline
 kurz: Jede Bewerbung von „Entwurf“ bis „Abgeschlossen“ im Blick
-beschreibung: Kanban-Pipeline für deine Bewerbungen mit Status, Wiedervorlagen, Notizen und Erinnerungen — lokal auf deinem Rechner.
+beschreibung: Kanban-Pipeline für deine Bewerbungen mit Details, Kontakten, Aufgaben, Notizen und Verlauf. Ohne Grenze und lokal auf deinem Rechner.
 icon: square-kanban
 reihenfolge: 1
 screen: pipeline
 punkte:
-  - Kanban-Spalten Entwurf, Beworben, Gespräch und Abgeschlossen — per Ziehen verschieben
-  - Wiedervorlage und Erinnerungen, damit keine Rückmeldung untergeht
-  - Notizen, Ansprechpartner, Anforderungen und Quelle je Bewerbung
-  - Startseite mit Kennzahlen, offenen Erinnerungen und neuen passenden Stellen
+  - Spalten Entwurf, Beworben, Gespräch und Abgeschlossen, Karten per Ziehen verschieben
+  - Detail je Bewerbung mit Gehalt, Arbeitsort, Tags, Priorität, Kontakten, Aufgaben und Dokumenten
+  - Verlauf mit Statuswechseln, Notizen und Mails, dazu ein Hinweis, wo sich Nachfassen lohnt
+  - Ohne Grenze, auch in der kostenlosen Version
 ---
 
-Nach der zwanzigsten Bewerbung weiß niemand mehr, wo er sich wann beworben hat. Die Pipeline ist das Herz von cockpit: Jede Bewerbung ist eine Karte, und die Spalte zeigt, wo sie gerade steht.
+Nach der zwanzigsten Bewerbung weiß niemand mehr, wo er sich wann beworben hat. In cockpit ist jede Bewerbung eine Karte, und die Spalte zeigt, wo sie steht.
 
 ## Was drinsteckt
 
-- **Vier Stufen**, die zum echten Ablauf passen: *Entwurf*, *Beworben*, *Gespräch*, *Abgeschlossen*. Ob ein Abschluss eine Zusage oder Absage war, hältst du am Ergebnis fest — die Auswertung rechnet damit.
-- **Wiedervorlage.** Du legst fest, wann du wieder draufschaust. cockpit erinnert dich — auch als Systembenachrichtigung.
-- **Alles an einem Ort.** Firma, Position, Ort, Arbeitsmodell, Ansprechpartner, Anforderungen, Link zur Anzeige, Notizen und das passende Anschreiben.
-- **Schnell gefunden.** Mit <kbd>Strg</kbd>+<kbd>K</kbd> öffnest du die Befehlspalette und springst direkt zu jeder Bewerbung.
+- **Vier Stufen**, die zum echten Ablauf passen: *Entwurf*, *Beworben*, *Gespräch*, *Abgeschlossen*. Ob am Ende eine Zusage oder Absage stand, hältst du am Ergebnis fest. Die Auswertung rechnet damit.
+- **Ein Klick öffnet das Detail.** Firma, Position, Gehaltsrahmen, Arbeitsort, Bewerbungsdatum, Tags und Priorität. Daneben Kontakte, Aufgaben, Dokumente, das Anschreiben und Mail-Vorlagen fürs Nachfassen.
+- **Verlauf.** Jeder Statuswechsel, jede Notiz und jede zugeordnete Mail mit Datum.
+- **Stichwort-Abgleich.** Welche Anforderungen der Anzeige in deinem Profil und Lebenslauf vorkommen und welche fehlen.
+- **Liste oder Board.** Suche, Filter nach Tag und Priorität und eine Tabellenansicht für den Überblick.
 
 ## Warum lokal
 
-In der Pipeline stehen dein aktueller Arbeitgeber, Wunschgehälter und jede Absage. Das gehört auf deinen Rechner, nicht auf fremde Server. cockpit speichert alles in einer SQLite-Datei bei dir — ohne Konto.
-
-## In der kostenlosen Stufe
-
-Bis zu **10 aktive Bewerbungen** gleichzeitig. Abgeschlossene zählen nicht mit. Alpha-Tester haben keine Grenze.
+In der Pipeline stehen dein aktueller Arbeitgeber, Wunschgehälter und jede Absage. Das gehört auf deinen Rechner. cockpit speichert alles in einer SQLite-Datei bei dir, ohne Konto.

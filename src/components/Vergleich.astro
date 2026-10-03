@@ -1,0 +1,132 @@
+---
+import { QUELLEN, STAND, ZEILEN, type Zelle } from "../data/vergleich";
+
+interface Props {
+  /** Nur die wichtigsten Zeilen (Startseite). */
+  kompakt?: boolean;
+}
+const { kompakt = false } = Astro.props;
+const zeilen = kompakt ? ZEILEN.filter((z) => z.kompakt) : ZEILEN;
+
+const symbol = (z: Zelle) => (z.wert === "ja" ? "Ja" : z.wert === "nein" ? "Nein" : z.wert === "teils" ? "Teils" : "");
+---
+
+<div class="vergleich">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col"><span class="sr-only">Merkmal</span></th>
+        <th scope="col" class="ich">cockpit</th>
+        <th scope="col">Teal</th>
+        <th scope="col">Huntr</th>
+        <th scope="col">Tabelle / Excel</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        zeilen.map((z) => (
+          <tr>
+            <th scope="row">{z.merkmal}</th>
+            {[z.cockpit, z.teal, z.huntr, z.tabelle].map((c, i) => (
+              <td class:list={[c.wert, { ich: i === 0 }]}>
+                {symbol(c) && <b>{symbol(c)}</b>}
+                {c.text && <span>{c.text}</span>}
+                {c.pro && <em class="pro">Pro</em>}
+              </td>
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+<p class="micro quellen">
+  Stand: {STAND}. Angaben zu Teal und Huntr laut deren Preisseiten (
+  {
+    QUELLEN.map((q, i) => (
+      <>
+        {i > 0 && " · "}
+        <a href={q.href} rel="noopener" target="_blank">{q.name}</a>
+      </>
+    ))
+  }
+  ); Preise in US-Dollar. „–“: dazu machen die Anbieter keine eindeutige Angabe.
+</p>
+
+<style>
+  .vergleich {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--card);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    min-width: 760px;
+  }
+  th,
+  td {
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  thead th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  tbody th {
+    font-weight: 560;
+    width: 26%;
+  }
+  td b {
+    display: block;
+    font-weight: 700;
+  }
+  td span {
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .ja b {
+    color: var(--ok);
+  }
+  .nein b {
+    color: var(--faint);
+  }
+  .teils b {
+    color: var(--warn);
+  }
+  .ich {
+    background: var(--accent-soft);
+  }
+  th.ich {
+    color: var(--accent-ink);
+  }
+  .pro {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 650;
+    color: var(--accent-ink);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  tbody tr {
+    transition: background 0.2s;
+  }
+  tbody tr:hover {
+    background: var(--soft);
+  }
+  .quellen {
+    margin-top: 14px;
+  }
+</style>

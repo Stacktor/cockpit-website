@@ -1,0 +1,146 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Seitenkopf from "../components/Seitenkopf.astro";
+import Icon from "../components/Icon.astro";
+
+const SPALTEN = [
+  { status: "jetzt", titel: "Jetzt", untertitel: "0.1 Alpha", icon: "rocket" },
+  { status: "naechstes", titel: "Als Nächstes", untertitel: "0.2 bis 0.3", icon: "arrow-right" },
+  { status: "spaeter", titel: "Später", untertitel: "bis 1.0, noch ohne Termin", icon: "clock" },
+  { status: "erledigt", titel: "Erledigt", untertitel: "mit 0.1 ausgeliefert", icon: "check" },
+] as const;
+
+const alle = (await getCollection("roadmap")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const spalten = await Promise.all(
+  SPALTEN.map(async (s) => ({
+    ...s,
+    eintraege: await Promise.all(
+      alle.filter((e) => e.data.status === s.status).map(async (e) => ({ ...e, Inhalt: (await render(e)).Content })),
+    ),
+  })),
+);
+---
+
+<Base
+  title="Roadmap"
+  description="Woran an cockpit gerade gearbeitet wird, was als Nächstes kommt und was schon fertig ist."
+>
+  <Seitenkopf
+    eyebrow="Roadmap"
+    titel="Was kommt, was fertig ist"
+    lead="Die Reihenfolge bestimmen auch die Alpha-Tester mit. Wünsche gehen über „Feedback“ in der App oder per Mail."
+    krumen={[["Roadmap", "/roadmap/"]]}
+  />
+
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="spalten">
+        {
+          spalten.map((s, i) => (
+            <section class:list={["spalte", s.status, "rv"]} style={`--d:${i}`} aria-labelledby={`sp-${s.status}`}>
+              <header>
+                <span class="ic"><Icon name={s.icon} size={16} /></span>
+                <div>
+                  <h2 id={`sp-${s.status}`}>{s.titel}</h2>
+                  <small>{s.untertitel}</small>
+                </div>
+              </header>
+              <ul>
+                {s.eintraege.map((e) => (
+                  <li>
+                    <b>{e.data.titel}</b>
+                    <div class="text"><e.Inhalt /></div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+      <p class="micro" style="margin-top:20px">
+        Was sich mit jeder Version geändert hat, steht im <a href="/changelog/">Changelog</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .spalten {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .spalten {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .spalten {
+      grid-template-columns: 1fr;
+    }
+  }
+  .spalte {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    box-shadow: var(--shadow-1);
+  }
+  .spalte.jetzt {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  h2 {
+    font-size: 17px;
+    margin: 0;
+  }
+  header small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+  .ic {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  .erledigt .ic {
+    background: color-mix(in srgb, var(--ok) 14%, transparent);
+    color: var(--ok);
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  li {
+    padding: 12px;
+    border-radius: var(--r);
+    background: var(--soft);
+  }
+  li b {
+    display: block;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+  .text :global(p) {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>

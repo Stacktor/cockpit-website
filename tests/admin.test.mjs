@@ -305,6 +305,37 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "geraet-abmelden", instanz: "inst-1" } }), data: ldata });
   assert.equal(r.status, 200);
 
+  // App-Prüfung und Notiz erscheinen in Liste und Detail.
+  await ldata.env.ALPHA.put("lping:7", JSON.stringify({ zeit: "2026-10-02T10:00:00Z", version: "0.1.0", system: "windows", status: "aktiv" }));
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "notiz", text: "Rabatt zugesagt" } }), data: ldata });
+  assert.equal(r.status, 200);
+  d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen"), data: ldata })).json();
+  assert.equal(d.lizenzen[0].ping.version, "0.1.0");
+  assert.equal(d.lizenzen[0].notiz, "Rabatt zugesagt");
+  lemonAntworten["license-key-instances"] = { body: { data: [{ id: "inst-1", attributes: { name: "Laptop", created_at: "2026-09-01T10:00:00Z" } }] } };
+  d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen?id=7"), data: ldata })).json();
+  assert.equal(d.lizenz.notiz, "Rabatt zugesagt");
+  assert.equal(d.geraete[0].name, "Laptop");
+  assert.ok(d.verlauf.some((e) => e.aktion === "Lizenz gesperrt"), "Verlauf aus dem Audit-Log");
+  assert.equal(d.sync, null, "ohne R2 kein Sync-Speicher");
+
+  // Mail an Kunden: Vorlage mit Logo, Text- und HTML-Fassung.
+  lemonAntworten["license-keys/7"] = { body: { data: { id: "7", attributes: { key: "SECRET-KEY-FULL-1234", user_email: "k@x.de", user_name: "Kim Muster" } } } };
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "mail", betreff: "Deine Lizenz", text: "Kurze Info zu deiner Lizenz." } }), data: { ...ldata, env: { ...ldata.env, RESEND_API_KEY: "re_x" } } });
+  assert.equal(r.status, 200);
+  const kundenmail = JSON.parse(aufrufe.findLast((a) => a.u.endsWith("/emails")).init.body);
+  assert.deepEqual(kundenmail.to, ["k@x.de"]);
+  assert.ok(kundenmail.html.includes("mail-logo.png") && kundenmail.html.includes("Hallo Kim"));
+  assert.ok(kundenmail.text.includes("Kurze Info zu deiner Lizenz."));
+  assert.ok(!kundenmail.html.includes("SECRET-KEY"));
+
+  // Sammelaktion: Verlängern für mehrere, nur erlaubte Aktionen.
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { ids: ["7", "8", "7"], aktion: "verlaengern", tage: 30 } }), data: ldata });
+  d = await r.json();
+  assert.match(d.meldung, /von 2 Lizenzen/);
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { ids: ["7"], aktion: "geraet-abmelden" } }), data: ldata });
+  assert.equal(r.status, 400);
+
   const U = await imp("../functions/api/admin/uebersicht.js");
   d = await (await U.onRequestGet({ data })).json();
   assert.equal(d.alpha.ok, true);
@@ -400,4 +431,106 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   assert.equal((await schreibe({ layout: "kaputt" })).status, 400);
   assert.equal((await schreibe({ layout: Array.from({ length: 61 }, (_, i) => ({ id: `k${i}` })) })).status, 400);
   console.log("Dashboard-Layout: ok");
+}
+
+// ───────────── Alarme und Sync-Status ─────────────
+{
+  const A = await imp("../lib/admin/alarme.js");
+  const E = await imp("../functions/api/admin/alarme.js");
+  const U = await imp("../functions/api/admin/uebersicht.js");
+
+  // Regeln werden geprüft und gesäubert.
+  assert.throws(() => A.pruefeRegel({ name: "", metrik: "fehler_offen", vergleich: ">", schwelle: 1 }), /Namen/);
+  assert.throws(() => A.pruefeRegel({ name: "x", metrik: "gibt-es-nicht", vergleich: ">", schwelle: 1 }), /Kennzahl/);
+  assert.throws(() => A.pruefeRegel({ name: "x", metrik: "fehler_offen", vergleich: "~", schwelle: 1 }), /Vergleich/);
+  assert.throws(() => A.pruefeRegel({ name: "x", metrik: "fehler_offen", vergleich: ">", schwelle: "viel" }), /Zahl/);
+  const regel = A.pruefeRegel({ name: "  Fehler  ", metrik: "fehler_offen", vergleich: ">=", schwelle: "2,5", stufe: "egal", mail: 1, extra: "<script>" });
+  assert.deepEqual({ ...regel, id: "x" }, { id: "x", name: "Fehler", metrik: "fehler_offen", vergleich: ">=", schwelle: 2.5, stufe: "wichtig", mail: true, aktiv: true });
+
+  // Reine Auswertung: ohne Daten „unbekannt“, nie ausgelöst.
+  const [a1] = A.werteAus([regel], { fehler: { ok: true, offen: 3 } });
+  assert.equal(a1.ausgeloest, true);
+  const [a2] = A.werteAus([regel], { fehler: { ok: false } });
+  assert.equal(a2.unbekannt, true);
+  assert.equal(a2.ausgeloest, false);
+  assert.equal(A.werteAus([{ ...regel, aktiv: false }], { fehler: { ok: true, offen: 9 } })[0].ausgeloest, false);
+
+  // Endpunkt: Vorlage übernehmen, auswerten, Mail genau einmal je Auslösung.
+  const kv = new KV();
+  const env = { ALPHA: kv, RESEND_API_KEY: "re_x", MAIL_AN: "ich@example.org" };
+  const data = { env, benutzer: "thomas@example.org" };
+  const post = (body) => E.onRequestPost({ request: anfrage("/api/admin/alarme", { methode: "POST", body }), data });
+  const alarmMails = () => aufrufe.filter((x) => x.u.endsWith("/emails") && /"subject":"Alarm: /.test(x.init.body || "")).length;
+  const bug = (i, status = "neu") => kv.put(`bug:2026-10-0${i}T10:00:00Z:${i}`, JSON.stringify({ beschreibung: "kaputt", zeit: new Date().toISOString(), status }));
+
+  let r = await post({ aktion: "speichern", regel: { name: "Zwei offene Fehler", metrik: "fehler_offen", vergleich: ">=", schwelle: 2, mail: true } });
+  assert.equal(r.status, 200);
+  let d = await (await E.onRequestGet({ data })).json();
+  assert.equal(d.regeln.length, 1);
+  assert.equal(d.regeln[0].wert, 0);
+  assert.equal(d.regeln[0].ausgeloest, false);
+  assert.ok(d.metriken.some((m) => m.id === "sync_max_prozent") && d.vorlagen.length >= 5);
+
+  await bug(1);
+  await bug(2);
+  const vorher = alarmMails();
+  d = await (await U.onRequestGet({ data })).json();
+  assert.equal(d.alarme.auswertung[0].ausgeloest, true, "Übersicht wertet Alarme aus");
+  assert.equal(alarmMails(), vorher + 1, "Mail bei neuer Auslösung");
+  const mail = JSON.parse(aufrufe.findLast((x) => x.u.endsWith("/emails")).init.body);
+  assert.deepEqual(mail.to, ["ich@example.org"]);
+  assert.ok(mail.html.includes("Zwei offene Fehler") && mail.text.includes("Aktueller Wert"));
+  await U.onRequestGet({ data });
+  assert.equal(alarmMails(), vorher + 1, "keine zweite Mail, solange der Alarm anhält");
+
+  // Ende und erneute Auslösung.
+  await kv.put("bug:2026-10-01T10:00:00Z:1", JSON.stringify({ beschreibung: "kaputt", zeit: new Date().toISOString(), status: "erledigt" }));
+  d = await (await post({ aktion: "pruefen" })).json();
+  assert.match(d.meldung, /grünen Bereich/);
+  await bug(3);
+  await U.onRequestGet({ data });
+  assert.equal(alarmMails(), vorher + 2, "nach dem Ende darf derselbe Alarm wieder melden");
+  d = await (await E.onRequestGet({ data })).json();
+  assert.deepEqual(d.verlauf.map((v) => v.aktion).slice(0, 3), ["Alarm ausgelöst", "Alarm beendet", "Alarm ausgelöst"]);
+
+  // Umschalten, Test-Mail, Löschen, Grenzen.
+  const id = d.regeln[0].id;
+  r = await post({ aktion: "umschalten", id });
+  assert.match((await r.json()).meldung, /Ausgeschaltet/);
+  d = await (await E.onRequestGet({ data })).json();
+  assert.equal(d.regeln[0].aktiv, false);
+  assert.equal(d.regeln[0].ausgeloest, false);
+  r = await post({ aktion: "test", id });
+  assert.equal(r.status, 200);
+  assert.ok(/"subject":"Test-Alarm: /.test(aufrufe.findLast((x) => x.u.endsWith("/emails")).init.body));
+  assert.equal((await post({ aktion: "speichern", regel: { name: "x", metrik: "nope", vergleich: ">", schwelle: 1 } })).status, 422);
+  assert.equal((await post({ aktion: "loeschen", id: "gibtsnicht" })).status, 404);
+  r = await post({ aktion: "loeschen", id });
+  assert.equal(r.status, 200);
+  assert.deepEqual(JSON.parse(await kv.get("alarme:regeln")), []);
+
+  // Hintergrundprüfung: nur mit aktiven Regeln, gedrosselt.
+  await A.alarmeImHintergrund({ ALPHA: kv });
+  assert.equal(await kv.get("alarme:geprueft"), null, "ohne Regeln keine Prüfung");
+  await post({ aktion: "speichern", regel: { name: "Fehler im Hintergrund", metrik: "fehler_offen", vergleich: ">", schwelle: 0, mail: false } });
+  await A.alarmeImHintergrund({ ALPHA: kv });
+  const erst = await kv.get("alarme:geprueft");
+  assert.ok(erst, "Prüfung gelaufen");
+  assert.ok(JSON.parse(await kv.get("alarme:zustand")) && Object.values(JSON.parse(await kv.get("alarme:zustand")))[0].aktiv);
+  await A.alarmeImHintergrund({ ALPHA: kv });
+  assert.equal(await kv.get("alarme:geprueft"), erst, "zweite Prüfung binnen 15 Minuten fällt aus");
+
+  // Sync-Status in der Übersicht: Hinweis zum Einrichten bzw. Belegung.
+  d = await (await U.onRequestGet({ data })).json();
+  assert.equal(d.sync.ok, false);
+  assert.equal(d.sync.einrichten, true);
+  const r2 = { list: async () => ({ objects: [{ key: "l/7/a.paket", size: 1048576 }, { key: "l/7/b.paket", size: 1048576 }, { key: "l/9/a.paket", size: 524288 }], truncated: false }) };
+  d = await (await U.onRequestGet({ data: { ...data, env: { ...env, SYNC: r2 } } })).json();
+  assert.equal(d.sync.ok, true);
+  assert.equal(d.sync.lizenzen, 2);
+  assert.equal(d.sync.belegt, 2.5 * 1048576);
+  assert.equal(d.sync.groesste, 2 * 1048576);
+  const [s1] = A.werteAus([A.pruefeRegel({ name: "s", metrik: "sync_max_prozent", vergleich: ">=", schwelle: 1 })], d);
+  assert.equal(s1.wert, 1);
+  console.log("Alarme und Sync-Status: ok");
 }

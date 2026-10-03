@@ -8,7 +8,7 @@
 import { json } from "../../../lib/admin/zugang.js";
 import { anmeldungen, hinweis, resend, zaehle } from "../../../lib/admin/daten.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
-import { rahmen, textZuHtml } from "../../../lib/admin/mail-vorlage.js";
+import { alsText, escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vorlage.js";
 
 const GRUPPEN = {
   eingeladen: { titel: "Alpha-Tester (eingeladen)", passt: (e) => e.status === "eingeladen" },
@@ -56,10 +56,10 @@ export async function onRequestPost({ request, data }) {
   if (betreff.length < 3 || text.length < 10) return json(422, { fehler: "Betreff und Text dürfen nicht leer sein." });
 
   const html = (name) =>
-    rahmen(
-      `${name ? `<p style="margin:0 0 14px;">Hallo ${String(name).split(/\s+/)[0].replace(/[<>&"']/g, "")},</p>` : ""}${textZuHtml(text)}
-      <p style="margin:18px 0 0;font-size:13px;color:#5b6675;">Du bekommst diese Mail, weil du dich für die Alpha von Bewerbungs-Cockpit angemeldet hast. Antworte einfach, wenn du keine weiteren Mails möchtest.</p>`,
-    );
+    mailHtml(`${name ? `<p style="margin:0 0 14px;">Hallo ${escapeHtml(String(name).split(/\s+/)[0])},</p>` : ""}${textZuHtml(text)}`, {
+      vorschau: text.split("\n")[0].slice(0, 120),
+      grund: "Du bekommst diese Mail, weil du dich für die Alpha von Bewerbungs-Cockpit angemeldet hast. Antworte einfach, wenn du keine weiteren Mails möchtest.",
+    });
   const von = env.MAIL_VON || "Bewerbungs-Cockpit <onboarding@resend.dev>";
   const antwortAn = env.MAIL_AN || "Kontakt@mesco.cc";
 
@@ -67,7 +67,7 @@ export async function onRequestPost({ request, data }) {
   if (!ziel.length) return json(422, { fehler: "Die Gruppe ist leer." });
   let gesendet = 0;
   for (let i = 0; i < ziel.length; i += 100) {
-    const paket = ziel.slice(i, i + 100).map((e) => ({ from: von, to: [e.mail], reply_to: antwortAn, subject: betreff, html: html(e.name) }));
+    const paket = ziel.slice(i, i + 100).map((e) => ({ from: von, to: [e.mail], reply_to: antwortAn, subject: betreff, html: html(e.name), text: alsText(html(e.name)) }));
     const r = await resend(env, "emails/batch", { method: "POST", body: JSON.stringify(paket) });
     if (!r.ok) return json(502, { fehler: `Resend ${r.status} — ${gesendet} von ${ziel.length} gesendet.` });
     gesendet += paket.length;

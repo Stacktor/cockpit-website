@@ -197,10 +197,17 @@
   im Hintergrund nachgeprüft.
 </p>
 <p>
-  <b>Übertragen werden dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
-  Bewerbungen, Anschreiben, Lebenslaufdaten, E-Mails oder sonstige Inhalte verlassen
-  dein Gerät zu keinem Zeitpunkt. Die App bleibt auch ohne Internetverbindung
-  nutzbar.
+  <b>An Lemon Squeezy gehen dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
+  Nach einer erfolgreichen Prüfung meldet die App zusätzlich App-Version, Betriebssystem
+  und Lizenzstatus an cockpit.mesco.cc. So sehe ich, welche Versionen im Einsatz sind und
+  wann eine Lizenz zuletzt geprüft wurde. Gespeichert wird je Lizenz nur die letzte
+  Meldung (in Cloudflare Workers KV, höchstens 400 Tage), zusammen mit der Lizenz-ID,
+  nicht dem Schlüssel. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Betrieb und
+  Support der Lizenz).
+</p>
+<p>
+  Bewerbungen, Anschreiben, Lebenslaufdaten, E-Mails oder sonstige Inhalte gehen bei
+  der Lizenzprüfung nicht mit. Die App bleibt auch ohne Internetverbindung nutzbar.
 </p>
 
 <h2>5 · Was die App selbst verarbeitet</h2>
@@ -211,7 +218,7 @@
     <tr><td>Zugangsdaten und API-Schlüssel</td><td>Schlüsselbund deines Betriebssystems</td><td>nur du</td></tr>
     <tr><td>Anfragen an ein KI-Modell</td><td>bei deinem selbst gewählten Anbieter — oder rein lokal</td><td>der von dir gewählte Anbieter</td></tr>
     <tr><td>Abruf von Stellenanzeigen</td><td>offizielle Schnittstellen der jeweiligen Anbieter</td><td>der jeweilige Anbieter</td></tr>
-    <tr><td>Optionale Synchronisierung</td><td>dein eigenes Supabase-Projekt oder deine iCloud</td><td>nur du</td></tr>
+    <tr><td>Optionaler Geräte-Sync</td><td>ein Ordner deiner Wahl (z.&nbsp;B. in deinem Cloud-Speicher), deine iCloud oder der cockpit-Sync-Server (siehe 5a), immer Ende-zu-Ende verschlüsselt</td><td>nur du</td></tr>
     <tr><td>Suche nach Updates (App-Version, IP-Adresse)</td><td>Abfrage der Datei <code>latest.json</code> bei GitHub</td><td>GitHub, Inc.</td></tr>
   </tbody>
 </table>
@@ -222,6 +229,29 @@
   vermeiden möchtest, verwende ein lokales Modell (LM Studio, Ollama) oder Apple
   Intelligence; dann verlässt kein Text dein Gerät.
 </div>
+
+<h2 id="sync">5a · cockpit-Sync-Server (optional, Pro)</h2>
+<p>
+  Mit einer Pro- oder Alpha-Lizenz kannst du deine Geräte über unseren Sync-Server abgleichen.
+  Das ist freiwillig und standardmäßig aus. Bevor etwas dein Gerät verlässt, verschlüsselt die
+  App es mit einer Passphrase, die nur du kennst (AES-256-GCM). Die Passphrase wird nie
+  übertragen. Wir können die Inhalte deshalb nicht lesen, auch nicht auf Anfrage.
+</p>
+<table>
+  <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
+  <tbody>
+    <tr><td>Verschlüsselte Pakete deiner App-Daten und Dokumente</td><td>Abgleich zwischen deinen Geräten</td><td>Cloudflare R2, bis du sie löschst</td></tr>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung bei Lemon Squeezy); gespeichert wird nur die Lizenz-ID</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>Dateigrößen und Zeitpunkte</td><td>Speichergrenze (200 MB je Lizenz) und Betrieb</td><td>Cloudflare R2</td></tr>
+  </tbody>
+</table>
+<ul style="margin-top:14px">
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO — Erfüllung des Vertrags über die
+    Pro-Funktionen, die du aktiv einschaltest.</li>
+  <li><b>Löschen:</b> in der App unter Einstellungen → Sync &amp; Geräte → „Daten auf dem Server
+    löschen“, oder per Mail an uns. Endet deine Lizenz, lässt sich der Sync-Server nicht mehr
+    nutzen; die gespeicherten Pakete löschen wir auf Wunsch sofort.</li>
+</ul>
 
 <h2>6 · Kontaktaufnahme</h2>
 <p>

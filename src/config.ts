@@ -17,4 +17,5 @@ export const DOWNLOADS = {
   windowsMsi: `${SITE.releases}/latest/download/cockpit-windows.msi`,
   appimage: `${SITE.releases}/latest/download/cockpit-linux-x86_64.AppImage`,
   deb: `${SITE.releases}/latest/download/cockpit-linux-amd64.deb`,
+  erweiterung: `${SITE.releases}/latest/download/cockpit-extension.zip`,
 };

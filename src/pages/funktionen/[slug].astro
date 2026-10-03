@@ -16,7 +16,7 @@ const { f, vorher, nachher } = Astro.props;
 const { Content } = await render(f);
 ---
 
-<Base title={`${f.data.titel} — ${f.data.kurz}`} description={f.data.beschreibung}>
+<Base title={`${f.data.titel}: ${f.data.kurz}`} description={f.data.beschreibung}>
   <Seitenkopf
     eyebrow="Funktion"
     titel={f.data.titel}

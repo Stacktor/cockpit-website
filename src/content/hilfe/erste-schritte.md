@@ -11,17 +11,17 @@ Auf der [Download-Seite](/download/) findest du die Datei für dein System:
 
 | System | Datei |
 |---|---|
-| Windows 10/11 | `cockpit-windows-setup.exe` |
+| Windows 10/11 | `cockpit-windows-setup.exe` (oder `cockpit-windows.msi` für Firmenrechner) |
 | Linux (fast alle Distributionen) | `cockpit-linux-x86_64.AppImage` |
 | Debian, Ubuntu, Mint | `cockpit-linux-amd64.deb` |
 
-macOS ist noch in Arbeit — ich habe gerade keinen Mac zum Testen, und ungetestete Installer gebe ich nicht raus.
+macOS ist noch in Arbeit. Mir fehlt gerade ein Mac zum Testen, und ungetestete Installer gebe ich nicht raus.
 
 ## 2. Installieren
 
 ### Windows
 
-Doppelklick auf die Datei. Weil die Installer noch nicht code-signiert sind, zeigt Windows einmalig die Meldung *„Der Computer wurde durch Windows geschützt"*. Klick auf **Weitere Informationen → Trotzdem ausführen**. Das ist bei neuen, kleinen Programmen normal und verschwindet, sobald cockpit signiert ist.
+Doppelklick auf die Datei. Die Installer sind noch nicht signiert, deshalb zeigt Windows einmal die Meldung *„Der Computer wurde durch Windows geschützt"*. Klick auf **Weitere Informationen → Trotzdem ausführen**. Bei neuen, kleinen Programmen ist das normal. Sobald cockpit signiert ist, fällt die Meldung weg.
 
 ### Linux (AppImage)
 
@@ -30,7 +30,7 @@ chmod +x cockpit-linux-x86_64.AppImage
 ./cockpit-linux-x86_64.AppImage
 ```
 
-Startet das AppImage nicht, fehlt meist `libfuse2` — unter Ubuntu: `sudo apt install libfuse2`.
+Startet das AppImage nicht, fehlt meist `libfuse2`. Unter Ubuntu hilft `sudo apt install libfuse2`.
 
 ### Linux (.deb)
 
@@ -40,7 +40,7 @@ sudo apt install ./cockpit-linux-amd64.deb
 
 ## 3. Erster Start
 
-Beim ersten Start begrüßt dich eine kurze Einführung. Auf der letzten Seite, **Schnell-Setup**, kannst du gleich:
+Beim ersten Start kommt eine kurze Einführung. Auf ihrer letzten Seite, **Schnell-Setup**, kannst du gleich:
 
 - deinen **Alpha-Schlüssel** eintragen (siehe [Alpha-Schlüssel](/hilfe/alpha-schluessel/)),
 - eine **KI** einrichten (siehe [KI einrichten](/hilfe/ki-einrichten/)).
@@ -49,15 +49,16 @@ Beides geht auch später unter **Einstellungen** (Zahnrad oben rechts).
 
 ## 4. Profil anlegen
 
-Öffne **Profil** und lies deinen Lebenslauf ein. cockpit füllt Werdegang, Ausbildung und Skills — du prüfst und korrigierst. Unter *Stil* beschreibst du, wie deine Anschreiben klingen sollen.
+Öffne **Profil** und lies deinen Lebenslauf ein (PDF oder Word). cockpit füllt Werdegang, Ausbildung und Skills aus, du prüfst und korrigierst. Unter *Stil* beschreibst du, wie deine Anschreiben klingen sollen.
 
 ## 5. Erste Bewerbung
 
 Zwei Wege:
 
-- **Stellen → Aggregation**: suchen, Treffer ansehen, *Übernehmen* — die Stelle landet als Entwurf in der Pipeline.
-- **Stellen → Erfassen**: Link oder Anzeigentext einfügen, cockpit legt die Bewerbung an.
+- **Stellen → Aggregation:** suchen, Treffer ansehen, *Übernehmen*. Die Stelle landet als Entwurf in der Pipeline.
+- **Stellen → Erfassen:** Link oder Anzeigentext einfügen, cockpit legt die Bewerbung an.
+- **Browser-Erweiterung:** auf der Anzeige im Browser *In cockpit speichern* klicken. Wie du sie installierst, steht auf der [Download-Seite](/download/).
 
-In der **Pipeline** öffnest du die Karte, lässt ein Anschreiben entwerfen und schiebst sie nach dem Absenden auf *Beworben*.
+In der **Pipeline** öffnest du die Karte, lässt ein Anschreiben entwerfen und schiebst sie nach dem Absenden auf *Beworben*. Unter *Übersicht* zeigt dir der Stichwort-Abgleich, welche Begriffe aus der Anzeige in deinen Unterlagen noch fehlen.
 
-Fertig. Tipp: Mit <kbd>Strg</kbd>+<kbd>K</kbd> erreichst du jede Ansicht und jede Bewerbung über die Befehlspalette.
+Das war's. Noch ein Tipp: <kbd>Strg</kbd>+<kbd>K</kbd> öffnet die Befehlspalette, damit kommst du zu jeder Ansicht und jeder Bewerbung.
