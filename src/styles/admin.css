@@ -305,13 +305,18 @@
 .a-r4 {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
+/* Einheitlich: 24px zwischen Karten, wie zwischen den Abschnitten (.a-inhalt). */
 .a-r2 {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  gap: 32px;
+  gap: 24px;
 }
 .a-r3 {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 32px;
+  gap: 24px;
+}
+.a-r2 > .a-stapel.weit {
+  gap: 24px;
+  align-content: start;
 }
 
 /* ───────────── Karten ───────────── */
@@ -445,6 +450,30 @@
 }
 .a-knopf.a-rot:hover {
   background: var(--a-bad-soft);
+}
+.a-knopf.a-rot-voll {
+  background: var(--a-bad);
+  border-color: var(--a-bad);
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgb(190 18 60 / 0.2);
+}
+.a-knopf.a-rot-voll:hover {
+  background: #9f1239;
+  border-color: #9f1239;
+}
+.a-knopf:focus-visible,
+.a-rund:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+.a-rund.a-kopier {
+  width: 28px;
+  height: 28px;
+  box-shadow: none;
+  background: transparent;
+}
+.a-rund.a-kopier:hover {
+  background: var(--a-weich);
 }
 .a-knopf:disabled {
   opacity: 0.45;
@@ -1287,31 +1316,49 @@ a.a-kachel:hover {
 .a-toast.fehler {
   background: var(--a-bad);
 }
-.a-dialog {
-  border: 1px solid var(--a-linie);
-  border-radius: var(--a-r);
-  background: var(--a-karte);
-  color: var(--a-ink);
-  padding: 24px;
-  width: min(460px, 92vw);
-  box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.3);
+/* Rückfrage vor einer Aktion (bestaetigen()); Grundgerüst siehe .a-dialog weiter unten. */
+.a-rueckfrage {
+  width: min(440px, calc(100vw - 32px));
 }
-.a-dialog::backdrop {
-  background: rgb(15 23 42 / 0.35);
-  backdrop-filter: blur(2px);
+.a-rueckfrage-inhalt {
+  display: flex;
+  gap: 14px;
+  padding: 24px 24px 20px;
 }
-.a-dialog h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 500;
+.a-rueckfrage-symbol {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--a-pille);
+  background: var(--a-weich);
+  color: var(--a-ink-2);
 }
-.a-dialog p {
-  color: var(--a-muted);
-  margin: 0 0 24px;
+.a-rueckfrage.gefahr .a-rueckfrage-symbol {
+  background: var(--a-bad-soft);
+  color: var(--a-bad);
+}
+.a-rueckfrage h3 {
+  margin: 6px 0 6px;
   font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
 }
-.a-dialog .a-werkzeuge {
+.a-rueckfrage p {
+  margin: 0;
+  color: var(--a-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.a-dialog-fuss {
+  display: flex;
   justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--a-linie-2);
+  background: var(--a-flaeche);
+  border-radius: 0 0 20px 20px;
 }
 
 /* ───────────── Sonstiges ───────────── */
@@ -1474,6 +1521,8 @@ a.a-kachel:hover {
   .a-rein,
   .a-auftritt,
   .a-balken-spur span,
+  .a-stufe-spur span,
+  .a-dialog[open],
   .a-strichcode i,
   .a-lade div {
     animation: none !important;
@@ -2367,4 +2416,304 @@ a.a-wzeile:hover .a-wzeile-text {
   border-radius: 5px;
   background: var(--a-linie-2);
   border: 1px solid var(--a-linie);
+}
+
+/* ───────────── Hilfsklassen ─────────────
+   Statt Inline-Styles in bereiche.ts: Abstände auf dem 4/8/12/16-Raster,
+   Textfarben nach Rolle. */
+.a-klein {
+  font-size: 13px;
+}
+.a-leise {
+  color: var(--a-muted);
+}
+.a-blass {
+  color: var(--a-faint);
+}
+.a-notiz {
+  margin: 0 0 12px;
+  color: var(--a-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.a-fussnote {
+  margin: 12px 0 0;
+  color: var(--a-faint);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.a-luecke {
+  flex: 1;
+}
+.a-wachsen {
+  flex: 1;
+  min-width: 220px;
+}
+.a-mt {
+  margin-top: 12px;
+}
+.a-mb {
+  margin-bottom: 12px;
+}
+.a-stapel {
+  display: grid;
+  gap: 12px;
+}
+.a-stapel.eng {
+  gap: 6px;
+}
+.a-stapel.weit {
+  gap: 16px;
+}
+.a-voll {
+  width: 100%;
+}
+.a-schmal {
+  width: 96px;
+}
+.a-mittel {
+  width: 150px;
+}
+.a-gross {
+  text-transform: uppercase;
+}
+.a-lesbar {
+  max-width: 520px;
+}
+.a-scroll {
+  max-height: 320px;
+  overflow: auto;
+}
+.a-zwischentitel {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--a-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.a-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--a-linie-2);
+}
+.a-schalter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.a-schluessel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+.a-schluessel .a-mono {
+  font-size: 12px;
+  word-break: break-all;
+  user-select: all;
+}
+.a-tabelle .a-schluessel .a-mono {
+  white-space: nowrap;
+  word-break: normal;
+}
+.a-gruppe {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0;
+  padding: 16px;
+  border: 1px solid var(--a-linie);
+  border-radius: var(--a-r);
+  background: var(--a-flaeche);
+}
+.a-gruppe legend {
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--a-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.a-gruppe .a-feld {
+  margin: 0;
+}
+.a-trend {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: var(--a-pille);
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: middle;
+  letter-spacing: 0;
+}
+.a-trend.hoch {
+  color: var(--a-ok);
+  background: var(--a-ok-soft);
+}
+.a-trend.runter {
+  color: var(--a-bad);
+  background: var(--a-bad-soft);
+}
+.a-trend.gleich {
+  color: var(--a-muted);
+  background: var(--a-weich);
+}
+.a-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  color: var(--a-muted);
+}
+.a-legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.a-legende i {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.a-legende i.gestrichelt {
+  height: 0;
+  border-top: 2px dashed;
+}
+.a-stufen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.a-stufe-kopf {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+.a-stufe-kopf b {
+  font-variant-numeric: tabular-nums;
+}
+.a-stufe-spur {
+  height: 10px;
+  margin: 6px 0 4px;
+  border-radius: var(--a-pille);
+  background: var(--a-weich);
+  overflow: hidden;
+}
+.a-stufe-spur span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f172a, #6366f1);
+  transform-origin: left;
+  animation: a-wachsen 0.7s var(--a-gleiten) both;
+}
+.a-stufe-fuss {
+  font-size: 12.5px;
+  color: var(--a-faint);
+}
+.a-raster.a-innen {
+  gap: 24px;
+}
+/* Auswahl als Pillen (z. B. Empfänger einer Rundmail). */
+.a-wahlen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.a-wahl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 4px 6px 4px 14px;
+  border: 1px solid var(--a-rand);
+  border-radius: var(--a-pille);
+  background: var(--a-karte);
+  color: var(--a-ink-2);
+  font: 500 13.5px/1.2 var(--a-sans);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.a-wahl:hover {
+  background: var(--a-flaeche);
+}
+.a-wahl[aria-checked="true"] {
+  background: var(--a-primaer);
+  border-color: var(--a-primaer);
+  color: var(--a-auf-primaer);
+}
+.a-wahl-zahl {
+  min-width: 24px;
+  padding: 3px 8px;
+  border-radius: var(--a-pille);
+  background: var(--a-weich);
+  color: var(--a-ink-2);
+  font: 600 12px/1 var(--a-mono);
+  text-align: center;
+}
+.a-wahl[aria-checked="true"] .a-wahl-zahl {
+  background: rgb(255 255 255 / 0.18);
+  color: inherit;
+}
+.a-wahl:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 2px;
+}
+.a-mail-raster {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .a-mail-raster {
+    grid-template-columns: 1fr;
+  }
+}
+.a-mail-kopf {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--a-linie-2);
+}
+.a-mail-rahmen {
+  display: block;
+  width: 100%;
+  height: 520px;
+  border: 1px solid var(--a-linie);
+  border-radius: 12px;
+  background: #f4f4f5;
+}
+.a-reihe {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.a-reihe.drei {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.a-reihe .a-eingabe {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .a-reihe,
+  .a-reihe.drei {
+    grid-template-columns: 1fr;
+  }
 }

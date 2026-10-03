@@ -264,12 +264,27 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   // Überschreiben einer vorhandenen Datei zählt die alte Größe nicht doppelt
   [st] = await j(await datei.onRequestPut(anfrage("datei?name=dateien/f0.datei", { methode: "PUT", body: new Uint8Array(11 * 1024 * 1024) }))); assert.equal(st, 200);
 
+  // Cloud-Sicherungen: eigenes Kontingent, trotz vollem Sync-Speicher möglich.
+  [st, d] = await j(await datei.onRequestPut(anfrage("datei?name=sicherungen/g1/2026-10-03_14-30-05_automatisch/teil-0001.datei", { methode: "PUT", body: new Uint8Array(8 * 1024 * 1024) })));
+  assert.equal(st, 200, JSON.stringify(d));
+  [st, d] = await j(await speicher(anfrage("speicher")));
+  assert.equal(d.sicherungen.belegt, 8 * 1024 * 1024); assert.equal(d.sicherungen.grenze, 300 * 1024 * 1024);
+  assert.ok(d.belegt < 200 * 1024 * 1024 + 1 && d.dateien === 20, JSON.stringify(d));
+  for (let i = 0; i < 37; i++) env.SYNC.m.set(`l/222/sicherungen/g1/alt/teil-${i}.datei`, { data: new Uint8Array(8 * 1024 * 1024), uploaded: new Date() });
+  [st, d] = await j(await datei.onRequestPut(anfrage("datei?name=sicherungen/g1/neu/teil-0001.datei", { methode: "PUT", body: new Uint8Array(8 * 1024 * 1024) })));
+  assert.equal(st, 507); assert.match(d.fehler, /Cloud-Sicherungen/);
+  // Sync leeren lässt die Sicherungen stehen, „sicherungen“ räumt nur diese ab.
+  [st, d] = await j(await alles(anfrage("alles?bereich=sicherungen", { methode: "DELETE" }))); assert.equal(d.geloescht, 38);
+  [st, d] = await j(await alles(anfrage("alles?bereich=quatsch", { methode: "DELETE" }))); assert.equal(st, 400);
+  env.SYNC.m.set(`l/222/sicherungen/g1/x/teil-0001.datei`, { data: new Uint8Array(1), uploaded: new Date() });
+
   // Löschen, alles löschen (mit Seiten über 1000 Objekte)
   [st] = await j(await datei.onRequestDelete(anfrage("datei?name=geraete/g1/0000000001.paket", { methode: "DELETE" }))); assert.equal(st, 200);
   for (let i = 0; i < 1500; i++) env.SYNC.m.set(`l/222/geraete/g2/${String(i).padStart(10, "0")}.paket`, { data: new Uint8Array(1), uploaded: new Date() });
-  assert.equal((await alleObjekte(env.SYNC, "l/222/")).length, 1500 + 18 + 1);
+  assert.equal((await alleObjekte(env.SYNC, "l/222/")).length, 1500 + 18 + 1 + 1);
   [st, d] = await j(await alles(anfrage("alles", { methode: "DELETE" }))); assert.equal(st, 200); assert.equal(d.geloescht, 1519);
-  [st, d] = await j(await speicher(anfrage("speicher"))); assert.equal(d.belegt, 0);
+  [st, d] = await j(await speicher(anfrage("speicher"))); assert.equal(d.belegt, 0); assert.equal(d.sicherungen.dateien, 1);
+  [st, d] = await j(await alles(anfrage("alles?bereich=alles", { methode: "DELETE" }))); assert.equal(d.geloescht, 1);
 
   // Admin-Übersicht und Leeren
   const admin = await import(new URL("../functions/api/admin/sync.js", import.meta.url).href);
@@ -284,4 +299,24 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   });
   assert.equal((await leer.json()).geloescht, 1);
   console.log("Sync-Server: alle Prüfungen ok");
+}
+
+// ── Umfrage-Zeitplan: neue Felder werden geprüft und übernommen ──
+{
+  const { pruefeDefinition } = await import(new URL("../lib/umfragen.js", import.meta.url).href);
+  const basis = { id: "test-plan", titel: "Test", aktiv: true, ausloeser: { art: "sofort" }, fragen: [{ id: "a", typ: "text", text: "Wie geht's?" }] };
+  let r = pruefeDefinition({ ...basis, erzwingen: true, start: "2026-10-05T08:00", ende: "2026-10-20T20:00", verzoegerungStunden: "2", spaeterTage: 1, ruheStunden: 0 });
+  assert.equal(r.fehler, undefined);
+  assert.equal(r.umfrage.erzwingen, true);
+  assert.equal(r.umfrage.verzoegerungStunden, 2);
+  assert.equal(r.umfrage.spaeterTage, 1);
+  assert.equal(r.umfrage.ruheStunden, 0);
+  assert.ok(r.umfrage.start < r.umfrage.ende);
+  r = pruefeDefinition(basis);
+  assert.equal(r.umfrage.erzwingen, false);
+  assert.ok(!("start" in r.umfrage) && !("ruheStunden" in r.umfrage));
+  assert.match(pruefeDefinition({ ...basis, start: "2026-10-20", ende: "2026-10-01" }).fehler, /nach dem Start/);
+  assert.match(pruefeDefinition({ ...basis, start: "morgen" }).fehler, /Start/);
+  assert.match(pruefeDefinition({ ...basis, verzoegerungStunden: 9999 }).fehler, /Verzögerung/);
+  console.log("Umfrage-Zeitplan: ok");
 }

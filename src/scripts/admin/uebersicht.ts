@@ -36,7 +36,7 @@ function heldKarte(a: Daten, tage = 7) {
       "div",
       {},
       h("div", { class: "a-held-titel" }, icon, h("h2", { class: "a-maske" }, h("span", { class: "a-rein" }, "Alpha-Anmeldungen"))),
-      h("p", {}, "Wie viele Menschen sich für die geschlossene Alpha melden — Tag für Tag und im Vergleich zur Vorwoche."),
+      h("p", {}, "Wie viele Menschen sich für die geschlossene Alpha melden, Tag für Tag und im Vergleich zur Vorwoche."),
     ),
     h("span", { class: "a-pille" }, `${tage} Tage`),
   );
@@ -548,7 +548,7 @@ const KATALOG: Widget[] = [
       kachelKarte(
         w,
         Array.isArray(d.protokoll) && d.protokoll.length
-          ? h("div", { class: "a-wliste" }, d.protokoll.slice(0, 5).map((p: Daten) => h("div", { class: "a-wzeile" }, h("span", { class: "a-wzeile-text" }, `${p.aktion}${p.details ? ` — ${p.details}` : ""}`), h("span", { class: "a-wzeile-meta" }, relativ(p.zeit)))))
+          ? h("div", { class: "a-wliste" }, d.protokoll.slice(0, 5).map((p: Daten) => h("div", { class: "a-wzeile" }, h("span", { class: "a-wzeile-text" }, `${p.aktion}${p.details ? `: ${p.details}` : ""}`), h("span", { class: "a-wzeile-meta" }, relativ(p.zeit)))))
           : leer("Noch keine Änderungen protokolliert."),
       ),
   },
@@ -606,8 +606,8 @@ const KATALOG: Widget[] = [
   },
   {
     id: "besucher",
-    titel: "Website-Besucher",
-    text: "Besucher je Tag (Cloudflare Analytics).",
+    titel: "Website-Besuche",
+    text: "Besuche je Tag auf cockpit.mesco.cc (Cloudflare).",
     icon: "analytics",
     ziel: "#/analytics",
     groessen: ["l", "xl", "voll"],
@@ -618,8 +618,8 @@ const KATALOG: Widget[] = [
       if (!b) return kachelKarte(w, h("div", { class: "a-lade klein" }, h("div"), h("div"), h("div")));
       if (!b.ok) return kachelKarte(w, hinweisKachel(b));
       const reihe: Daten[] = (b.proTag ?? []).slice(-tage);
-      const summe = reihe.reduce((s, t) => s + (t.besucher || 0), 0);
-      return kachelKarte(w, h("div", { class: "a-wzahl" }, h("strong", {}, zahl(summe)), h("span", {}, `Besucher in ${tage} Tagen`)), verlauf(reihe.map((t) => ({ tag: t.tag, wert: t.besucher }))));
+      const summe = reihe.reduce((s, t) => s + (t.besuche || 0), 0);
+      return kachelKarte(w, h("div", { class: "a-wzahl" }, h("strong", {}, zahl(summe)), h("span", {}, `Besuche in ${reihe.length} Tagen`)), verlauf(reihe.map((t) => ({ tag: t.tag, wert: t.besuche }))));
     },
   },
   {

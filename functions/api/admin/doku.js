@@ -39,7 +39,7 @@ export async function onRequestGet({ request, data }) {
     if (!pfad) {
       const r = await gh(env, `repos/${repo}/git/trees/HEAD?recursive=1`, "application/vnd.github+json");
       if (r.status === 404 || r.status === 403)
-        return { ...hinweis(`${repo} ist nicht erreichbar — gibt es das Repo, und darf der GitHub-Token es lesen?`), repo };
+        return { ...hinweis(`${repo} ist nicht erreichbar. Prüf, ob es das Repo gibt und ob der GitHub-Token es lesen darf.`), repo };
       if (r.status === 409) return { ok: true, repo, dateien: [] }; // Repo ohne Commit
       if (!r.ok) return fehler(`GitHub antwortete mit ${r.status}.`);
       const d = await r.json();

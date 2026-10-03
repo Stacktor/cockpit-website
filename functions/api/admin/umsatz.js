@@ -10,7 +10,7 @@ import { protokolliere } from "../../../lib/admin/protokoll.js";
 
 export async function onRequestGet({ data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Lemon-Squeezy-Schlüssel fehlt — unter Einstellungen eintragen." });
+  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
   const [bestellungen, kunden, rabatte] = await Promise.all([
     lemon(env, "orders?page[size]=100&sort=-createdAt"),
     lemon(env, "customers?page[size]=100&sort=-createdAt"),
@@ -83,7 +83,7 @@ export async function onRequestPost({ request, data }) {
     return json(200, { ok: true, meldung: "Rabattcode gelöscht." });
   }
   if (d?.aktion !== "rabatt") return json(400, { fehler: "Unbekannte Aktion." });
-  if (!env.LS_STORE_ID) return json(412, { fehler: "Store-ID fehlt — unter Einstellungen eintragen." });
+  if (!env.LS_STORE_ID) return json(412, { fehler: "Die Store-ID fehlt. Trag sie unter Einstellungen ein." });
   const prozent = Number(d.prozent);
   if (!Number.isInteger(prozent) || prozent < 1 || prozent > 100) return json(422, { fehler: "Rabatt in Prozent: 1 bis 100." });
   const code = String(d.code || "").trim().toUpperCase() || "CP" + crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase();

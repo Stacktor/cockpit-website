@@ -296,8 +296,9 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
     "licenses/deactivate": { body: { deactivated: true } },
   };
   d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen"), data: ldata })).json();
-  assert.equal(d.lizenzen[0].schluessel, "XXXX-1234");
-  assert.ok(!JSON.stringify(d).includes("SECRET-KEY-FULL"), "voller Schlüssel verlässt den Server nie");
+  // Der Admin sieht den vollen Schlüssel (Kopieren für Support), die Kurzform bleibt für Titel.
+  assert.equal(d.lizenzen[0].schluessel, "SECRET-KEY-FULL-1234");
+  assert.equal(d.lizenzen[0].kurz, "XXXX-1234");
   r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "sperren" } }), data: ldata });
   assert.equal(r.status, 200);
   const patch = aufrufe.findLast((a) => a.u.endsWith("license-keys/7") && a.init.method === "PATCH");
@@ -533,4 +534,48 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   const [s1] = A.werteAus([A.pruefeRegel({ name: "s", metrik: "sync_max_prozent", vergleich: ">=", schwelle: 1 })], d);
   assert.equal(s1.wert, 1);
   console.log("Alarme und Sync-Status: ok");
+}
+
+// ───────────── Analytics: nur cockpit.mesco.cc, Tagesstücke nach Tarif ─────────────
+{
+  const An = await imp("../functions/api/admin/analytics.js");
+  const vorher = globalThis.fetch;
+  const abfragen = [];
+  globalThis.fetch = async (url, init = {}) => {
+    const body = JSON.parse(init.body);
+    abfragen.push(body);
+    const j = (b) => new Response(JSON.stringify(b), { status: 200 });
+    if (body.query.includes("settings")) return j({ data: { viewer: { zones: [{ settings: { httpRequestsAdaptiveGroups: { maxDuration: 86400, notOlderThan: 8 * 86400 } } }] } } });
+    if (/\bt0:/.test(body.query)) {
+      const zone = {};
+      for (const [, i] of body.query.matchAll(/\bt(\d+):/g)) zone[`t${i}`] = [{ count: 10, sum: { visits: 4 } }];
+      return j({ data: { viewer: { zones: [zone] } } });
+    }
+    return j({ data: { viewer: { zones: [{ pfade: [{ count: 5, dimensions: { clientRequestPath: "/" } }], herkunft: [{ count: 3, dimensions: { clientRefererHost: "" } }], laender: [{ count: 5, dimensions: { clientCountryName: "DE" } }] }] } } });
+  };
+  const env = { CF_ANALYTICS_TOKEN: "t", CF_ZONE_ID: "z" };
+  const d = await (await An.onRequestGet({ data: { env } })).json();
+  globalThis.fetch = vorher;
+  assert.equal(d.besuche.ok, true, JSON.stringify(d.besuche));
+  assert.equal(d.besuche.host, "cockpit.mesco.cc");
+  // 8 Tage Rückblick ⇒ 8 Tagesfenster, jedes höchstens einen Tag lang.
+  assert.equal(d.besuche.tage, 8);
+  assert.equal(d.besuche.besuche, 32);
+  assert.equal(d.besuche.woche.seiten, 70);
+  assert.equal(d.besuche.vorwoche, null);
+  assert.equal(d.details.herkunft[0].name, "direkt oder unbekannt");
+  assert.equal(d.details.zeitraum, "24 Std.");
+  // Jede Besuchsabfrage filtert auf den Host, keine nutzt die Zonen-Tageswerte.
+  for (const a of abfragen.filter((x) => !x.query.includes("settings"))) {
+    assert.equal(a.variables.host, "cockpit.mesco.cc");
+    assert.ok(a.query.includes("clientRequestHTTPHost: $host"));
+    assert.ok(!a.query.includes("httpRequests1dGroups"));
+  }
+  // Tagesfenster: das älteste beginnt nicht vor der Grenze.
+  const jetzt = new Date("2026-10-03T15:30:00Z");
+  const f = An.tagesFenster(jetzt, 3, jetzt.getTime() - 2.5 * 864e5);
+  assert.deepEqual(f.map((x) => x.tag), ["2026-10-01", "2026-10-02", "2026-10-03"]);
+  assert.equal(f[0].von, "2026-10-01T03:30:00.000Z");
+  assert.equal(f[2].bis, jetzt.toISOString());
+  console.log("Analytics nur für cockpit.mesco.cc: ok");
 }

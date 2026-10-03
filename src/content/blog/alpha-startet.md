@@ -3,22 +3,31 @@ titel: "Die 0.1 Alpha startet: was drin ist und was noch fehlt"
 beschreibung: cockpit geht in die geschlossene Alpha. 50 Plätze, Windows und Linux, alle Funktionen frei. Was dich erwartet, was noch nicht fertig ist und wie du mitmachst.
 datum: 2026-09-28
 tags: [Alpha, Neuigkeiten]
-lesezeit: 4
 ---
 
 Monatelang lief cockpit nur auf meinem eigenen Rechner. Jetzt startet die **0.1 Alpha**. 50 Leute, die gerade wirklich einen Job suchen, bekommen die App als Erste. Kostenlos und mit allen Funktionen.
 
 ## Was drin ist
 
+### Bewerbungen im Griff
+
 - **Pipeline:** jede Bewerbung als Karte, von *Entwurf* bis *Abgeschlossen*. Mit Gehalt, Tags, Kontakten, Aufgaben und einem Verlauf je Bewerbung.
-- **Stellensuche** über die Bundesagentur für Arbeit, Arbeitnow, Adzuna und eigene RSS-Feeds, mit Match-Score zu deinem Profil.
 - **Stichwort-Abgleich:** Welche Begriffe aus der Anzeige fehlen noch in deinem Lebenslauf?
+- **Analyse:** wie viele Bewerbungen zu einem Gespräch führen und welche Quellen etwas bringen.
+
+### Stellen finden und anschreiben
+
+- **Stellensuche** über die Bundesagentur für Arbeit, Arbeitnow, Adzuna und eigene RSS-Feeds, mit Match-Score zu deinem Profil.
 - **KI-Anschreiben** in deinem Ton, mit eigenem API-Schlüssel oder einem lokalen Modell.
 - **Auto-Modus:** findet passende Stellen und bereitet Bewerbungen vor. Prüfen und senden tust du.
-- **Inbox:** fasst Bewerbungs-Mails zusammen, sortiert sie ein und entwirft Antworten. Dazu Vorlagen fürs Nachfassen und Bedanken.
 - **Browser-Erweiterung** für Chrome und Edge: Stellenanzeigen mit einem Klick speichern.
+
+### Drumherum
+
+- **Inbox:** fasst Bewerbungs-Mails zusammen, sortiert sie ein und entwirft Antworten. Dazu Vorlagen fürs Nachfassen und Bedanken.
+- **Interview-Training**, **Lebenslauf-Designer** und **Skill-Test**.
 - **Geräte-Sync:** verschlüsselt über einen eigenen Cloud-Ordner oder den cockpit-Server.
-- **Interview-Training**, **Lebenslauf-Designer**, **Skill-Test** und **Analyse**.
+- **Sicherungen:** cockpit sichert jeden Tag und vor jedem Update selbst, in den Ordner *Dokumente/Cockpit Backups*. Einzelne Bewerbungen holst du von dort mit einem Klick zurück.
 - **Updates** kommen von selbst. Die App meldet eine neue Version und installiert sie auf Klick.
 
 ## Was noch fehlt

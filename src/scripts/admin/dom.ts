@@ -70,6 +70,13 @@ export const ICONS = {
   blitz: "M13 2 3 14h9l-1 8 10-12h-9l1-8z",
   glocke: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9|M10.3 21a1.94 1.94 0 0 0 3.4 0",
   speicher: "M22 12H2|M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z|M6 16h.01|M10 16h.01",
+  muell: "M3 6h18|M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6|M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2|M10 11v6|M14 11v6",
+  warnung: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3|M12 9v4|M12 17h.01",
+  frage: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z|M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3|M12 17h.01",
+  kopieren: "M8 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z|M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2",
+  haken: "M20 6 9 17l-5-5",
+  auge: "M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0|M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  senden: "M14.54 21.69a.5.5 0 0 0 .94-.03l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.02.94l7.93 3.18a2 2 0 0 1 1.11 1.11z|M21.85 2.15 10.91 13.09",
   doku: "M12 7v14|M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
 };
 
@@ -83,7 +90,10 @@ export function relativ(iso?: string | null): string {
   if (s < 60) return "gerade eben";
   if (s < 3600) return `vor ${Math.round(s / 60)} Min.`;
   if (s < 86400) return `vor ${Math.round(s / 3600)} Std.`;
-  if (s < 86400 * 30) return `vor ${Math.round(s / 86400)} Tagen`;
+  if (s < 86400 * 30) {
+    const t = Math.round(s / 86400);
+    return t === 1 ? "vor 1 Tag" : `vor ${t} Tagen`;
+  }
   return datum(iso);
 }
 /** Bytes als MB mit einer Nachkommastelle. */

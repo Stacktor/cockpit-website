@@ -3,7 +3,6 @@ titel: "Warum cockpit deine Daten gar nicht haben will"
 beschreibung: Bewerbungsdaten gehören zu den persönlichsten Daten, die du hast. Warum cockpit sie auf deinem Rechner lässt und was das für Preis, KI und Sync bedeutet.
 datum: 2026-09-28
 tags: [Datenschutz, Hintergrund]
-lesezeit: 5
 ---
 
 Überleg mal, was in deinen Bewerbungsunterlagen steht. Dein aktueller Arbeitgeber, der von der Suche nichts wissen soll. Dein Wunschgehalt. Jede Absage. Lücken im Lebenslauf und warum es sie gibt. Viel persönlicher wird es kaum.
@@ -29,7 +28,7 @@ Für mich hat das einen schönen Nebeneffekt: Ich zahle keine KI-Kosten für mei
 
 Dafür gibt es den Geräte-Sync. Bevor irgendetwas dein Gerät verlässt, verschlüsselt cockpit es mit einer Passphrase, die nur du kennst. Die Pakete landen dann entweder in einem Ordner deines eigenen Cloud-Speichers oder, mit Pro, auf dem cockpit-Server. Beide sehen nur Datensalat. Ohne deine Passphrase kann ich die Daten nicht lesen, auch wenn sie auf meinem Server liegen.
 
-Der Sync ist aus, bis du ihn einschaltest.
+Der Sync ist aus, bis du ihn einschaltest. Nutzt du den cockpit-Server, landen dort auf Wunsch auch die drei neuesten Sicherungen, genauso verschlüsselt. Geht dein Laptop kaputt, holst du sie auf dem neuen Rechner mit deiner Passphrase zurück.
 
 ## Was cockpit doch ins Netz schickt
 
@@ -40,7 +39,7 @@ Damit nichts im Kleingedruckten steht, hier die ganze Liste:
 - **Postfach:** die Verbindung zu deinem eigenen Mail-Server.
 - **Lizenz:** ab und zu eine Prüfung deines Schlüssels bei Lemon Squeezy. Ist sie gültig, meldet die App mir App-Version, Betriebssystem und Lizenzstatus. So sehe ich, welche Versionen im Umlauf sind.
 - **Updates:** die Frage an GitHub, ob es eine neue Version gibt.
-- **Sync, nur wenn du ihn einschaltest:** verschlüsselte Pakete an deinen Ordner oder den cockpit-Server.
+- **Sync, nur wenn du ihn einschaltest:** verschlüsselte Pakete an deinen Ordner oder den cockpit-Server. Mit Server-Sync auch verschlüsselte Sicherungen, abschaltbar.
 - **Nur als Alpha-Tester und nur auf Klick:** Umfrage-Antworten und Fehlerberichte an mich. Vorher siehst du genau, was rausgeht. Bewerbungsdaten sind nie dabei.
 
 Keine Analyse-Tools, keine Werbung, kein Tracking. Die Einzelheiten stehen in der [Datenschutzerklärung](/datenschutz/).

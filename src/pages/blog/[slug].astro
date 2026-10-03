@@ -2,14 +2,19 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Icon from "../../components/Icon.astro";
+import AutorKarte from "../../components/AutorKarte.astro";
 import { SITE } from "../../config";
+import { lesezeit } from "../../lib/lesezeit";
 
 export async function getStaticPaths() {
   const alle = await getCollection("blog");
   return alle.map((b) => ({ params: { slug: b.id }, props: { b, andere: alle.filter((x) => x.id !== b.id).slice(0, 2) } }));
 }
 const { b, andere } = Astro.props;
-const { Content } = await render(b);
+const { Content, headings } = await render(b);
+const minuten = lesezeit(b.body);
+// Inhaltsverzeichnis erst ab drei Zwischenüberschriften.
+const inhalt = headings.filter((x) => x.depth === 2);
 const datum = b.data.datum.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" });
 const ld = {
   "@context": "https://schema.org",
@@ -25,22 +30,36 @@ const ld = {
 ---
 
 <Base title={b.data.titel} description={b.data.beschreibung}>
+  <div class="lesefortschritt" aria-hidden="true"><span></span></div>
   <article>
     <header class="beitrag-kopf">
       <div class="wrap eng">
         <nav class="brotkrumen" aria-label="Brotkrumen"><a href="/">Start</a><span aria-hidden="true">/</span><a href="/blog/">Blog</a></nav>
-        <p class="micro rv"><time datetime={b.data.datum.toISOString()}>{datum}</time> · {b.data.lesezeit} Min. Lesezeit · {b.data.tags.join(", ")}</p>
+        <p class="micro rv"><time datetime={b.data.datum.toISOString()}>{datum}</time> · {minuten} Min. Lesezeit · {b.data.tags.join(", ")}</p>
         <h1 class="rv" style="--d:1">{b.data.titel}</h1>
         <p class="lead rv" style="--d:2">{b.data.beschreibung}</p>
-        <div class="autor rv" style="--d:3">
-          <span class="avatar" aria-hidden="true">T</span>
-          <span><b>Thomas</b><br /><span class="micro">entwickelt cockpit</span></span>
-        </div>
+        <div class="rv" style="--d:3"><AutorKarte /></div>
       </div>
     </header>
-    <div class="abschnitt" style="padding-top:44px">
-      <div class="wrap eng prosa">
-        <Content />
+    <div class="abschnitt beitrag-text">
+      <div class="wrap eng">
+        {
+          inhalt.length >= 3 && (
+            <nav class="inhalt" aria-label="Inhalt">
+              <p class="micro">In diesem Artikel</p>
+              <ol>
+                {inhalt.map((x) => (
+                  <li>
+                    <a href={`#${x.slug}`}>{x.text}</a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )
+        }
+        <div class="prosa">
+          <Content />
+        </div>
       </div>
     </div>
   </article>
@@ -71,6 +90,25 @@ const ld = {
   <script type="application/ld+json" set:html={JSON.stringify(ld)} />
 </Base>
 
+<script>
+  // Lesefortschritt: dünne Leiste oben, folgt dem Text des Artikels.
+  const leiste = document.querySelector<HTMLElement>(".lesefortschritt span");
+  const text = document.querySelector<HTMLElement>(".beitrag-text");
+  if (leiste && text) {
+    let geplant = false;
+    const zeichne = () => {
+      geplant = false;
+      const r = text.getBoundingClientRect();
+      const gesamt = Math.max(1, r.height - innerHeight * 0.6);
+      const anteil = Math.min(1, Math.max(0, -r.top / gesamt));
+      leiste.style.transform = `scaleX(${anteil})`;
+    };
+    addEventListener("scroll", () => !geplant && (geplant = true) && requestAnimationFrame(zeichne), { passive: true });
+    addEventListener("resize", zeichne);
+    zeichne();
+  }
+</script>
+
 <style>
   .beitrag-kopf {
     padding: clamp(48px, 7vw, 84px) 0 36px;
@@ -81,23 +119,54 @@ const ld = {
     font-size: clamp(28px, 4.4vw, 44px);
     margin: 10px 0 14px;
   }
-  .autor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 22px;
-    font-size: 14.5px;
-    line-height: 1.35;
+  .beitrag-text {
+    padding-top: 44px;
   }
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
+  .lesefortschritt {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    height: 3px;
+    pointer-events: none;
+  }
+  .lesefortschritt span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.12s linear;
+  }
+  .inhalt {
+    margin: 0 0 36px;
+    padding: 18px 22px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--soft);
+  }
+  .inhalt ol {
+    margin: 8px 0 0;
+    padding-left: 1.2em;
     display: grid;
-    place-items: center;
-    font-weight: 700;
+    gap: 6px;
+    font-size: 15px;
+  }
+  .inhalt li::marker {
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .inhalt a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .inhalt a:hover {
+    color: var(--accent-ink);
+    text-decoration: underline;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lesefortschritt span {
+      transition: none;
+    }
   }
   .cta-karte {
     display: flex;

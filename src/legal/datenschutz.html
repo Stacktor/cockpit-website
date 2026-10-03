@@ -247,14 +247,15 @@
   <tbody>
     <tr><td>Verschlüsselte Pakete deiner App-Daten und Dokumente</td><td>Abgleich zwischen deinen Geräten</td><td>Cloudflare R2, bis du sie löschst</td></tr>
     <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung bei Lemon Squeezy); gespeichert wird nur die Lizenz-ID</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
-    <tr><td>Dateigrößen und Zeitpunkte</td><td>Speichergrenze (200 MB je Lizenz) und Betrieb</td><td>Cloudflare R2</td></tr>
+    <tr><td>Verschlüsselte Cloud-Sicherungen (Datenbank und Dokumente, genauso verschlüsselt)</td><td>Wiederherstellen, falls ein Gerät kaputtgeht. Läuft nur mit aktivem Server-Sync und lässt sich unter Einstellungen → Sicherungen abschalten</td><td>Cloudflare R2, die drei neuesten je Gerät, bis du sie löschst</td></tr>
+    <tr><td>Dateigrößen und Zeitpunkte</td><td>Speichergrenzen (200 MB Sync, 300 MB Sicherungen je Lizenz) und Betrieb</td><td>Cloudflare R2</td></tr>
   </tbody>
 </table>
 <ul style="margin-top:14px">
   <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO — Erfüllung des Vertrags über die
     Pro-Funktionen, die du aktiv einschaltest.</li>
   <li><b>Löschen:</b> in der App unter Einstellungen → Sync &amp; Geräte → „Daten auf dem Server
-    löschen“, oder per Mail an uns. Endet deine Lizenz, lässt sich der Sync-Server nicht mehr
+    löschen“ (Cloud-Sicherungen unter Einstellungen → Sicherungen), oder per Mail an uns. Endet deine Lizenz, lässt sich der Sync-Server nicht mehr
     nutzen; die gespeicherten Pakete löschen wir auf Wunsch sofort.</li>
 </ul>
 

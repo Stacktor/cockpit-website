@@ -63,7 +63,6 @@ const DOKU_HTML = {
 
 // ── Externe Dienste ──
 const lizenz = (i) => ({ id: String(100 + i), attributes: { key_short: `XXXX-${1000 + i}`, status: i === 3 ? "expired" : "active", disabled: i === 4, activation_usage: i % 3, activation_limit: 3, user_email: `k${i}@example.org`, user_name: namen[i], product_name: "Bewerbungs-Cockpit", created_at: tag(i * 3), expires_at: null } });
-const tage30 = [...Array(30)].map((_, i) => ({ dimensions: { date: tag(29 - i).slice(0, 10) }, sum: { requests: 400 + i * 20, pageViews: 120 + ((i * 37) % 90), countryMap: [{ clientCountryName: "DE", requests: 300 }, { clientCountryName: "AT", requests: 40 }, { clientCountryName: "CH", requests: 30 }] }, uniq: { uniques: 40 + ((i * 13) % 35) } }));
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
   const j = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
@@ -73,13 +72,20 @@ globalThis.fetch = async (url, init = {}) => {
   if (u.includes("/orders")) return j({ data: [0, 1, 2].map((i) => ({ id: String(i), attributes: { order_number: 1000 + i, user_email: `k${i}@example.org`, user_name: namen[i], status: "paid", total: 0, currency: "EUR", created_at: tag(i * 4), test_mode: false, first_order_item: { product_name: "Bewerbungs-Cockpit", variant_name: "Alpha" } } })) });
   if (u.includes("/customers")) return j({ data: [], meta: { page: { total: 3 } } });
   if (u.includes("/discounts")) return j({ data: [{ id: "9", attributes: { name: "Alpha anna", code: "ALPHAK3F9Q", amount: 100, amount_type: "percent", redemptions_count: 1, is_limited_redemptions: true, max_redemptions: 1, status: "published", created_at: tag(1) } }] });
-  if (u.includes("api.resend.com/emails")) return j({ data: [0, 1, 2, 3, 4].map((i) => ({ to: [`t${i}@example.org`], subject: i % 2 ? "Deine Anmeldung zur Alpha" : "Du bist in der Alpha", last_event: i === 3 ? "bounced" : "delivered", created_at: tag(i) })) });
+  if (/api\.resend\.com\/emails\/m\d/.test(u)) return j({ id: "m1", to: ["t1@example.org"], from: "Bewerbungs-Cockpit <hallo@mesco.cc>", subject: "Du bist in der Alpha", last_event: "opened", created_at: tag(1), html: "<p style='font:16px system-ui;padding:24px'>Hallo Anna,<br><br>schön, dass du dabei bist.</p>" });
+  if (u.includes("api.resend.com/emails")) return j({ data: [0, 1, 2, 3, 4, 5].map((i) => ({ id: `m${i}`, to: [`t${i}@example.org`], subject: i % 2 ? "Deine Anmeldung zur Alpha" : "Du bist in der Alpha", last_event: ["delivered", "opened", "clicked", "bounced", "delivered", "opened"][i], created_at: tag(i) })) });
   if (u.includes("api.resend.com/audiences")) return j({ data: [{ id: "a", name: "Alpha-Anmeldungen" }] });
   if (u.includes("api.resend.com/domains")) return j({ data: [{ name: "mesco.cc", status: "verified", region: "eu-west-1" }] });
   if (u.includes("graphql")) {
     const body = JSON.parse(init.body);
-    if (body.query.includes("httpRequests1dGroups")) return j({ data: { viewer: { zones: [{ tage: tage30 }] } } });
-    return j({ data: { viewer: { zones: [{ pfade: [["/", 180], ["/alpha/", 90], ["/funktionen/", 44], ["/download/", 31]].map(([p, c]) => ({ count: c, dimensions: { clientRequestPath: p } })), herkunft: [["", 120], ["www.reddit.com", 60], ["www.linkedin.com", 33]].map(([p, c]) => ({ count: c, dimensions: { clientRefererHost: p } })) }] } } });
+    // Tarif-Grenzen wie im Free-Plan: höchstens ein Tag je Abfrage, gut 30 Tage zurück.
+    if (body.query.includes("settings")) return j({ data: { viewer: { zones: [{ settings: { httpRequestsAdaptiveGroups: { maxDuration: 86400, notOlderThan: 2678400 } } }] } } });
+    if (/\bt0:/.test(body.query)) {
+      const zone = {};
+      for (const [, i] of body.query.matchAll(/\bt(\d+):/g)) zone[`t${i}`] = [{ count: 120 + ((i * 37) % 90), sum: { visits: 40 + ((i * 13) % 35) } }];
+      return j({ data: { viewer: { zones: [zone] } } });
+    }
+    return j({ data: { viewer: { zones: [{ pfade: [["/", 180], ["/alpha/", 90], ["/funktionen/", 44], ["/download/", 31]].map(([p, c]) => ({ count: c, dimensions: { clientRequestPath: p } })), herkunft: [["", 120], ["www.reddit.com", 60], ["www.linkedin.com", 33]].map(([p, c]) => ({ count: c, dimensions: { clientRefererHost: p } })), laender: [["DE", 300], ["AT", 40], ["CH", 30]].map(([p, c]) => ({ count: c, dimensions: { clientCountryName: p } })) }] } } });
   }
   if (u.includes("cockpit-releases/releases")) return j([{ tag_name: "v0.1.0", name: "cockpit v0.1.0 (Alpha)", published_at: tag(5), html_url: "#", assets: [{ name: "cockpit-windows-setup.exe", download_count: 38 }, { name: "cockpit-linux-x86_64.AppImage", download_count: 12 }, { name: "latest.json", download_count: 410 }] }]);
   if (u.includes("actions/runs")) return j({ workflow_runs: [{ name: "CI", display_title: "0.1 Alpha · Etappe 1–3", status: "completed", conclusion: "success", head_branch: "main", event: "push", created_at: tag(0.5), html_url: "#" }, { name: "Release", display_title: "Testbuild", status: "completed", conclusion: "failure", head_branch: "main", event: "workflow_dispatch", created_at: tag(1), html_url: "#" }] });
@@ -115,7 +121,8 @@ try {
   for (const [geraet, viewport] of [["breit", { width: 1920, height: 1080 }], ["desktop", { width: 1440, height: 900 }], ["handy", { width: 390, height: 844 }]]) {
     const page = await browser.newPage({ viewport });
     page.on("pageerror", (e) => funde.push(`${geraet}: ${e.message}`));
-    page.on("console", (m) => m.type() === "error" && funde.push(`${geraet}: ${m.text()}`));
+    page.on("console", (m) => m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_NAME_NOT_RESOLVED/.test(m.text()) && funde.push(`${geraet}: ${m.text()}`));
+    page.on("requestfailed", (r) => !r.url().startsWith("https://cockpit.mesco.cc/") && funde.push(`${geraet}: Anfrage fehlgeschlagen ${r.url()}`));
     await page.route("**/api/admin/**", async (route) => {
       const req = route.request();
       const url = new URL(req.url());
@@ -163,6 +170,33 @@ try {
       await page.getByRole("button", { name: "Bearbeiten" }).first().click();
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/desktop-umfragen-editor.png` });
+      if (!/zeitplan/i.test(await page.locator("#a-schublade").innerText())) funde.push("Umfrage-Editor: Zeitplan fehlt");
+      await page.keyboard.press("Escape");
+
+      // Fehlerbericht: Löschen steht abgesetzt und fragt mit rotem Knopf nach.
+      await page.goto("http://localhost:4329/admin/#/fehler", { waitUntil: "networkidle" });
+      await page.locator("tbody tr").first().click();
+      await page.waitForTimeout(500);
+      await page.locator("#a-schublade").getByRole("button", { name: "Löschen" }).click();
+      await page.locator("dialog.a-rueckfrage.gefahr").waitFor();
+      await page.waitForTimeout(400);
+      await page.screenshot({ path: `${OUT}/desktop-fehler-loeschen.png` });
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(200);
+      if (await page.locator("dialog.a-rueckfrage").count()) funde.push("Rückfrage: Escape schließt nicht");
+      await page.keyboard.press("Escape");
+
+      // Lizenz: voller Schlüssel mit Kopier-Knopf.
+      await page.goto("http://localhost:4329/admin/#/lizenzen", { waitUntil: "networkidle" });
+      await page.waitForTimeout(600);
+      if (!(await page.locator(".a-schluessel .a-kopier").count())) funde.push("Lizenzen: Kopier-Knopf fehlt");
+
+      // Mail: Vorschau im Rahmen, Detail aus dem Verlauf.
+      await page.goto("http://localhost:4329/admin/#/mail", { waitUntil: "networkidle" });
+      await page.locator('input[aria-label="Betreff"]').fill("Neue Version 0.1.1");
+      await page.locator('textarea[aria-label="Text"]').fill("Kurzer Gruß aus der Werkstatt.\n\nDas Update ist da: https://cockpit.mesco.cc/download/");
+      await page.waitForTimeout(900);
+      await page.screenshot({ path: `${OUT}/desktop-mail-entwurf.png`, fullPage: true });
 
       // Dashboard: anklickbar, Glocke, Anpassen (hinzufügen, verschieben, Größe, entfernen), gespeichert.
       await page.goto("http://localhost:4329/admin/#/uebersicht", { waitUntil: "networkidle" });
@@ -186,7 +220,7 @@ try {
       await page.getByRole("button", { name: "Kachel hinzufügen" }).first().click();
       await page.locator("dialog.a-dialog").waitFor();
       await page.screenshot({ path: `${OUT}/desktop-katalog.png` });
-      await page.locator(".a-katalog-eintrag", { hasText: "Website-Besucher" }).click();
+      await page.locator(".a-katalog-eintrag", { hasText: "Website-Besuche" }).click();
       await page.waitForTimeout(900);
       if (!(await page.locator('.a-platz[data-id="besucher"] svg[role=img]').count())) funde.push("Dashboard: Besucher-Kachel ohne Diagramm");
       // Tastatur: erste Kachel eins nach hinten.

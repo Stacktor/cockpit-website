@@ -1,0 +1,188 @@
+---
+/**
+ * Autor mit Hover-Karte: Avatar und Name; beim Überfahren, beim Fokus (Tastatur)
+ * oder per Tippen (Mobil) klappt eine Karte mit kurzer Vorstellung und Links auf.
+ * Liegt ein Bild unter public/autor.(jpg|png|webp), ersetzt es automatisch das „T“.
+ */
+import { existsSync } from "node:fs";
+import Icon from "./Icon.astro";
+
+const bild = ["jpg", "png", "webp"].map((e) => `autor.${e}`).find((d) => existsSync(new URL(`../../public/${d}`, import.meta.url)));
+const id = `autor-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="autor" data-autor>
+  <button type="button" class="autor-knopf" aria-expanded="false" aria-controls={id}>
+    {bild ? <img class="avatar" src={`/${bild}`} alt="" width="40" height="40" /> : <span class="avatar" aria-hidden="true">T</span>}
+    <span class="autor-text"><b>Thomas Graf</b><span class="micro">entwickelt cockpit</span></span>
+  </button>
+  <div class="autor-karte" id={id} role="dialog" aria-label="Über Thomas Graf">
+    <div class="karte-kopf">
+      {bild ? <img class="avatar gross" src={`/${bild}`} alt="" width="56" height="56" /> : <span class="avatar gross" aria-hidden="true">T</span>}
+      <div>
+        <b>Thomas Graf</b>
+        <span class="micro">Entwickler von cockpit, Norddeutschland</span>
+      </div>
+    </div>
+    <p>
+      Ich baue cockpit allein. Ich wollte ein Bewerbungs-Werkzeug, das meine Unterlagen nicht in eine fremde Cloud schickt, und habe keins gefunden.
+    </p>
+    <div class="karte-links">
+      <a href="/ueber/">Über mich <Icon name="arrow-right" size={14} /></a>
+      <a href="/blog/">Alle Artikel <Icon name="arrow-right" size={14} /></a>
+      <a href="https://github.com/Stacktor" rel="noopener" target="_blank">GitHub <Icon name="arrow-up-right" size={14} /></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tippen öffnet und schließt die Karte (Mobil); Escape und Klick daneben schließen sie.
+  for (const el of document.querySelectorAll<HTMLElement>("[data-autor]")) {
+    const knopf = el.querySelector<HTMLButtonElement>(".autor-knopf")!;
+    const setze = (offen: boolean) => {
+      el.classList.toggle("offen", offen);
+      knopf.setAttribute("aria-expanded", String(offen));
+    };
+    knopf.addEventListener("click", () => setze(!el.classList.contains("offen")));
+    el.addEventListener("mouseenter", () => knopf.setAttribute("aria-expanded", "true"));
+    el.addEventListener("mouseleave", () => !el.classList.contains("offen") && knopf.setAttribute("aria-expanded", "false"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && el.classList.contains("offen")) {
+        setze(false);
+        knopf.focus();
+      }
+    });
+    document.addEventListener("click", (e) => !el.contains(e.target as Node) && setze(false));
+  }
+</script>
+
+<style>
+  .autor {
+    position: relative;
+    display: inline-block;
+    margin-top: 22px;
+  }
+  .autor-knopf {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px 6px 6px;
+    margin-left: -6px;
+    border: 1px solid transparent;
+    border-radius: var(--pill);
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 14.5px;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .autor:hover .autor-knopf,
+  .autor.offen .autor-knopf,
+  .autor-knopf:focus-visible {
+    background: var(--card);
+    border-color: var(--line);
+  }
+  .autor-knopf:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .autor-text {
+    display: grid;
+  }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    object-fit: cover;
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+  .avatar.gross {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+  }
+  .autor-karte {
+    position: absolute;
+    left: -6px;
+    top: calc(100% + 10px);
+    z-index: 20;
+    width: min(340px, calc(100vw - 32px));
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: var(--shadow-3);
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top left;
+    transition:
+      opacity 0.18s var(--ease),
+      transform 0.25s var(--ease),
+      visibility 0s linear 0.25s;
+  }
+  /* Brücke über die Lücke, damit die Karte beim Hinüberfahren offen bleibt. */
+  .autor-karte::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -12px;
+    height: 12px;
+  }
+  .autor:hover .autor-karte,
+  .autor:focus-within .autor-karte,
+  .autor.offen .autor-karte {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0.08s, 0.08s, 0s;
+  }
+  .karte-kopf {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .karte-kopf div {
+    display: grid;
+  }
+  .autor-karte p {
+    margin: 0 0 14px;
+  }
+  .karte-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .karte-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .autor-karte,
+    .autor-knopf {
+      transition: none;
+    }
+  }
+</style>

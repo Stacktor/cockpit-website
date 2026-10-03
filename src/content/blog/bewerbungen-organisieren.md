@@ -3,10 +3,11 @@ titel: "Bewerbungen organisieren: So behältst du auch bei 30 Bewerbungen den Ü
 beschreibung: Sechs Regeln, mit denen du deine Jobsuche wie ein Projekt führst. Ob mit cockpit, einer Tabelle oder auf Papier, ist egal.
 datum: 2026-09-28
 tags: [Tipps, Bewerbung]
-lesezeit: 6
 ---
 
-Bei der fünften Bewerbung weißt du noch alles auswendig. Bei der zwanzigsten fragst du dich, ob du dich bei dieser Firma nicht schon mal beworben hast. Eine Jobsuche ist ein Projekt, und Projekte brauchen etwas Struktur. Diese sechs Regeln funktionieren mit jedem Werkzeug.
+Bei der fünften Bewerbung weißt du noch alles auswendig. Bei der zwanzigsten fragst du dich, ob du dich bei dieser Firma nicht schon mal beworben hast. Eine Jobsuche ist ein Projekt, und Projekte brauchen etwas Struktur.
+
+Diese sechs Regeln funktionieren mit jedem Werkzeug, auch mit Papier. Du musst nicht alle auf einmal umsetzen. Schon die ersten beiden räumen viel auf.
 
 ## 1. Ein Ort für alles
 
@@ -37,7 +38,9 @@ Welche Version des Lebenslaufs? Welches Anschreiben? Im Gespräch wirst du auf g
 
 ## 6. Einmal im Monat auswerten
 
-Wie viele Bewerbungen führen zu einem Gespräch? Welche Quellen bringen etwas, welche nur Absagen? Schon mit einer groben Zählung siehst du, ob du an den Unterlagen, an der Auswahl der Stellen oder an der Menge schrauben solltest.
+Wie viele Bewerbungen führen zu einem Gespräch? Welche Quellen bringen etwas, welche nur Absagen? Schon eine grobe Zählung zeigt, wo es hakt.
+
+> Ein Beispiel: 20 Bewerbungen, kein Gespräch. Dann liegt es meist an den Unterlagen oder an der Auswahl der Stellen, selten an der Menge. 20 Bewerbungen und drei Gespräche ohne Zusage deuten eher aufs Gespräch selbst.
 
 ---
 
