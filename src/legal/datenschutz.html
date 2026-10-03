@@ -1,5 +1,5 @@
 <h1>Datenschutzerklärung</h1>
-<p class="upd">Stand: 02.10.2026</p>
+<p class="upd">Stand: 03.10.2026</p>
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
@@ -192,18 +192,22 @@
 <h2>4 · Lizenzprüfung in der App</h2>
 <p>
   Gibst du einen Lizenzschlüssel in der App ein, sendet die App diesen Schlüssel
-  zusammen mit einem von dir vergebenen Gerätenamen an die Lizenz-Schnittstelle von
-  Lemon Squeezy, um die Lizenz freizuschalten. Danach wird die Gültigkeit gelegentlich
-  im Hintergrund nachgeprüft.
+  zusammen mit einem Gerätenamen an die Lizenz-Schnittstelle von Lemon Squeezy, um die
+  Lizenz freizuschalten. Den Gerätenamen bildet die App selbst aus deinem Benutzernamen
+  am Rechner, dem Betriebssystem und einer zufälligen Kennung, zum Beispiel
+  „anna · Windows (a1b2c3)“. So erkennst du deine Geräte wieder, wenn du eines abmelden
+  willst. Danach wird die Gültigkeit gelegentlich im Hintergrund nachgeprüft.
 </p>
 <p>
   <b>An Lemon Squeezy gehen dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
   Nach einer erfolgreichen Prüfung meldet die App zusätzlich App-Version, Betriebssystem
-  und Lizenzstatus an cockpit.mesco.cc. So sehe ich, welche Versionen im Einsatz sind und
+  und Lizenzstatus an cockpit.mesco.cc. Damit der Server die Meldung der richtigen Lizenz
+  zuordnen kann, schickt die App den Lizenzschlüssel und die Geräte-ID mit; der Server
+  prüft beides bei Lemon Squeezy. So sehe ich, welche Versionen im Einsatz sind und
   wann eine Lizenz zuletzt geprüft wurde. Gespeichert wird je Lizenz nur die letzte
-  Meldung (in Cloudflare Workers KV, höchstens 400 Tage), zusammen mit der Lizenz-ID,
-  nicht dem Schlüssel. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Betrieb und
-  Support der Lizenz).
+  Meldung (Zeitpunkt, App-Version, Betriebssystem, Lizenzstatus und Geräte-ID) in
+  Cloudflare Workers KV, höchstens 400 Tage, zur Lizenz-ID und nicht zum Schlüssel.
+  Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Betrieb und Support der Lizenz).
 </p>
 <p>
   Bewerbungen, Anschreiben, Lebenslaufdaten, E-Mails oder sonstige Inhalte gehen bei
@@ -226,8 +230,8 @@
   <b>Wichtig zu wissen</b>
   Nutzt du einen eigenen API-Schlüssel eines KI-Anbieters, gilt für diese Anfragen
   die Datenschutzerklärung <i>dieses Anbieters</i> — nicht unsere. Wenn du das
-  vermeiden möchtest, verwende ein lokales Modell (LM Studio, Ollama) oder Apple
-  Intelligence; dann verlässt kein Text dein Gerät.
+  vermeiden möchtest, verwende ein lokales Modell (LM Studio, Ollama); dann verlässt
+  kein Text dein Gerät.
 </div>
 
 <h2 id="sync">5a · cockpit-Sync-Server (optional, Pro)</h2>
