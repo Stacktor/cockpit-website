@@ -857,8 +857,92 @@ function fehlerDetail(x: Daten, status: string[], neu: () => void) {
 
 // ═════════════ Analytics ═════════════
 
+/** Lesbare Namen der App-Funktionen (Nutzungsstatistik). */
+const APP_FUNKTION: Record<string, string> = {
+  dashboard: "Start",
+  pipeline: "Pipeline",
+  jobs: "Stellen",
+  auto: "Auto",
+  contacts: "Kontakte",
+  inbox: "Inbox",
+  mailserver: "Mailserver",
+  profile: "Profil",
+  cv: "Lebenslauf",
+  interview: "Interview",
+  skilltest: "Skill-Test",
+  analytics: "Analyse",
+  browser: "Browser",
+  reminders: "Erinnerungen",
+  settings: "Einstellungen",
+  debug: "Debug",
+  bewerbung_angelegt: "Bewerbung angelegt",
+  anschreiben: "Anschreiben erstellt",
+  anschreiben_pdf: "Anschreiben als PDF",
+  suche_arbeitsagentur: "Suche Arbeitsagentur",
+  suche_quelle: "Quelle aktualisiert",
+  auto_suche: "Auto-Suche",
+  passung_bewerten: "Passung bewertet",
+  finden_vorbereiten: "Finden & vorbereiten",
+  stelle_uebernommen: "Stelle übernommen",
+  stelle_details: "Stelle geöffnet",
+  stelle_per_link: "Stelle per Link",
+  stelle_erfasst: "Stelle erfasst",
+  lebenslauf_pdf: "Lebenslauf als PDF",
+  lebenslauf_import: "Lebenslauf eingelesen",
+  lebenslauf_anpassen: "Lebenslauf angepasst",
+  abgleich: "Abgleich mit Stelle",
+  auswertung: "KI-Auswertung",
+  agent: "KI-Agent",
+  mail_abruf: "Mails abgerufen",
+  mail_antwort: "Mail-Antwort",
+  sync: "Sync",
+  sicherung: "Sicherung",
+  kontakt: "Kontakt angelegt",
+  erinnerung: "Erinnerung angelegt",
+  autofill: "Formular ausgefüllt",
+  export: "Daten exportiert",
+};
+const appName = (x: Daten): { name: string; anzahl: number } => ({
+  name: APP_FUNKTION[x.name] ?? String(x.name).replace(/_/g, " "),
+  anzahl: Number(x.anzahl) || 0,
+});
+
+/** Nutzung in der App (anonyme Statistik, abschaltbar in der App). */
+function appNutzung(n: Daten | null) {
+  if (!n) return null;
+  if (!n.ok) return karte("Nutzung in der App", hinweisKachel(n));
+  if (!n.berichte)
+    return karte(
+      "Nutzung in der App",
+      leer("Noch keine Meldungen. Die App sendet einmal am Tag die Zahlen der Vortage, sofern die Statistik an ist."),
+    );
+  const top = (n.ansichten as Daten[])[0];
+  return h(
+    "div",
+    { class: "a-stapel weit" },
+    h("p", { class: "a-notiz" }, h("b", {}, "In der App: "), "anonyme Zählung, welche Ansichten und Funktionen genutzt werden. Eine Meldung je Gerät und Tag."),
+    raster(
+      "a-r4",
+      kpi("App-Meldungen (30 Tage)", zahl(n.berichte), "eine je Gerät und Tag"),
+      kpi("Geräte am Tag", n.schnittGeraete.toLocaleString("de-DE"), "im Schnitt, an Tagen mit Meldungen"),
+      kpi("Meistgenutzte Ansicht", top ? APP_FUNKTION[top.name] ?? top.name : "—", top ? `${zahl(top.anzahl)}× geöffnet` : ""),
+      kpi("Häufigste Version", (n.versionen as Daten[])[0]?.name ?? "—", (n.systeme as Daten[]).map((x) => `${x.name} ${x.anzahl}`).join(" · ")),
+    ),
+    karte(
+      "Was in der App genutzt wird (30 Tage)",
+      raster(
+        "a-r2 a-innen",
+        h("div", {}, h("h3", { class: "a-zwischentitel" }, "Ansichten"), balken((n.ansichten as Daten[]).map(appName), 12)),
+        h("div", {}, h("h3", { class: "a-zwischentitel" }, "Aktionen"), balken((n.aktionen as Daten[]).map(appName), 12)),
+      ),
+      verlauf((n.proTag as Daten[]).map((x) => ({ tag: x.tag, wert: x.berichte })), "#0f172a"),
+      h("p", { class: "a-fussnote" }, "Gezählt werden nur Funktionsnamen, ohne Lizenz, Geräte-ID oder Inhalte. Nutzer können die Statistik in der App abschalten."),
+    ),
+  );
+}
+
 export const analytics: Bereich = async (ziel) => {
-  const d = await api("analytics");
+  const [d, nutzung] = await Promise.all([api("analytics"), api("nutzung").catch(() => null)]);
   const b = d.besuche;
   const det = d.details;
   const e = d.eigene;
@@ -933,6 +1017,7 @@ export const analytics: Bereich = async (ziel) => {
           ),
         )
       : null,
+    appNutzung(nutzung),
   );
 };
 
