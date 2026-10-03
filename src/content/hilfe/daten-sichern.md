@@ -21,6 +21,10 @@ Passwörter und API-Schlüssel kommen absichtlich **nicht** mit. Sie bleiben im 
 
 Unter **Einstellungen → Sicherungen** stellst du den Rhythmus auf täglich, wöchentlich oder aus, wählst einen anderen Ordner oder sicherst mit **Jetzt sichern** sofort.
 
+### Sicherungen in der Cloud
+
+Gleichst du deine Geräte über den **cockpit-Server** ab (Pro und Alpha), legt cockpit die drei neuesten Sicherungen zusätzlich dort ab. Sie sind mit deiner Sync-Passphrase verschlüsselt, genau wie der Sync. Geht dein Rechner kaputt, richtest du auf dem neuen Gerät den Sync mit derselben Passphrase ein und holst unter **Einstellungen → Sicherungen → Aus der Cloud** einen Stand zurück. Abschalten kannst du das an derselben Stelle.
+
 ### Wie lange Sicherungen bleiben
 
 Damit der Ordner nicht vollläuft, dünnt cockpit alte automatische Stände aus:

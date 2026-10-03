@@ -54,28 +54,70 @@ export function toast(text: string, fehler = false) {
   toastZeit = window.setTimeout(() => t.classList.remove("zeigen"), 3600);
 }
 
-export function bestaetigen(titel: string, text: string, ja = "Ja, fortfahren"): Promise<boolean> {
+/** Wörter, an denen eine zerstörerische Aktion zu erkennen ist (roter Knopf). */
+const GEFAHR = /lösch|sperr|abmeld|entfern|leeren|widerruf|zurücksetz/i;
+
+/**
+ * Rückfrage vor einer Aktion. Zerstörerische Aktionen (am Knopftext erkannt oder
+ * per `gefahr`) bekommen einen roten Knopf und ein Warnsymbol.
+ */
+export function bestaetigen(titel: string, text: string, ja = "Ja, fortfahren", opt: { gefahr?: boolean } = {}): Promise<boolean> {
+  const gefahr = opt.gefahr ?? GEFAHR.test(ja);
   return new Promise((fertig) => {
-    const d = h("dialog", { class: "a-dialog" }) as HTMLDialogElement;
+    const d = h("dialog", { class: `a-dialog a-rueckfrage${gefahr ? " gefahr" : ""}`, "aria-label": titel }) as HTMLDialogElement;
+    let ergebnis = false;
     const schliessen = (w: boolean) => {
+      ergebnis = w;
       d.close();
-      d.remove();
-      fertig(w);
     };
+    const nein = h("button", { class: "a-knopf", type: "button", onclick: () => schliessen(false) }, "Abbrechen") as HTMLButtonElement;
     d.append(
-      h("h3", {}, titel),
-      h("p", {}, text),
       h(
         "div",
-        { class: "a-werkzeuge" },
-        h("button", { class: "a-knopf", type: "button", onclick: () => schliessen(false) }, "Abbrechen"),
-        h("button", { class: "a-knopf a-p", type: "button", onclick: () => schliessen(true) }, ja),
+        { class: "a-rueckfrage-inhalt" },
+        h("span", { class: "a-rueckfrage-symbol" }, svg(ICONS[gefahr ? "warnung" : "frage"], 18)),
+        h("div", {}, h("h3", {}, titel), h("p", {}, text)),
+      ),
+      h(
+        "div",
+        { class: "a-dialog-fuss" },
+        nein,
+        h("button", { class: `a-knopf ${gefahr ? "a-rot-voll" : "a-p"}`, type: "button", onclick: () => schliessen(true) }, ja),
       ),
     );
-    d.addEventListener("cancel", () => schliessen(false));
+    d.addEventListener("click", (e) => e.target === d && schliessen(false));
+    d.addEventListener("close", () => {
+      d.remove();
+      fertig(ergebnis);
+    });
     document.body.append(d);
     d.showModal();
+    // Bei Gefahr steht der Fokus auf „Abbrechen“, damit Enter nichts löscht.
+    if (gefahr) nein.focus();
   });
+}
+
+/** Kopiert Text in die Zwischenablage und meldet es kurz. */
+export async function kopieren(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast("Kopiert.");
+  } catch {
+    toast("Kopieren ging nicht. Bitte von Hand markieren.", true);
+  }
+}
+
+/** Kleiner runder Knopf zum Kopieren; stoppt den Klick, damit Tabellenzeilen nicht aufgehen. */
+export function kopierKnopf(text: string, label = "Kopieren") {
+  const k = h("button", { class: "a-rund a-kopier", type: "button", "aria-label": label, title: label }, svg(ICONS.kopieren, 14)) as HTMLButtonElement;
+  k.addEventListener("click", (e) => {
+    e.stopPropagation();
+    void kopieren(text).then(() => {
+      k.replaceChildren(svg(ICONS.haken, 14));
+      setTimeout(() => k.replaceChildren(svg(ICONS.kopieren, 14)), 1400);
+    });
+  });
+  return k;
 }
 
 /** Führt eine Aktion aus, sperrt den Knopf, meldet Ergebnis und lädt auf Wunsch neu. */
@@ -106,8 +148,50 @@ export function karteMitKopf(titel: string, rechts: Node | null, ...inhalt: (Nod
   return h("section", { class: "a-karte" }, h("div", { class: "a-karte-kopf" }, h("h2", {}, titel), rechts), ...inhalt);
 }
 
-export const kpi = (titel: string, wert: string, unter = "") =>
-  h("div", { class: "a-karte a-kpi" }, h("div", { class: "a-titel" }, titel), h("div", { class: "a-wert" }, wert), unter ? h("div", { class: "a-unter" }, unter) : null);
+export const kpi = (titel: string, wert: string, unter: string | Node = "", trendWert?: Node | null) =>
+  h(
+    "div",
+    { class: "a-karte a-kpi" },
+    h("div", { class: "a-titel" }, titel),
+    h("div", { class: "a-wert" }, wert, trendWert ?? null),
+    unter ? h("div", { class: "a-unter" }, unter) : null,
+  );
+
+/** Veränderung gegenüber dem Vorzeitraum als kleine Pille („+12 %“), sonst nichts. */
+export function trend(jetzt: number | null | undefined, vorher: number | null | undefined): HTMLElement | null {
+  if (typeof jetzt !== "number" || typeof vorher !== "number") return null;
+  if (!vorher) return jetzt ? h("span", { class: "a-trend hoch", title: "Vorzeitraum: 0" }, "neu") : null;
+  const p = Math.round(((jetzt - vorher) / vorher) * 100);
+  const art = p > 0 ? "hoch" : p < 0 ? "runter" : "gleich";
+  return h("span", { class: `a-trend ${art}`, title: `Vorzeitraum: ${vorher.toLocaleString("de-DE")}` }, `${p > 0 ? "+" : ""}${p} %`);
+}
+
+/** Prozent mit einer Nachkommastelle, „—“ ohne Grundmenge. */
+export const prozent = (teil: number, ganzes: number) => (ganzes ? `${((teil / ganzes) * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 })} %` : "—");
+
+/** Trichter: Stufen mit Anzahl und Quote zur vorigen Stufe. */
+export function stufen(liste: { name: string; anzahl: number; hilfe?: string }[]) {
+  // Jede Spur zeigt den Anteil an der vorigen Stufe; so bleiben kleine Stufen sichtbar,
+  // auch wenn die erste (Besuche) viel größer ist.
+  const anteil = (i: number) => (i ? Math.min(1, liste[i].anzahl / Math.max(1, liste[i - 1].anzahl)) : liste[0].anzahl ? 1 : 0);
+  return h(
+    "ol",
+    { class: "a-stufen" },
+    liste.map((x, i) =>
+      h(
+        "li",
+        {},
+        h("div", { class: "a-stufe-kopf" }, h("span", {}, x.name), h("b", {}, x.anzahl.toLocaleString("de-DE"))),
+        h("div", { class: "a-stufe-spur" }, h("span", { style: `width:${Math.max(2, anteil(i) * 100)}%;animation-delay:${i * 60}ms` })),
+        h(
+          "div",
+          { class: "a-stufe-fuss" },
+          !i ? x.hilfe || "Ausgangsmenge" : x.anzahl > liste[i - 1].anzahl ? "mehr als in der vorigen Stufe" : `${prozent(x.anzahl, liste[i - 1].anzahl)} der vorigen Stufe`,
+        ),
+      ),
+    ),
+  );
+}
 
 /** Kachel für eine Quelle, die nicht eingerichtet ist oder ausfiel. */
 export function hinweisKachel(d: Daten | null | undefined): HTMLElement | null {
@@ -140,7 +224,32 @@ const STATUS_FARBE: Record<string, string> = {
   in_progress: "warn",
   queued: "warn",
 };
-export const badge = (text: string, farbe?: string) => h("span", { class: `a-badge ${farbe ?? STATUS_FARBE[text] ?? ""}` }, text);
+/** Technische Status aus Lemon Squeezy, Resend und GitHub auf Deutsch. */
+const STATUS_TEXT: Record<string, string> = {
+  "in-arbeit": "in Arbeit",
+  active: "aktiv",
+  inactive: "inaktiv",
+  expired: "abgelaufen",
+  disabled: "gesperrt",
+  paid: "bezahlt",
+  pending: "offen",
+  refunded: "erstattet",
+  published: "aktiv",
+  draft: "Entwurf",
+  delivered: "zugestellt",
+  bounced: "zurückgewiesen",
+  complained: "Spam",
+  sent: "gesendet",
+  success: "erfolgreich",
+  failure: "fehlgeschlagen",
+  cancelled: "abgebrochen",
+  in_progress: "läuft",
+  queued: "wartet",
+  completed: "fertig",
+  skipped: "übersprungen",
+};
+export const badge = (text: string, farbe?: string) =>
+  h("span", { class: `a-badge ${farbe ?? STATUS_FARBE[text] ?? ""}`, title: STATUS_TEXT[text] ? text : null }, STATUS_TEXT[text] ?? text);
 
 export const leer = (text: string) => h("div", { class: "a-leer" }, text);
 
@@ -165,7 +274,11 @@ export function balken(liste: { name: string; anzahl: number }[], max = 10, skal
 }
 
 /** Flächendiagramm für Tageswerte. */
-export function verlauf(werte: { tag: string; wert: number }[], farbe = "#000000") {
+export function verlauf(
+  werte: { tag: string; wert: number }[],
+  farbe = "#0f172a",
+  zweite?: { werte: { tag: string; wert: number }[]; farbe?: string; name: string; erste: string },
+) {
   if (!werte.length) return leer("Noch keine Daten.");
   const B = 600;
   const H = 150;
@@ -217,6 +330,21 @@ export function verlauf(werte: { tag: string; wert: number }[], farbe = "#000000
   pfad.setAttribute("stroke-width", "2");
   pfad.setAttribute("vector-effect", "non-scaling-stroke");
   s.append(flaeche, pfad);
+  // Zweite Reihe mit eigener Skala (z. B. Anmeldungen über Besuchen), gestrichelt.
+  const zweitNach = new Map((zweite?.werte ?? []).map((w) => [w.tag.slice(0, 10), w.wert]));
+  const zweitMax = Math.max(1, ...zweitNach.values());
+  if (zweite) {
+    const y2 = (v: number) => H - 8 - (v / zweitMax) * (H - 24);
+    const l2 = werte.map((w, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y2(zweitNach.get(w.tag.slice(0, 10)) ?? 0).toFixed(1)}`).join(" ");
+    const p2 = document.createElementNS(ns, "path");
+    p2.setAttribute("d", l2);
+    p2.setAttribute("fill", "none");
+    p2.setAttribute("stroke", zweite.farbe ?? "#6366f1");
+    p2.setAttribute("stroke-width", "2");
+    p2.setAttribute("stroke-dasharray", "4 4");
+    p2.setAttribute("vector-effect", "non-scaling-stroke");
+    s.append(p2);
+  }
   werte.forEach((w, i) => {
     const r = document.createElementNS(ns, "rect");
     r.setAttribute("x", String(x(i) - B / werte.length / 2));
@@ -225,12 +353,26 @@ export function verlauf(werte: { tag: string; wert: number }[], farbe = "#000000
     r.setAttribute("height", String(H));
     r.setAttribute("fill", "transparent");
     const t = document.createElementNS(ns, "title");
-    t.textContent = `${new Date(w.tag).toLocaleDateString("de-DE")}: ${w.wert}`;
+    t.textContent = `${new Date(w.tag).toLocaleDateString("de-DE")}: ${w.wert.toLocaleString("de-DE")}${zweite ? ` ${zweite.erste} · ${zweitNach.get(w.tag.slice(0, 10)) ?? 0} ${zweite.name}` : ""}`;
     r.append(t);
     s.append(r);
   });
   const fmt = (t: string) => new Date(t).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
-  return h("div", { class: "a-diagramm" }, s, h("div", { class: "a-achse" }, h("span", {}, fmt(werte[0].tag)), h("span", {}, `max. ${max}`), h("span", {}, fmt(werte[werte.length - 1].tag))));
+  const legende = zweite
+    ? h(
+        "div",
+        { class: "a-legende" },
+        h("span", {}, h("i", { style: `background:${farbe}` }), `${zweite.erste} (max. ${max.toLocaleString("de-DE")})`),
+        h("span", {}, h("i", { class: "gestrichelt", style: `border-color:${zweite.farbe ?? "#6366f1"}` }), `${zweite.name} (max. ${zweitMax.toLocaleString("de-DE")})`),
+      )
+    : null;
+  return h(
+    "div",
+    { class: "a-diagramm" },
+    legende,
+    s,
+    h("div", { class: "a-achse" }, h("span", {}, fmt(werte[0].tag)), zweite ? h("span") : h("span", {}, `max. ${max.toLocaleString("de-DE")}`), h("span", {}, fmt(werte[werte.length - 1].tag))),
+  );
 }
 
 // ───────────── Tabelle mit Suche ─────────────
@@ -353,7 +495,7 @@ export function tabelle(
     werkzeuge.append(eingabe);
   }
   filter.forEach((f, i) => {
-    const sel = h("select", { class: "a-eingabe", "aria-label": f.name }, h("option", { value: "" }, `${f.name}: alle`), f.werte.map((w) => h("option", { value: w }, w))) as HTMLSelectElement;
+    const sel = h("select", { class: "a-eingabe", "aria-label": f.name }, h("option", { value: "" }, `${f.name}: alle`), f.werte.map((w) => h("option", { value: w }, STATUS_TEXT[w] ?? w))) as HTMLSelectElement;
     sel.addEventListener("change", () => {
       filterWerte[i] = sel.value;
       zeichne();

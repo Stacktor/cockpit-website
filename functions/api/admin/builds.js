@@ -28,7 +28,7 @@ export async function onRequestGet({ data }) {
     }),
     sicher(async () => {
       const r = await github(env, `repos/${APP}/actions/runs?per_page=15`);
-      if (!r.ok) return hinweis(r.status === 404 ? "Actions nicht lesbar — für ein privates Repo einen GitHub-Token eintragen." : `GitHub: ${r.status}`);
+      if (!r.ok) return hinweis(r.status === 404 ? "Actions nicht lesbar. Für ein privates Repo einen GitHub-Token eintragen." : `GitHub: ${r.status}`);
       return {
         ok: true,
         liste: (r.daten?.workflow_runs || []).map((l) => ({

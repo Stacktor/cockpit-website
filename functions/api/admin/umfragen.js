@@ -79,7 +79,7 @@ export async function onRequestPost({ request, data }) {
       await protokolliere(env, data.benutzer, "Umfrage gelöscht", String(d.id));
       return json(200, {
         ok: true,
-        meldung: rest ? "Umfrage gelöscht. Antworten bleiben erhalten." : "Gelöscht — ohne eigene Umfragen gelten wieder die Standard-Fragebögen.",
+        meldung: rest ? "Umfrage gelöscht. Antworten bleiben erhalten." : "Gelöscht. Ohne eigene Umfragen gelten wieder die Standard-Fragebögen.",
       });
     }
     default:

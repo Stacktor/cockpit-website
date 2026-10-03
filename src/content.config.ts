@@ -24,7 +24,8 @@ const blog = defineCollection({
     beschreibung: z.string(),
     datum: z.coerce.date(),
     tags: z.array(z.string()).default([]),
-    lesezeit: z.number(),
+    /** Veraltet: Die Lesezeit wird aus dem Text berechnet (src/lib/lesezeit.ts). */
+    lesezeit: z.number().optional(),
   }),
 });
 

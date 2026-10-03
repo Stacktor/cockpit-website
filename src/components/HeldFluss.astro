@@ -152,13 +152,19 @@
 </script>
 
 <style>
+  /* Reicht unter den Hero hinaus und läuft nach unten weich in den
+     Seitenhintergrund aus, statt an der Kante abzubrechen. */
   .fluss {
     position: absolute;
-    inset: 0 0 0 auto;
+    top: 0;
+    right: 0;
     width: 70%;
+    height: calc(100% + var(--auslauf, 42vh));
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgb(0 0 0 / 0.72) 58%, rgb(0 0 0 / 0.38) 74%, rgb(0 0 0 / 0.12) 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgb(0 0 0 / 0.72) 58%, rgb(0 0 0 / 0.38) 74%, rgb(0 0 0 / 0.12) 88%, transparent 100%);
   }
   .fluss-leinwand {
     position: absolute;
@@ -212,6 +218,7 @@
   }
   @media (max-width: 900px) {
     .fluss {
+      --auslauf: 28vh;
       width: 120%;
       transform: translateX(12%);
       opacity: 0.4;

@@ -1,4 +1,5 @@
 ---
+import { lesezeit } from "../lib/lesezeit";
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
@@ -317,7 +318,7 @@ const fragen = [
           beitraege.map((b, i) => (
             <a href={`/blog/${b.id}/`} class="karte beitrag rv" style={`--d:${i + 1}`}>
               <span class="micro">
-                {b.data.tags[0]} · {b.data.lesezeit} Min.
+                {b.data.tags[0]} · {lesezeit(b.body)} Min.
               </span>
               <h3>{b.data.titel}</h3>
               <p>{b.data.beschreibung}</p>
@@ -352,7 +353,12 @@ const fragen = [
     display: flex;
     align-items: center;
     padding: clamp(48px, 6vw, 72px) 0 clamp(36px, 4vw, 56px);
-    overflow: hidden;
+    /* Nur seitlich abschneiden: Der Verlauf darf unten in den nächsten Abschnitt auslaufen. */
+    overflow-x: clip;
+  }
+  .held + .abschnitt {
+    position: relative;
+    z-index: 1;
   }
   .held-inhalt {
     position: relative;

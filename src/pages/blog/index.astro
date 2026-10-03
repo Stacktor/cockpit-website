@@ -1,4 +1,5 @@
 ---
+import { lesezeit } from "../../lib/lesezeit";
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Seitenkopf from "../../components/Seitenkopf.astro";
@@ -20,7 +21,7 @@ const datum = (d: Date) => d.toLocaleDateString("de-DE", { day: "numeric", month
             <li class="rv" style={`--d:${i}`}>
               <a href={`/blog/${b.id}/`} class="karte">
                 <p class="micro">
-                  <time datetime={b.data.datum.toISOString()}>{datum(b.data.datum)}</time> · {b.data.lesezeit} Min. Lesezeit
+                  <time datetime={b.data.datum.toISOString()}>{datum(b.data.datum)}</time> · {lesezeit(b.body)} Min. Lesezeit
                 </p>
                 <h2>{b.data.titel}</h2>
                 <p>{b.data.beschreibung}</p>

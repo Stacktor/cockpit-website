@@ -7,13 +7,14 @@
  *          | geraete (limit) | geraet-abmelden (instanz) | notiz (text)
  *          | mail (betreff, text) | sync-leeren }
  *        Mit `ids` (bis 50) als Sammelaktion für sperren, entsperren, verlaengern.
- * Der vollständige Lizenzschlüssel verlässt den Server nie.
+ * Der Admin bekommt den vollständigen Schlüssel (zum Kopieren für Support-Fälle).
+ * Er ist durch Cloudflare Access geschützt; geloggt oder gemailt wird der Schlüssel nie.
  */
 import { json } from "../../../lib/admin/zugang.js";
 import { lemon, leseAlle, alleSchluessel, lsFehler, resend } from "../../../lib/admin/daten.js";
 import { leseProtokoll, protokolliere } from "../../../lib/admin/protokoll.js";
 import { alsText, escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vorlage.js";
-import { allesLoeschen, belegt, GESAMT_MAX, praefixFuer } from "../../../lib/sync.js";
+import { allesLoeschen, belegtGeteilt, GESAMT_MAX, praefixFuer, SICHERUNG_MAX } from "../../../lib/sync.js";
 
 const SAMMEL = new Set(["sperren", "entsperren", "verlaengern"]);
 
@@ -41,7 +42,8 @@ const ansicht = (l) => {
   const a = l.attributes || {};
   return {
     id: l.id,
-    schluessel: a.key_short || (a.key ? `…${String(a.key).slice(-8)}` : ""),
+    schluessel: a.key ? String(a.key) : a.key_short || "",
+    kurz: a.key_short || (a.key ? `…${String(a.key).slice(-8)}` : ""),
     status: a.status,
     deaktiviert: Boolean(a.disabled),
     genutzt: a.activation_usage,
@@ -59,7 +61,7 @@ const ansicht = (l) => {
 
 export async function onRequestGet({ request, data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Lemon-Squeezy-Schlüssel fehlt — unter Einstellungen eintragen." });
+  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
   const id = new URL(request.url).searchParams.get("id");
   if (id) {
     const sauber = String(id).replace(/\D/g, "");
@@ -68,13 +70,13 @@ export async function onRequestGet({ request, data }) {
     const [z, protokoll, sync] = await Promise.all([
       zusatz(env, [sauber]),
       leseProtokoll(env, 500),
-      env.SYNC ? belegt(env.SYNC, praefixFuer(sauber)) : null,
+      env.SYNC ? belegtGeteilt(env.SYNC, praefixFuer(sauber)) : null,
     ]);
     return json(200, {
       lizenz: { ...ansicht(l.daten.data), ...z[sauber] },
       geraete: (inst.daten?.data || []).map((i) => ({ id: i.id, name: i.attributes.name, erstellt: i.attributes.created_at })),
       verlauf: protokoll.filter((e) => String(e.details).includes(`Lizenz ${sauber}`)).slice(0, 30),
-      sync: sync ? { ...sync, grenze: GESAMT_MAX } : null,
+      sync: sync ? { ...sync.sync, grenze: GESAMT_MAX, sicherungen: { ...sync.sicherungen, grenze: SICHERUNG_MAX } } : null,
     });
   }
   const alle = [];
@@ -91,7 +93,7 @@ export async function onRequestGet({ request, data }) {
 
 export async function onRequestPost({ request, data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Lemon-Squeezy-Schlüssel fehlt — unter Einstellungen eintragen." });
+  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
   const d = await request.json().catch(() => null);
   if (Array.isArray(d?.ids)) return sammelaktion(env, data, d);
   const id = String(d?.id || "").replace(/\D/g, "");
@@ -107,7 +109,7 @@ export async function onRequestPost({ request, data }) {
 
   if (d.aktion === "sync-leeren") {
     if (!env.SYNC) return json(503, { fehler: "Kein R2-Bucket `SYNC` gebunden." });
-    const n = await allesLoeschen(env.SYNC, praefixFuer(id));
+    const n = await allesLoeschen(env.SYNC, praefixFuer(id), "sync");
     await protokolliere(env, data.benutzer, "Lizenz: Sync-Speicher geleert", `Lizenz ${id} (${n} Dateien)`);
     return json(200, { ok: true, meldung: `${n} Sync-Dateien gelöscht.` });
   }
@@ -116,7 +118,7 @@ export async function onRequestPost({ request, data }) {
     const betreff = String(d.betreff || "").trim().slice(0, 200);
     const text = String(d.text || "").trim().slice(0, 10000);
     if (betreff.length < 3 || text.length < 5) return json(422, { fehler: "Betreff und Text dürfen nicht leer sein." });
-    if (!env.RESEND_API_KEY) return json(412, { fehler: "Resend-Schlüssel fehlt — unter Einstellungen eintragen." });
+    if (!env.RESEND_API_KEY) return json(412, { fehler: "Der Resend-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
     const l = await lemon(env, `license-keys/${id}`);
     const a = l.daten?.data?.attributes || {};
     if (!l.ok || !a.user_email) return json(502, { fehler: lsFehler(l) || "Zur Lizenz gibt es keine E-Mail-Adresse." });
@@ -154,7 +156,7 @@ export async function onRequestPost({ request, data }) {
     const j = await r?.json().catch(() => null);
     if (!j?.deactivated) return json(502, { fehler: j?.error || "Gerät konnte nicht abgemeldet werden." });
     await protokolliere(env, data.benutzer, "Lizenz: Gerät abgemeldet", `Lizenz ${id}`);
-    return json(200, { ok: true, meldung: "Gerät abgemeldet — der Platz ist wieder frei." });
+    return json(200, { ok: true, meldung: "Gerät abgemeldet. Der Platz ist wieder frei." });
   }
 
   const aenderung = attributeFuer(d);
