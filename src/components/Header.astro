@@ -105,56 +105,58 @@ const ressourcen = [
     </div>
   </div>
 
-  <div class="mobil" id="mobilmenue">
-    <div class="mobil-kopf">
-      <span class="logo"><span>Bewerbungs-<b>Cockpit</b></span></span>
-      <button type="button" class="btn btn-g btn-sm" data-schliessen aria-label="Menü schließen"><Icon name="x" size={18} /></button>
-    </div>
-    <nav aria-label="Mobile Navigation" class="mobil-nav">
-      <details open>
-        <summary>Funktionen <Icon name="chevron-down" size={16} /></summary>
-        <ul>
-          {
-            funktionen.map((f) => (
-              <li>
-                <a href={`/funktionen/${f.id}/`}>
-                  <Icon name={f.data.icon} size={17} /> {f.data.titel}
-                </a>
-              </li>
-            ))
-          }
-          <li><a href="/funktionen/" class="alle">Alle Funktionen →</a></li>
-        </ul>
-      </details>
-      <a href="/preise/" class="mobil-link">Preise</a>
-      <a href="/download/" class="mobil-link">Download</a>
-      <details>
-        <summary>Ressourcen <Icon name="chevron-down" size={16} /></summary>
-        <ul>
-          {
-            ressourcen.map((r) => (
-              <li>
-                <a href={r.href}>
-                  <Icon name={r.icon} size={17} /> {r.titel}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </details>
-    </nav>
-    <div class="mobil-fuss">
-      <a href="/alpha/" class="btn btn-p" style="width:100%">Alpha-Zugang anfragen</a>
-      <p class="micro center" data-alpha-plaetze hidden></p>
-      <div class="thema breit" role="group" aria-label="Farbschema">
-        <button type="button" data-theme-knopf="light"><Icon name="sun" size={16} /> Hell</button>
-        <button type="button" data-theme-knopf="system"><Icon name="monitor" size={16} /> System</button>
-        <button type="button" data-theme-knopf="dark"><Icon name="moon" size={16} /> Dunkel</button>
-      </div>
+</header>
+
+<!-- Außerhalb von <header>: dessen backdrop-filter wäre in Safari sonst der Bezugsrahmen für position: fixed. -->
+<div class="mobil" id="mobilmenue">
+  <div class="mobil-kopf">
+    <span class="logo"><span>Bewerbungs-<b>Cockpit</b></span></span>
+    <button type="button" class="btn btn-g btn-sm" data-schliessen aria-label="Menü schließen"><Icon name="x" size={18} /></button>
+  </div>
+  <nav aria-label="Mobile Navigation" class="mobil-nav">
+    <details>
+      <summary>Funktionen <Icon name="chevron-down" size={16} /></summary>
+      <ul>
+        {
+          funktionen.map((f) => (
+            <li>
+              <a href={`/funktionen/${f.id}/`}>
+                <Icon name={f.data.icon} size={17} /> {f.data.titel}
+              </a>
+            </li>
+          ))
+        }
+        <li><a href="/funktionen/" class="alle">Alle Funktionen →</a></li>
+      </ul>
+    </details>
+    <a href="/preise/" class="mobil-link">Preise</a>
+    <a href="/download/" class="mobil-link">Download</a>
+    <details>
+      <summary>Ressourcen <Icon name="chevron-down" size={16} /></summary>
+      <ul>
+        {
+          ressourcen.map((r) => (
+            <li>
+              <a href={r.href}>
+                <Icon name={r.icon} size={17} /> {r.titel}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+  </nav>
+  <div class="mobil-fuss">
+    <a href="/alpha/" class="btn btn-p" style="width:100%">Alpha-Zugang anfragen</a>
+    <p class="micro center" data-alpha-plaetze hidden></p>
+    <div class="thema breit" role="group" aria-label="Farbschema">
+      <button type="button" data-theme-knopf="light"><Icon name="sun" size={16} /> Hell</button>
+      <button type="button" data-theme-knopf="system"><Icon name="monitor" size={16} /> System</button>
+      <button type="button" data-theme-knopf="dark"><Icon name="moon" size={16} /> Dunkel</button>
     </div>
   </div>
-  <div class="mobil-schleier" aria-hidden="true"></div>
-</header>
+</div>
+<div class="mobil-schleier" aria-hidden="true"></div>
 
 <style>
   .kopf {
@@ -464,6 +466,7 @@ const ressourcen = [
     top: 0;
     right: 0;
     bottom: 0;
+    height: 100dvh;
     width: min(400px, 100vw);
     background: var(--bg);
     border-left: 1px solid var(--line);
@@ -493,8 +496,10 @@ const ressourcen = [
     opacity: 1;
     pointer-events: auto;
   }
+  :global(html:has(body.menue-offen)),
   :global(body.menue-offen) {
     overflow: hidden;
+    overscroll-behavior: none;
   }
   .mobil-kopf {
     display: flex;
@@ -558,7 +563,7 @@ const ressourcen = [
     font-weight: 620;
   }
   .mobil-fuss {
-    padding: 16px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
     display: grid;
     gap: 12px;
     border-top: 1px solid var(--line);

@@ -298,6 +298,31 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
     data: { env, benutzer: "admin@example.org" },
   });
   assert.equal((await leer.json()).geloescht, 1);
+
+  // Speicher-Ansicht: Geräte, Sicherungsstände, gezielt löschen, inaktive leeren
+  const post = async (body) =>
+    (await admin.onRequestPost({ request: new Request("https://x", { method: "POST", body: JSON.stringify(body) }), data: { env, benutzer: "admin@example.org" } })).json();
+  const alt = new Date(Date.now() - 400 * 864e5);
+  const lege = (k, n, uploaded = new Date()) => env.SYNC.m.set(k, { data: new Uint8Array(n), uploaded });
+  lege("l/444/geraete/g-a/0000000001.paket", 10);
+  lege("l/444/geraete/g-a/0000000002.paket", 10);
+  lege("l/444/geraete/g-b/0000000001.paket", 7);
+  lege("l/444/sicherungen/g-a/2026-10-01_12-00-00_automatisch/teil-0001.datei", 30);
+  lege("l/444/sicherungen/g-a/2026-10-01_12-00-00_automatisch/info.datei", 2);
+  lege("l/555/geraete/g-z/0000000001.paket", 4, alt);
+  a = await (await admin.onRequestGet({ request: new Request("https://x/api/admin/sync"), data: { env } })).json();
+  const l444 = a.lizenzen.find((l) => l.lizenz === "444");
+  assert.deepEqual([l444.sync.belegt, l444.sicherungen.belegt, l444.sicherungen.staende], [27, 32, 1]);
+  assert.deepEqual(l444.geraete.map((g) => [g.id, g.dateien]).sort(), [["g-a", 2], ["g-b", 1]]);
+  assert.deepEqual([a.gesamt.belegt, a.gesamt.geraete], [63, 3]);
+  assert.equal((await post({ lizenz: "444", aktion: "geraet-entfernen", geraet: "g-b" })).geloescht, 1);
+  assert.equal((await post({ lizenz: "444", aktion: "geraet-entfernen", geraet: "../x" })).fehler, "Ungültige Geräte-ID.");
+  assert.equal((await post({ lizenz: "444", aktion: "sicherungen-leeren" })).geloescht, 2);
+  assert.equal((await post({ aktion: "inaktive-leeren", tage: 5 })).fehler, "Bitte 30 bis 3650 Tage angeben.");
+  const inaktiv = await post({ aktion: "inaktive-leeren", tage: 365 });
+  assert.deepEqual([inaktiv.lizenzen, inaktiv.geloescht], [1, 1]);
+  assert.ok(!env.SYNC.m.has("l/555/geraete/g-z/0000000001.paket"));
+  assert.ok(env.SYNC.m.has("l/444/geraete/g-a/0000000001.paket"), "aktive Lizenz bleibt");
   console.log("Sync-Server: alle Prüfungen ok");
 }
 

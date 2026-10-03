@@ -2717,3 +2717,28 @@ a.a-wzeile:hover .a-wzeile-text {
     grid-template-columns: 1fr;
   }
 }
+
+/* Speicher: schmale Belegungs-Spur */
+.a-pegel {
+  height: 5px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--a-linie-2);
+  overflow: hidden;
+  min-width: 80px;
+}
+.a-pegel span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--a-primaer);
+  transition: width 0.6s var(--a-gleiten);
+}
+.a-pegel.voll span {
+  background: var(--a-bad);
+}
+.a-zelle-pegel {
+  display: grid;
+  gap: 2px;
+  min-width: 110px;
+}

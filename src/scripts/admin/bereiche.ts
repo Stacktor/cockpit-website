@@ -936,6 +936,129 @@ export const analytics: Bereich = async (ziel) => {
   );
 };
 
+// ═════════════ Speicher ═════════════
+// Der R2-Bucket des Sync-Servers: Belegung je Lizenz und Gerät, aufräumen.
+// Inhalte sind Ende-zu-Ende verschlüsselt, hier gibt es nur Größen und Zeiten.
+
+/** Anteil als schmale Spur (z. B. 40 von 200 MB). */
+function pegel(teil: number, ganz: number, warnAb = 0.8) {
+  const anteil = ganz ? Math.min(1, teil / ganz) : 0;
+  return h(
+    "div",
+    { class: `a-pegel${anteil >= warnAb ? " voll" : ""}`, role: "img", "aria-label": `${Math.round(anteil * 100)} % belegt` },
+    h("span", { style: `width:${Math.max(anteil ? 2 : 0, anteil * 100)}%` }),
+  );
+}
+
+function speicherDetail(l: Daten, d: Daten, neu: () => void) {
+  const tu = (aktionName: string, extra: Daten = {}) => (ev: Event) =>
+    aktion(ev.currentTarget as HTMLButtonElement, () => api("sync", { lizenz: l.lizenz, aktion: aktionName, ...extra }), () => {
+      schubladeZu();
+      neu();
+    });
+  schublade(
+    `Lizenz ${l.lizenz}`,
+    liste([
+      ["Sync", h("div", {}, `${mb(l.sync.belegt)} von ${mb(d.grenze)} · ${zahl(l.sync.dateien)} Dateien`, pegel(l.sync.belegt, d.grenze))],
+      ["Cloud-Sicherungen", h("div", {}, `${mb(l.sicherungen.belegt)} von ${mb(d.grenzeSicherungen)} · ${zahl(l.sicherungen.staende)} Stände`, pegel(l.sicherungen.belegt, d.grenzeSicherungen))],
+      ["Zuletzt hochgeladen", l.zuletzt ? `${zeit(l.zuletzt)} (${relativ(l.zuletzt)})` : "—"],
+    ]),
+    h("h3", { class: "a-zwischentitel a-mt" }, "Geräte"),
+    l.geraete.length
+      ? h(
+          "div",
+          { class: "a-wliste" },
+          l.geraete.map((g: Daten) =>
+            h(
+              "div",
+              { class: "a-wzeile" },
+              h("span", { class: "a-wzeile-text" }, h("span", { class: "a-mono" }, g.id.slice(0, 12)), h("small", { class: "a-blass" }, ` · ${mb(g.belegt)} · ${zahl(g.dateien)} Dateien · ${g.zuletzt ? relativ(g.zuletzt) : "—"}`)),
+              knopf("Entfernen", async (ev) => {
+                if (await bestaetigen("Gerät aus dem Speicher entfernen?", "Die Pakete dieses Geräts verschwinden vom Server. Läuft das Gerät noch, lädt es beim nächsten Abgleich alles neu hoch.", "Entfernen"))
+                  tu("geraet-entfernen", { geraet: g.id })(ev);
+              }, "a-rot a-klein"),
+            ),
+          ),
+        )
+      : leer("Keine Sync-Pakete."),
+    h(
+      "div",
+      { class: "a-werkzeuge a-mt" },
+      h("a", { class: "a-knopf", href: `#/lizenzen`, onclick: () => schubladeZu() }, svg(ICONS.lizenz, 15), "Zu den Lizenzen"),
+      l.sync.dateien
+        ? knopf("Sync leeren", async (ev) => {
+            if (await bestaetigen("Sync-Pakete löschen?", "Alle Sync-Pakete dieser Lizenz verschwinden vom Server. Die Daten auf den Geräten bleiben. Beim nächsten Abgleich lädt ein Gerät seinen Stand neu hoch.", "Löschen")) tu("sync-leeren")(ev);
+          }, "a-rot")
+        : null,
+      l.sicherungen.dateien
+        ? knopf("Sicherungen löschen", async (ev) => {
+            if (await bestaetigen("Cloud-Sicherungen löschen?", "Alle Cloud-Sicherungen dieser Lizenz verschwinden. Die lokalen Sicherungen auf den Geräten bleiben.", "Löschen")) tu("sicherungen-leeren")(ev);
+          }, "a-rot")
+        : null,
+    ),
+  );
+}
+
+export const speicher: Bereich = async (ziel, neu) => {
+  const d = await api("sync");
+  if (!d.eingerichtet) {
+    fuege(
+      ziel,
+      h("div", { class: "a-hinweis" }, "Es ist noch kein R2-Bucket als ", h("code", {}, "SYNC"), " gebunden. Wie das geht, steht unter Einstellungen → Sync-Server."),
+      h("div", { class: "a-werkzeuge" }, h("a", { class: "a-knopf a-p", href: "#/einstellungen" }, "Zu den Einstellungen")),
+    );
+    return;
+  }
+  const g = d.gesamt;
+  const lizenzen: Daten[] = d.lizenzen;
+  const monat = Date.now() - 30 * 864e5;
+  const aktiv = lizenzen.filter((l) => l.zuletzt && new Date(l.zuletzt).getTime() > monat).length;
+  const tageFeld = eingabe({ type: "number", min: "30", max: "3650", value: "180", style: "width:7em", "aria-label": "Tage ohne Upload" });
+
+  fuege(
+    ziel,
+    raster(
+      "a-r4",
+      kpi("Belegt", mb(g.belegt), h("div", {}, `von ${(d.frei / 1073741824).toLocaleString("de-DE")} GB gratis bei R2`, pegel(g.belegt, d.frei, 0.7))),
+      kpi("Sync", mb(g.sync), `${zahl(g.geraete)} ${g.geraete === 1 ? "Gerät" : "Geräte"}`),
+      kpi("Cloud-Sicherungen", mb(g.sicherungen), `${zahl(lizenzen.reduce((s, l) => s + l.sicherungen.staende, 0))} Stände`),
+      kpi("Lizenzen mit Daten", zahl(lizenzen.length), `${aktiv} in den letzten 30 Tagen aktiv`),
+    ),
+    karte(
+      "Je Lizenz",
+      tabelle(
+        [
+          { titel: "Lizenz", wert: (l) => h("span", { class: "a-mono" }, l.lizenz), suche: (l) => l.lizenz },
+          { titel: "Sync", wert: (l) => h("div", { class: "a-zelle-pegel" }, h("span", {}, mb(l.sync.belegt)), pegel(l.sync.belegt, d.grenze)) },
+          { titel: "Sicherungen", wert: (l) => h("div", { class: "a-zelle-pegel" }, h("span", {}, `${mb(l.sicherungen.belegt)} · ${l.sicherungen.staende}`), pegel(l.sicherungen.belegt, d.grenzeSicherungen)) },
+          { titel: "Geräte", wert: (l) => zahl(l.geraete.length) },
+          { titel: "Zuletzt", wert: (l) => (l.zuletzt ? relativ(l.zuletzt) : "—") },
+        ],
+        lizenzen,
+        { suche: true, beiKlick: (l) => speicherDetail(l, d, neu), leerText: "Noch hat keine Lizenz etwas hochgeladen." },
+      ),
+      h("p", { class: "a-klein a-fussnote" }, `Grenzen je Lizenz: ${mb(d.grenze)} Sync, ${mb(d.grenzeSicherungen)} Sicherungen. Ein Klick auf eine Zeile zeigt die Geräte.`),
+    ),
+    karte(
+      "Aufräumen",
+      h("p", { class: "a-mb" }, "Löscht alles von Lizenzen, die so lange nichts mehr hochgeladen haben. Kommt ein Gerät zurück, lädt es seinen Stand neu hoch."),
+      h(
+        "div",
+        { class: "a-werkzeuge" },
+        h("label", { class: "a-werkzeuge" }, "Ohne Upload seit", tageFeld, "Tagen"),
+        knopf("Inaktive leeren", async (ev) => {
+          const tage = Number(tageFeld.value);
+          const grenze = Date.now() - tage * 864e5;
+          const n = lizenzen.filter((l) => l.zuletzt && new Date(l.zuletzt).getTime() < grenze).length;
+          if (!n) return toast(`Keine Lizenz ist länger als ${tage} Tage inaktiv.`);
+          if (await bestaetigen(`${n} ${n === 1 ? "Lizenz" : "Lizenzen"} leeren?`, `Sync und Cloud-Sicherungen von ${n} ${n === 1 ? "Lizenz" : "Lizenzen"} werden gelöscht. Das lässt sich nicht rückgängig machen.`, "Leeren"))
+            aktion(ev.currentTarget as HTMLButtonElement, () => api("sync", { aktion: "inaktive-leeren", tage }), neu);
+        }, "a-rot"),
+      ),
+    ),
+  );
+};
+
 // ═════════════ Doku ═════════════
 // Interne Doku aus einem privaten GitHub-Repo (nur lesend). GitHub rendert das
 // Markdown; bevor es ins DOM kommt, lässt `saeubern` nur harmlose Elemente und
@@ -1513,7 +1636,8 @@ function syncKarte(sync: Daten | null, d: Daten, neu: () => void) {
       "Sync-Server (R2)",
       kopf,
       h("p", { class: "a-mb" }, `Der Bucket ist gebunden. ${mb(belegt)} belegt von ${liste.length} ${liste.length === 1 ? "Lizenz" : "Lizenzen"}, Grenze je Lizenz ${mb(sync.grenze)}.`),
-      h("p", { class: "a-klein a-blass" }, "Die Daten sind Ende-zu-Ende verschlüsselt. Speicher je Lizenz siehst und leerst du im Detail unter „Lizenzen“. Einen Alarm für volle Speicher legst du unter „Alarme“ an."),
+      h("p", { class: "a-klein a-blass" }, "Die Daten sind Ende-zu-Ende verschlüsselt. Belegung je Lizenz und Gerät siehst und räumst du unter „Speicher“ auf. Einen Alarm für volle Speicher legst du unter „Alarme“ an."),
+      h("div", { class: "a-werkzeuge a-mt" }, h("a", { class: "a-knopf a-p", href: "#/speicher" }, svg(ICONS.speicher, 15), "Speicher verwalten")),
     );
   }
   const schritt = (titel: string, ...inhalt: (Node | string)[]) => h("li", {}, h("b", {}, titel), h("div", { class: "a-klein a-leise" }, ...inhalt));
