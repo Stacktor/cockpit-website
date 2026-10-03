@@ -47,4 +47,4 @@ Keine Analyse-Tools, keine Werbung, kein Tracking. Die Einzelheiten stehen in de
 
 ## Der Haken
 
-Local-first hat eine Kehrseite: Um Sicherungen kümmerst du dich selbst. cockpit macht es dir leicht, unter *Einstellungen → Daten & Sicherung* ist es ein Klick. Klicken musst du aber selbst. Ich finde, das ist ein fairer Tausch.
+Local-first hat eine Kehrseite: Es gibt keinen Server, der deine Daten für dich aufhebt. Geht der Rechner kaputt, ist alles weg, was nur dort lag. Deshalb sichert cockpit selbst, jeden Tag und vor jedem Update, in den Ordner *Dokumente/Cockpit Backups*. Liegt der in deinem Cloud-Speicher oder kopierst du ihn ab und zu auf einen USB-Stick, bist du auf der sicheren Seite. [Wie das genau funktioniert](/hilfe/daten-sichern/)

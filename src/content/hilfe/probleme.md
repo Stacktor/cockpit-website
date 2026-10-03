@@ -59,7 +59,7 @@ cockpit läuft dann als Kostenlos weiter, deine Daten bleiben unangetastet. Unte
 
 ## Das Update klappt nicht
 
-Lade die neue Version von der [Download-Seite](/download/) und installiere sie über die alte. Deine Daten bleiben erhalten. Leg vorher zur Sicherheit eine [Sicherung](/hilfe/daten-sichern/) an.
+Lade die neue Version von der [Download-Seite](/download/) und installiere sie über die alte. Deine Daten bleiben erhalten. Vor jedem Update legt cockpit außerdem selbst eine [Sicherung](/hilfe/daten-sichern/) an.
 
 ## Nichts davon hilft
 
