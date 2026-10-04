@@ -8,7 +8,9 @@ import Screen from "../../components/Screen.astro";
 const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
 const extras = [
   { icon: "bot", titel: "KI-Assistent", text: "Fragt nach deinen Bewerbungen, fasst zusammen, schlägt nächste Schritte vor. Dabei weiß er, in welcher Ansicht du gerade bist." },
-  { icon: "bell", titel: "Erinnerungen", text: "Gespräche, Fristen, Nachfassen: cockpit erinnert dich, auch als Systembenachrichtigung." },
+  { icon: "check", titel: "Aufgaben und Nachfassen", text: "Eine Arbeitsliste für alles mit Frist. Nachfassen legt cockpit beim Versand selbst an und schließt es, sobald eine Antwort kommt." },
+  { icon: "list-checks", titel: "Suchkriterien", text: "Muss-, Plus- und Ausschluss-Begriffe, Firmen-Sperrliste und Rahmen aus Gehalt, Entfernung und Anstellung, offline gerechnet." },
+  { icon: "chart-column", titel: "Bewerbungsbericht", text: "Alle Bewerbungen eines Zeitraums als PDF, etwa als Nachweis für Agentur für Arbeit oder Jobcenter." },
   { icon: "search", titel: "Befehlspalette", text: "Strg+K öffnet jede Ansicht und jede Bewerbung mit ein paar Buchstaben." },
   { icon: "hard-drive", titel: "Sicherung", text: "Alle Daten als Datei sichern und auf einem anderen Rechner wieder einlesen." },
   { icon: "users", titel: "Kontakte", text: "Recruiter und Ansprechpartner mit Firma, letztem Kontakt und der passenden Bewerbung." },

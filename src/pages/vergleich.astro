@@ -61,9 +61,46 @@ const fragen = [
             <li><Icon name="check" size={17} /> Stellen der Arbeitsagentur und weiterer Quellen in einer Suche.</li>
             <li><Icon name="check" size={17} /> Anschreiben auf Deutsch, mit deiner KI oder einem lokalen Modell, ohne Kontingent.</li>
             <li><Icon name="check" size={17} /> Interview-Training, Skill-Test und Mail-Postfach in derselben App.</li>
+            <li><Icon name="check" size={17} /> Suchkriterien, automatisches Nachfassen und ein Bewerbungsbericht als PDF für Agentur für Arbeit oder Jobcenter.</li>
             <li><Icon name="check" size={17} /> Tracking ohne Grenze und kostenlos, auch nach der Alpha.</li>
           </ul>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abschnitt">
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <div class="eyebrow">Andere Ansätze</div>
+        <h2>App, Chat-Assistent oder Online-Dienst</h2>
+        <p class="lead">
+          Neben Online-Diensten gibt es Projekte, die die Bewerbung über einen KI-Chat mit angeschlossenen Werkzeugen
+          steuern. Was die Ansätze unterscheidet:
+        </p>
+      </div>
+      <div class="raster r3 ansaetze">
+        <article class="karte rv">
+          <h3>Eigenständige App</h3>
+          <p>
+            cockpit wird installiert wie jedes Programm, mit signierten Updates. Bedienung über Ansichten und Knöpfe;
+            kein Python, kein zweites Programm, kein Chatfenster als Voraussetzung.
+          </p>
+        </article>
+        <article class="karte rv" style="--d:1">
+          <h3>KI nach Wahl, auch ohne</h3>
+          <p>
+            Fünf Anbieter oder ein lokales Modell, je Funktion einstellbar. Pipeline, Suchkriterien, Rahmen, Aufgaben,
+            Analyse und Bericht laufen ohne KI. Ein Chat-Ansatz steht und fällt mit dem einen Assistenten.
+          </p>
+        </article>
+        <article class="karte rv" style="--d:2">
+          <h3>Mail und Geräte</h3>
+          <p>
+            Postfächer von 13 Anbietern direkt angebunden, Outlook per Anmeldung, Proton über die Bridge. Mehrere Geräte
+            gleichen sich Ende-zu-Ende-verschlüsselt ab, über einen eigenen Ordner oder den cockpit-Server.
+          </p>
+        </article>
       </div>
     </div>
   </section>
@@ -83,6 +120,15 @@ const fragen = [
 </Base>
 
 <style>
+  .ansaetze h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+  .ansaetze p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+  }
   .ehrlich h2 {
     font-size: 22px;
     margin-bottom: 14px;

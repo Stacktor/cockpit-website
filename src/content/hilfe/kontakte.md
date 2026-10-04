@@ -1,7 +1,7 @@
 ---
 titel: Kontakte
 beschreibung: "Ansprechpartner aus Anzeigen übernehmen, mit Bewerbungen verknüpfen und den Überblick über Gespräche behalten."
-reihenfolge: 13
+reihenfolge: 15
 kategorie: Stellen und Bewerbungen
 stand: Oktober 2026
 icon: users

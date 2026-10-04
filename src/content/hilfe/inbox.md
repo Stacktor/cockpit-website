@@ -38,6 +38,17 @@ Erkennt cockpit ein Ereignis, steht über der Mail ein Vorschlag. Nichts davon p
 
 Ein angelegter Termin landet im [Kalender](/hilfe/kalender/) und ist mit der Bewerbung verknüpft. Ort oder Link zum Videoanruf trägst du dort nach. Passt ein Vorschlag nicht, blendest du ihn aus.
 
+Eine zugeordnete Mail mit Absage, Einladung, Angebot, Rückfrage oder Termin schließt außerdem die offene [Nachfass-Aufgabe](/hilfe/aufgaben/) der Bewerbung. Eine reine Eingangsbestätigung nicht.
+
+## Mails aus Dateien
+
+Mails, die nicht in einem verbundenen Postfach liegen, übernimmst du mit **Aus Datei** oben in der Inbox. Gelesen werden:
+
+- `.eml`, wie Thunderbird, Apple Mail, Proton und die meisten Webmailer sie speichern
+- `.msg`, wie Outlook sie beim Ziehen auf den Desktop speichert
+
+Mehrere Dateien auf einmal gehen auch. Eine importierte Mail wird behandelt wie eine abgerufene: Kurzfassung, Zuordnung zur Bewerbung, Ereignis und Termin als Vorschlag. Dieselbe Mail zweimal zu importieren legt sie nicht doppelt an. Antworten aus der Inbox ist bei importierten Mails nicht möglich, weil kein Konto dahintersteht.
+
 ## Antworten
 
 **Antwort entwerfen** schreibt mit deinem Profil und der Mail einen Entwurf in deinem Stil. Du änderst ihn und klickst **Senden**. Automatisch antwortet cockpit nur, wenn du unter **Einstellungen → Automatisierung** eine höhere Stufe gewählt hast, siehe [Auto-Modus](/hilfe/auto-modus/#autonomie-stufen).
