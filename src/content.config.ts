@@ -29,6 +29,16 @@ const blog = defineCollection({
   }),
 });
 
+/** Kategorien der Dokumentation, in dieser Reihenfolge auf /hilfe/. */
+export const HILFE_KATEGORIEN = [
+  "Einstieg",
+  "Stellen und Bewerbungen",
+  "Kommunikation und Termine",
+  "KI und Unterlagen",
+  "Daten und Sicherheit",
+  "Fehlerbehebung",
+] as const;
+
 const hilfe = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/hilfe" }),
   schema: z.object({
@@ -36,6 +46,9 @@ const hilfe = defineCollection({
     beschreibung: z.string(),
     reihenfolge: z.number(),
     icon: z.string(),
+    kategorie: z.enum(HILFE_KATEGORIEN).default("Einstieg"),
+    /** Stand des Artikels (Monat), für „Zuletzt geprüft“. */
+    stand: z.string().optional(),
   }),
 });
 

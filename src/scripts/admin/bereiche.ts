@@ -864,6 +864,7 @@ const APP_FUNKTION: Record<string, string> = {
   jobs: "Stellen",
   auto: "Auto",
   contacts: "Kontakte",
+  kalender: "Kalender",
   inbox: "Inbox",
   mailserver: "Mailserver",
   profile: "Profil",
@@ -901,6 +902,9 @@ const APP_FUNKTION: Record<string, string> = {
   erinnerung: "Erinnerung angelegt",
   autofill: "Formular ausgefüllt",
   export: "Daten exportiert",
+  kalender_import: "Kalender importiert",
+  mail_ereignis: "Mail-Vorschlag angewendet",
+  kontakt_uebernommen: "Ansprechpartner übernommen",
 };
 const appName = (x: Daten): { name: string; anzahl: number } => ({
   name: APP_FUNKTION[x.name] ?? String(x.name).replace(/_/g, " "),

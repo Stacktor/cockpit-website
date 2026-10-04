@@ -2,13 +2,15 @@
 titel: Alpha-Schlüssel
 beschreibung: Wie du an einen Alpha-Schlüssel kommst, wo du ihn einträgst und was er freischaltet. Dazu Umfragen und „Fehler melden“.
 reihenfolge: 3
+kategorie: Einstieg
+stand: Oktober 2026
 icon: key-round
 ---
 
 ## So bekommst du einen
 
 1. Melde dich auf der [Alpha-Seite](/alpha/) an. Das dauert zwei Minuten.
-2. Die Plätze vergebe ich selbst. Bist du dabei, kommt eine Mail mit deinem **Alpha-Schlüssel**. Absender ist Lemon Squeezy, darüber wird cockpit später auch verkauft. Der Schlüssel sieht so aus: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`.
+2. Die Plätze werden von Hand vergeben. Bist du dabei, kommt eine Mail mit deinem **Alpha-Schlüssel**. Absender ist Lemon Squeezy, darüber wird cockpit später auch verkauft. Der Schlüssel sieht so aus: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`.
 3. Keine Mail da? Schau in den Spam-Ordner oder schreib an [Kontakt@mesco.cc](mailto:Kontakt@mesco.cc).
 
 ## Eintragen
@@ -34,4 +36,4 @@ Zwei Dinge gibt es nur für Alpha-Tester:
 
 Bei einem ernsten Fehler bietet cockpit den Bericht von selbst an. Fehlt nur die KI oder das Netz, sagt dir die App, was zu tun ist, und fragt nicht nach einem Bericht.
 
-Beides läuft über deinen Alpha-Schlüssel. So sehe ich deine Mail-Adresse und kann bei Rückfragen antworten. Mehr dazu in der [Datenschutzerklärung](/datenschutz/#appfeedback).
+Beides läuft über deinen Alpha-Schlüssel. So ist deine Mail-Adresse bekannt, und Rückfragen sind möglich. Mehr dazu in der [Datenschutzerklärung](/datenschutz/#appfeedback).

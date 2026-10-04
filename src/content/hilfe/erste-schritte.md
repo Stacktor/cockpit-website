@@ -2,6 +2,8 @@
 titel: Erste Schritte
 beschreibung: cockpit unter Windows oder Linux installieren, beim ersten Start einrichten und die erste Bewerbung anlegen.
 reihenfolge: 1
+kategorie: Einstieg
+stand: Oktober 2026
 icon: rocket
 ---
 
@@ -15,7 +17,7 @@ Auf der [Download-Seite](/download/) findest du die Datei für dein System:
 | Linux (fast alle Distributionen) | `cockpit-linux-x86_64.AppImage` |
 | Debian, Ubuntu, Mint | `cockpit-linux-amd64.deb` |
 
-macOS ist noch in Arbeit. Mir fehlt gerade ein Mac zum Testen, und ungetestete Installer gebe ich nicht raus.
+macOS ist in Arbeit. Ungetestete Installer werden nicht veröffentlicht, deshalb folgt die Mac-Version erst nach einer Testphase auf echter Hardware.
 
 ## 2. Installieren
 
