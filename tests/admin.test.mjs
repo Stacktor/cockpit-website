@@ -579,3 +579,92 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   assert.equal(f[2].bis, jetzt.toISOString());
   console.log("Analytics nur für cockpit.mesco.cc: ok");
 }
+
+// ───────────── Inhalte (Editor) ─────────────
+{
+  const I = await imp("../functions/api/admin/inhalte.js");
+  const vorher = globalThis.fetch;
+  const gh = [];
+  let antwortPut = { status: 201, body: { content: { sha: "b".repeat(40) }, commit: { html_url: "https://github.com/c/1" } } };
+  globalThis.fetch = async (url, init = {}) => {
+    const u = String(url);
+    gh.push({ u, init });
+    if (u.includes("/git/trees/"))
+      return new Response(
+        JSON.stringify({
+          tree: [
+            { type: "blob", path: "src/content/hilfe/kalender.md", size: 10 },
+            { type: "blob", path: "src/content/blog/alpha-startet.md", size: 20 },
+            { type: "blob", path: "src/content/hilfe/bild.png", size: 5 },
+            { type: "blob", path: "src/pages/index.astro", size: 5 },
+            { type: "tree", path: "src/content/hilfe" },
+          ],
+        }),
+        { status: 200 },
+      );
+    if (u.includes("/contents/") && (init.method ?? "GET") === "GET")
+      return new Response(JSON.stringify({ type: "file", sha: "a".repeat(40), content: I.textNachBase64("---\ntitel: Kalender\n---\n\nÜber Termine.") }), { status: 200 });
+    if (u.includes("/contents/") && init.method === "PUT") return new Response(JSON.stringify(antwortPut.body), { status: antwortPut.status });
+    throw new Error("unerwartet: " + u);
+  };
+  const lies = async (pfad, env) => (await I.onRequestGet({ request: new Request(ORIGIN + "/api/admin/inhalte" + pfad), data: { env } })).json();
+  const schreibe = async (body, env) => {
+    const r = await I.onRequestPost({ request: new Request(ORIGIN + "/api/admin/inhalte", { method: "POST", body: JSON.stringify(body) }), data: { env: { ALPHA: new KV(), ...env }, benutzer: "t@x.de" } });
+    return { status: r.status, d: await r.json() };
+  };
+
+  assert.equal(I.base64NachText(I.textNachBase64("Größe — ä")), "Größe — ä", "UTF-8 hin und zurück");
+
+  let d = await lies("", {});
+  assert.equal(d.ok, false);
+  assert.equal(gh.length, 0, "ohne Token kein Aufruf");
+
+  const env = { GITHUB_INHALT_TOKEN: "ghp_schreiben", GITHUB_TOKEN: "ghp_lesen" };
+  d = await lies("", env);
+  assert.equal(d.ok, true);
+  assert.equal(gh[0].init.headers.Authorization, "Bearer ghp_schreiben", "eigener Schreib-Token hat Vorrang");
+  assert.ok(gh[0].u.includes("repos/Stacktor/cockpit-website/git/trees/main"), "Standard-Repo und -Branch");
+  const hilfe = d.sammlungen.find((s) => s.id === "hilfe");
+  assert.deepEqual(hilfe.dateien.map((x) => x.pfad), ["src/content/hilfe/kalender.md"], "nur Markdown der Sammlung");
+
+  d = await lies("?pfad=" + encodeURIComponent("src/content/hilfe/kalender.md"), env);
+  assert.equal(d.inhalt, "---\ntitel: Kalender\n---\n\nÜber Termine.");
+  assert.equal(d.sha, "a".repeat(40));
+
+  const zahl = gh.length;
+  for (const boese of ["src/content/hilfe/../../secrets.md", "src/pages/index.astro", "functions/api/x.md", "src/content/hilfe/Gross.md", "src/content/hilfe/a/b.md", "src/content/andere/x.md"]) {
+    d = await lies("?pfad=" + encodeURIComponent(boese), env);
+    assert.equal(d.ok, false, `lesen abgelehnt: ${boese}`);
+    const s = await schreibe({ pfad: boese, inhalt: "---\na: b\n---\n" }, env);
+    assert.equal(s.status, 400, `schreiben abgelehnt: ${boese}`);
+  }
+  assert.equal(gh.length, zahl, "abgelehnte Pfade erreichen GitHub nicht");
+
+  assert.equal((await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "ohne Kopf" }, env)).status, 400, "Frontmatter Pflicht");
+  assert.equal((await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "---\na: b\n---\n", sha: "kaputt" }, env)).status, 400);
+  assert.equal((await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "---\na: b\n---\n" + "x".repeat(I.MAX_BYTES) }, env)).status, 400, "Größe begrenzt");
+
+  let s = await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "---\r\ntitel: K\r\n---\r\n\r\nText", sha: "a".repeat(40) }, env);
+  assert.equal(s.status, 200);
+  assert.equal(s.d.sha, "b".repeat(40));
+  const put = JSON.parse(gh.at(-1).init.body);
+  assert.equal(put.sha, "a".repeat(40), "Version für Konfliktprüfung");
+  assert.equal(put.branch, "main");
+  assert.equal(I.base64NachText(put.content), "---\ntitel: K\n---\n\nText", "Zeilenenden vereinheitlicht");
+  assert.match(put.message, /^inhalt\(hilfe\): kalender\.md bearbeitet/);
+
+  s = await schreibe({ pfad: "src/content/blog/neu.md", inhalt: "---\ntitel: Neu\n---\n" }, env);
+  assert.equal(JSON.parse(gh.at(-1).init.body).sha, undefined, "neue Datei ohne sha");
+
+  antwortPut = { status: 409, body: {} };
+  s = await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "---\na: b\n---\n", sha: "a".repeat(40) }, env);
+  assert.equal(s.status, 409);
+  assert.match(s.d.fehler, /inzwischen/);
+  antwortPut = { status: 403, body: {} };
+  s = await schreibe({ pfad: "src/content/hilfe/kalender.md", inhalt: "---\na: b\n---\n", sha: "a".repeat(40) }, env);
+  assert.equal(s.status, 403);
+  assert.match(s.d.fehler, /Read and write/);
+
+  globalThis.fetch = vorher;
+  console.log("Inhalte-Editor: ok");
+}

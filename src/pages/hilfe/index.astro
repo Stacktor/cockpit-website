@@ -5,7 +5,7 @@ import Seitenkopf from "../../components/Seitenkopf.astro";
 import Icon from "../../components/Icon.astro";
 import Faq from "../../components/Faq.astro";
 import { SITE } from "../../config";
-import { HILFE_KATEGORIEN } from "../../content.config";
+import { HILFE_KATEGORIEN } from "../../lib/hilfe-kategorien";
 
 const artikel = (await getCollection("hilfe")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
 const gruppen = HILFE_KATEGORIEN.map((k) => ({ titel: k, artikel: artikel.filter((a) => a.data.kategorie === k) })).filter(

@@ -22,6 +22,7 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
   { id: "speicher", titel: "Speicher", kurz: "Speicher", text: "Der Sync-Bucket: Belegung je Lizenz und Gerät, aufräumen." },
   { id: "builds", titel: "Downloads & Builds", kurz: "Builds", text: "Releases, Downloads je Plattform und Build-Läufe." },
   { id: "alarme", titel: "Alarme", kurz: "Alarme", text: "Eigene Regeln, wann das Admin dich warnt, auf Wunsch per Mail." },
+  { id: "inhalte", titel: "Inhalte", kurz: "Inhalte", text: "Blog, Hilfe, Funktionen und Roadmap der Website bearbeiten." },
   { id: "doku", titel: "Doku", kurz: "Doku", text: "Interne Doku aus dem privaten Repo. Nur du siehst sie." },
   { id: "einstellungen", titel: "Einstellungen", kurz: "Einstellungen", text: "API-Schlüssel, Verbindungen und Audit-Log." },
 ];
@@ -36,6 +37,33 @@ const stand = document.getElementById("a-stand")!;
 const blatt = document.getElementById("a-blatt")!;
 const menue = document.getElementById("a-menue")!;
 const reduziert = matchMedia("(prefers-reduced-motion: reduce)");
+
+/** Darstellung: System → Hell → Dunkel → System. Gemerkt nur in diesem Browser. */
+const THEMEN = [
+  { wert: null, text: "wie System" },
+  { wert: "hell", text: "hell" },
+  { wert: "dunkel", text: "dunkel" },
+] as const;
+function themaSetzen(wert: string | null) {
+  if (wert) document.body.dataset.theme = wert;
+  else delete document.body.dataset.theme;
+  try {
+    if (wert) localStorage.setItem("cockpit-admin-theme", wert);
+    else localStorage.removeItem("cockpit-admin-theme");
+  } catch {
+    /* Speicher gesperrt: gilt dann nur bis zum Neuladen. */
+  }
+  const knopf = document.getElementById("a-theme");
+  const text = `Darstellung: ${THEMEN.find((t) => t.wert === wert)?.text ?? "wie System"}`;
+  knopf?.setAttribute("aria-label", text);
+  knopf?.setAttribute("title", text);
+}
+document.getElementById("a-theme")?.addEventListener("click", () => {
+  const jetzt = document.body.dataset.theme ?? null;
+  const i = THEMEN.findIndex((t) => t.wert === jetzt);
+  themaSetzen(THEMEN[(i + 1) % THEMEN.length].wert);
+});
+themaSetzen(document.body.dataset.theme ?? null);
 
 function aktuell(): Id {
   const id = location.hash.replace(/^#\/?/, "") as Id;
