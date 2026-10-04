@@ -1,7 +1,7 @@
 ---
 titel: Pipeline und Bewerbungen
 beschreibung: "Bewerbungen anlegen, durch die Stufen schieben, Ergebnisse festhalten und mit Schnellaktionen arbeiten."
-reihenfolge: 12
+reihenfolge: 13
 kategorie: Stellen und Bewerbungen
 stand: Oktober 2026
 icon: square-kanban
@@ -38,6 +38,7 @@ Ein Klick auf die Karte öffnet das Detail als Panel von rechts:
 
 - **Eckdaten:** Firma, Position, Arbeitsort, Gehaltsrahmen, Anstellung, Bewerbungsdatum, Tags und Priorität
 - **Wiedervorlage:** ein Datum, an dem du nachfassen willst; es erscheint im [Kalender](/hilfe/kalender/)
+- **Über die Firma:** Branche, Größe und Beschreibung aus der Anzeige, die Website aus Anzeige oder Mail-Adresse der Kontakte und frühere Bewerbungen bei derselben Firma, auch wenn der Name einmal mit und einmal ohne „GmbH“ erfasst ist
 - **Kontakte** der Firma, **Aufgaben** und **Dokumente**
 - **Anschreiben** mit KI-Entwurf und PDF-Export, siehe [Anschreiben](/hilfe/anschreiben/)
 - **Stichwort-Abgleich:** welche Anforderungen der Anzeige in deinem Profil vorkommen und welche fehlen
@@ -45,7 +46,7 @@ Ein Klick auf die Karte öffnet das Detail als Panel von rechts:
 
 ## Nachfassen
 
-Hat sich eine Bewerbung seit einer Woche nicht bewegt, schlägt cockpit auf dem Start vor, nachzufassen. Im Detail liegen Mail-Vorlagen für eine kurze Nachfrage.
+Wechselt eine Bewerbung auf **Beworben**, legt cockpit eine Nachfass-Aufgabe an, standardmäßig nach sieben Tagen. Sie schließt sich von selbst, sobald eine Antwort kommt oder die Bewerbung weitergeht. Alles dazu unter [Aufgaben und Nachfassen](/hilfe/aufgaben/). Im Detail liegen Mail-Vorlagen für eine kurze Nachfrage.
 
 ## Liste statt Board
 

@@ -18,13 +18,14 @@ Fast alles in cockpit stützt sich auf dein Profil: die Suchbegriffe, der Passun
 | **Skills** | Fachkenntnisse, Werkzeuge, Sprachen |
 | **Schreibstil** | wie deine Anschreiben und Antworten klingen sollen |
 | **Bewerbungsdaten** | Angaben, die Formulare oft verlangen, etwa Verfügbarkeit oder Führerschein |
+| **Suchkriterien** | Muss-, Plus- und Ausschluss-Begriffe, Firmen-Sperrliste, Wunschgehalt, Entfernung und Anstellung, siehe [Suchkriterien](/hilfe/suchkriterien/) |
 | **Dokumente** | Lebenslauf, Zeugnisse, Zertifikate und Vorlagen |
 
 ## Lebenslauf einlesen
 
 Unter **Profil → Dokumente** einen Lebenslauf als PDF oder Word-Datei (`.docx`) hinzufügen, dann oben im Profil **Aus Lebenslauf importieren**. Die KI liest Stammdaten, Werdegang und Skills aus. Bevor etwas ins Profil geht, zeigt cockpit eine Vorschau. Du wählst, welche Angaben und Stationen übernommen werden, und bestätigst mit **Ins Profil übernehmen**. Bestehende Angaben überschreibt ein leerer oder unvollständiger Scan nicht. Neue Skills kommen zu den vorhandenen dazu.
 
-Ein eingescanntes PDF enthält nur ein Bild und keinen Text. cockpit meldet das, statt ein leeres Profil zu liefern. Exportier den Lebenslauf in diesem Fall aus Word oder Canva als PDF mit Text.
+Ein eingescanntes PDF enthält nur ein Bild und keinen Text. cockpit meldet das, statt ein leeres Profil zu liefern. Eigene Dokumente exportierst du in diesem Fall aus Word oder Canva als PDF mit Text. Papierdokumente wie Zeugnisse erfasst du mit einer Scanner-App mit Texterkennung, etwa Microsoft Lens oder Adobe Scan, oder machst ein vorhandenes PDF mit dem freien Werkzeug OCRmyPDF durchsuchbar. Eine eigene Texterkennung ist in cockpit bewusst nicht eingebaut: Sie würde den Installer um ein Vielfaches vergrößern.
 
 ## Zeugnisse und Zertifikate
 

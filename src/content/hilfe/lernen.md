@@ -11,7 +11,7 @@ Jedes Mal, wenn du einen bewerteten Treffer übernimmst oder verwirfst, merkt si
 
 ## Bessere Bewertungen
 
-Sobald mindestens drei Entscheidungen vorliegen, bekommt das Bewertungsmodell die letzten zwölf als Beispiele mit: Titel, Firma, damaliger Score und ob du übernommen oder verworfen hast. Das Modell erkennt so Vorlieben wie Branche, Rolle oder Arbeitsmodell.
+Sobald mindestens drei Entscheidungen vorliegen, bekommt das Bewertungsmodell die letzten zwölf als Beispiele mit: Titel, Firma, damaliger Score, ob du übernommen oder verworfen hast und gegebenenfalls der Grund fürs Verwerfen. Das Modell erkennt so Vorlieben wie Branche, Rolle oder Arbeitsmodell.
 
 Die Beispiele gelten als Vorlieben, nicht als Regeln. Fehlt einer Stelle eine zentrale Anforderung, bleibt der Score niedrig, auch wenn du ähnliche Stellen sonst übernimmst.
 
@@ -24,11 +24,14 @@ Auf dem Start erscheint die Karte **Was cockpit gelernt hat**, sobald genug Date
 - **Auffällige Quelle:** „Von Remotive verwirfst du 90 % der Treffer (36 von 40), von der Arbeitsagentur nur 30 %.“ Dazu der Vorschlag, die Suchbegriffe für diese Quelle enger zu fassen.
 - **Score-Schwelle:** „Übernommene Treffer hatten im Schnitt 78 Punkte, verworfene 52.“ Mit **Filter „Match ab …“ setzen** übernimmst du die vorgeschlagene Schwelle in die Trefferliste.
 - **Rückmeldungen:** auf wie viele Bewerbungen eine Antwort kam, insgesamt und je Quelle.
+- **Ablehnungsgründe:** „Häufigster Grund beim Verwerfen: Gehalt (14 von 30 mit Grund).“ Dazu der Vorschlag, welches [Suchkriterium](/hilfe/suchkriterien/) solche Treffer künftig abfängt, hier das Wunschgehalt.
 - **Aktivität:** ein Hinweis, wenn seit längerem keine neue Bewerbung rausging.
 
 Bei wenigen Entscheidungen bleibt der Rückblick aus. Aussagen aus fünf Treffern wären Zufall.
 
 Nichts davon ändert cockpit selbst. Vorschläge setzt du um, wenn du willst.
+
+**In drei Sätzen (KI)** fasst die Beobachtungen auf Wunsch zusammen und nennt den wichtigsten nächsten Schritt. Das Modell bekommt nur die Beobachtungen, keine Bewerbungen, und bringt keine eigenen Zahlen ein.
 
 ## Eigenes Training
 

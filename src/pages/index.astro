@@ -14,7 +14,7 @@ const funktionen = (await getCollection("funktionen")).sort((a, b) => a.data.rei
 const beitraege = (await getCollection("blog")).sort((a, b) => +b.data.datum - +a.data.datum).slice(0, 3);
 
 const folien = [
-  { id: "start", label: "Start", text: "Kennzahlen, offene Erinnerungen und neue passende Stellen auf einen Blick." },
+  { id: "start", label: "Start", text: "Kennzahlen, offene Aufgaben und neue passende Stellen auf einen Blick." },
   { id: "pipeline", label: "Pipeline", text: "Jede Bewerbung als Karte, von „Entwurf“ bis „Abgeschlossen“." },
   { id: "stellen", label: "Stellen", text: "Arbeitsagentur, Arbeitnow, Adzuna und RSS in einer Suche, mit Match-Score." },
   { id: "inbox", label: "Inbox", text: "Bewerbungs-Mails zusammengefasst, einsortiert und mit der Bewerbung verknüpft." },

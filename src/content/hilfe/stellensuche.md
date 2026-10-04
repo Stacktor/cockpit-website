@@ -27,7 +27,11 @@ Schlüssel für Adzuna und Jooble liegen im Schlüsselbund deines Betriebssystem
 
 LinkedIn, StepStone und Indeed bieten keine offene Schnittstelle an. cockpit kann ihre öffentliche Suchseite lesen, eine Seite je Abruf, ohne Anmeldung. Das widerspricht den Nutzungsbedingungen der Portale, kann jederzeit aufhören zu funktionieren und zu einer vorübergehenden Sperre führen. Deshalb ist es als experimentell markiert und standardmäßig aus.
 
-Verlässlicher sind zwei andere Wege: eine Anzeige beim Ansehen mit der [Browser-Erweiterung](/hilfe/browser-erweiterung/) übernehmen oder den Link unter **Stellen → Stelle per Link** einfügen.
+Verlässlicher sind zwei andere Wege: eine Anzeige beim Ansehen mit der [Browser-Erweiterung](/hilfe/browser-erweiterung/) übernehmen oder den Link unter **Stellen → Suchen & Quellen → Stelle per Link** einfügen.
+
+### Zustand einer Quelle
+
+Unter **Suchen & Quellen → Deine Quellen** steht je Quelle, wann sie zuletzt abgerufen wurde und wie viele Treffer sie dabei lieferte. Schlägt ein Abruf fehl, zeigt cockpit den Fehler und zählt mit. Nach fünf Fehlern in Folge pausiert cockpit die Quelle, meldet das in den Benachrichtigungen und bietet **Wieder aktivieren** an; der Zähler beginnt dann von vorn. Liefert eine Quelle keine Treffer, ist das kein Fehler: Sie antwortet, es passt nur gerade nichts.
 
 ## Suchen
 
@@ -45,6 +49,10 @@ Jeder Treffer zeigt Firma, Titel, Ort und Alter der Anzeige. Soweit die Anzeige 
 - **Entfernung** zu deinem Wohnort in Kilometern Luftlinie
 
 Die Entfernung rechnet cockpit offline aus einer Ortstabelle mit rund 11.000 Orten in Deutschland, Österreich und der Schweiz. Dein Wohnort wird dafür nirgendwohin geschickt. Den Wohnort trägst du unter **Profil** ein.
+
+Mit [Suchkriterien](/hilfe/suchkriterien/) steht neben jedem Treffer zusätzlich der **Rahmen**: wie gut Gehalt, Entfernung und Anstellung zu deinen Vorgaben passen.
+
+Unvollständige Treffer sind markiert: **Link führt zu einer Suchseite**, wenn der Link nicht auf eine einzelne Anzeige zeigt, und **Ohne Beschreibung**, wenn die Quelle keinen Text geliefert hat. **Aufräumen → Fehlende Beschreibungen nachladen** holt die ganze Anzeige für bis zu 25 Treffer. Treffer der Arbeitsagentur vervollständigt die Hintergrundsuche von selbst.
 
 ## Filtern und sortieren
 

@@ -1,7 +1,7 @@
 ---
 titel: Auto-Modus
 beschreibung: "Bewerbungen im Hintergrund vorbereiten lassen: Schwellen, Obergrenzen, Freigabe und Not-Aus."
-reihenfolge: 15
+reihenfolge: 17
 kategorie: Stellen und Bewerbungen
 stand: Oktober 2026
 icon: zap

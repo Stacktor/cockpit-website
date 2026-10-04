@@ -906,6 +906,11 @@ const APP_FUNKTION: Record<string, string> = {
   kalender_import: "Kalender importiert",
   mail_ereignis: "Mail-Vorschlag angewendet",
   kontakt_uebernommen: "Ansprechpartner übernommen",
+  suchkriterien: "Suchkriterien gespeichert",
+  beschreibungen_nachgeladen: "Beschreibungen nachgeladen",
+  bewerbungsbericht: "Bewerbungsbericht erstellt",
+  rueckblick_ki: "Rückblick zusammengefasst",
+  mail_import: "Mail aus Datei importiert",
 };
 const appName = (x: Daten): { name: string; anzahl: number } => ({
   name: APP_FUNKTION[x.name] ?? String(x.name).replace(/_/g, " "),

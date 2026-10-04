@@ -1,7 +1,7 @@
 ---
 titel: Browser-Erweiterung
 beschreibung: "Die Erweiterung für Chrome und Edge installieren, mit cockpit koppeln und Stellen direkt aus dem Browser speichern."
-reihenfolge: 14
+reihenfolge: 16
 kategorie: Stellen und Bewerbungen
 stand: Oktober 2026
 icon: puzzle

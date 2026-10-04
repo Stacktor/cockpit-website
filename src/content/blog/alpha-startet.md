@@ -5,7 +5,7 @@ datum: 2026-09-28
 tags: [Alpha, Neuigkeiten]
 ---
 
-Monatelang lief cockpit nur auf meinem eigenen Rechner. Jetzt startet die **0.1 Alpha**. 50 Leute, die gerade wirklich einen Job suchen, bekommen die App als Erste. Kostenlos und mit allen Funktionen.
+Monatelang lief cockpit nur intern. Jetzt startet die **0.1 Alpha**. 50 Leute, die gerade wirklich einen Job suchen, bekommen die App als Erste. Kostenlos und mit allen Funktionen.
 
 ## Was drin ist
 
@@ -34,7 +34,7 @@ Monatelang lief cockpit nur auf meinem eigenen Rechner. Jetzt startet die **0.1 
 
 Zu einer Alpha gehört, offen zu sagen, was fehlt:
 
-- **macOS** ist in Arbeit. Mir fehlt gerade ein Mac zum Testen, und einen ungetesteten Installer gebe ich nicht raus.
+- **macOS** ist in Arbeit. Ein Installer erscheint erst, wenn er auf echter Hardware getestet ist.
 - Die Anmeldung per **Google- oder Microsoft-Konto** im Postfach und der **eingebettete Browser** sind eingebaut. In der Alpha stecken sie aber unter *Experimentell*, bis sie auf vielen Rechnern gelaufen sind.
 - Die Browser-Erweiterung gibt es noch nicht im Chrome Web Store. Du lädst sie als ZIP und installierst sie von Hand, die [Download-Seite](/download/) zeigt, wie.
 - Die Installer sind **noch nicht signiert**. Windows warnt deshalb beim ersten Start einmal.
@@ -42,7 +42,7 @@ Zu einer Alpha gehört, offen zu sagen, was fehlt:
 
 ## Wie du mitmachst
 
-1. Auf der [Alpha-Seite](/alpha/) anmelden. Das dauert zwei Minuten. Mit den Antworten verteile ich die Plätze fair.
+1. Auf der [Alpha-Seite](/alpha/) anmelden. Das dauert zwei Minuten. Nach den Antworten werden die Plätze fair verteilt.
 2. Bist du dabei, kommt dein **Alpha-Schlüssel** per Mail.
 3. App [herunterladen](/download/), Schlüssel eintragen, loslegen.
 
@@ -50,6 +50,6 @@ Nach etwa drei Tagen stellt dir die App fünf kurze Fragen zum Start. Nach zwei 
 
 ## Und danach?
 
-Was die Tester sagen, entscheidet, was ich als Nächstes baue und was cockpit kostet. Was geplant ist, steht auf der [Roadmap](/roadmap/). Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, **behält die Vollversion dauerhaft**. So bedanke ich mich fürs Mitmachen.
+Was die Tester sagen, entscheidet, was als Nächstes kommt und was cockpit kostet. Was geplant ist, steht auf der [Roadmap](/roadmap/). Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, **behält die Vollversion dauerhaft**. Das ist der Dank fürs Mitmachen.
 
-Ich freu mich auf dich.
+Viel Erfolg bei der Suche.

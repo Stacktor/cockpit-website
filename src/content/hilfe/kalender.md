@@ -16,7 +16,7 @@ Links der Monat, rechts **Als Nächstes** mit den kommenden Einträgen. Die Pfei
 | Art | Woher |
 |---|---|
 | **Termin** | von Hand angelegt oder aus einer Einladung in der [Inbox](/hilfe/inbox/) |
-| **Aufgabe** | Erinnerungen mit Datum, auch aus dem Detail einer Bewerbung |
+| **Aufgabe** | [Aufgaben](/hilfe/aufgaben/) mit Datum, auch Nachfass-Aufgaben und Aufgaben aus dem Detail einer Bewerbung |
 | **Wiedervorlage** | das Nachfass-Datum einer Bewerbung |
 
 ## Termin anlegen

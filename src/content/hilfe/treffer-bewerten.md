@@ -22,6 +22,8 @@ Die Bewertung folgt festen Regeln. Muss-Anforderungen wie Abschluss, Kernkenntni
 | 45 bis 64 | passt teilweise |
 | unter 45 | passt eher nicht |
 
+Hast du [Suchkriterien](/hilfe/suchkriterien/) mit Muss- und Plus-Begriffen gepflegt, bekommt das Modell sie ebenfalls: Fehlt ein Muss-Begriff in der Anzeige, liegt der Score höchstens bei 59, jeder vorhandene Plus-Begriff hebt ihn leicht. Gehalt und Entfernung bewertet cockpit getrennt im **Rahmen**, ohne KI; das Modell zieht dafür nichts doppelt ab.
+
 Hast du das [Lernen aus Entscheidungen](/hilfe/lernen/) eingeschaltet, bekommt das Modell zusätzlich einige Stellen, die du übernommen oder verworfen hast. So nähert sich der Score mit der Zeit deinen tatsächlichen Entscheidungen an.
 
 ## Bewerten starten
@@ -35,6 +37,7 @@ Mit einem eigenen API-Schlüssel kostet jede Bewertung einen Bruchteil eines Cen
 
 - Für *Bewerten* ein günstiges oder lokales Modell wählen (**Einstellungen → KI → Je Funktion**).
 - Vor dem Bewerten nach Umkreis und Anstellung filtern. Bewertet werden nur die sichtbaren Treffer.
+- Ausschluss-Begriffe und eine Firmen-Sperrliste in den [Suchkriterien](/hilfe/suchkriterien/) pflegen. Ausgeblendete Treffer bewertet cockpit nicht.
 
 ## Mindest-Score
 

@@ -90,6 +90,27 @@ export const ZEILEN: Zeile[] = [
     tabelle: nein(),
   },
   {
+    merkmal: "Suchkriterien mit Ausschluss-Begriffen und Firmen-Sperrliste",
+    cockpit: ja("offline, mit Rahmen aus Gehalt und Entfernung"),
+    teal: t("–"),
+    huntr: t("–"),
+    tabelle: nein(),
+  },
+  {
+    merkmal: "Nachfassen automatisch anlegen und bei Antwort schließen",
+    cockpit: ja("mit Mail-Postfach"),
+    teal: t("–"),
+    huntr: t("–"),
+    tabelle: nein(),
+  },
+  {
+    merkmal: "Bewerbungsbericht als PDF (Nachweis)",
+    cockpit: ja(),
+    teal: t("–"),
+    huntr: t("–"),
+    tabelle: teils("von Hand"),
+  },
+  {
     merkmal: "Deutsche Stellenquellen (Arbeitsagentur)",
     kompakt: true,
     cockpit: ja(),

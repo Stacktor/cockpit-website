@@ -13,11 +13,11 @@ cockpit ist in Bereiche geteilt, die du über die Seitenleiste links erreichst. 
 
 | Gruppe | Bereiche |
 |---|---|
-| **Bewerbung** | Start, Pipeline, Stellen, Auto, Kontakte, Kalender |
+| **Bewerbung** | Start, Pipeline, Stellen, Auto, Kontakte, Aufgaben, Kalender |
 | **Kommunikation** | Inbox |
 | **Wissen** | Profil, Lebenslauf, Interview, Skill-Test, Analyse |
 
-Unten in der Leiste liegen Erinnerungen und Einstellungen. Der eingebaute Browser und der eigene Mailserver sind aufwendig einzurichten und deshalb unter **Einstellungen → Experimentell** versteckt, bis du sie einschaltest.
+Die Einstellungen erreichst du über das Zahnrad oben rechts. Der eingebaute Browser und der eigene Mailserver sind aufwendig einzurichten und deshalb unter **Einstellungen → Experimentell** versteckt, bis du sie einschaltest.
 
 ## Start
 
