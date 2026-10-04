@@ -28,7 +28,7 @@ const fragen = [
   {
     frage: "Was kostet cockpit?",
     antwort:
-      "<p>Bewerbungen verfolgen ist kostenlos, ohne Grenze bei der Anzahl. Pro bringt Komfort dazu, etwa den Auto-Modus und den Sync-Server. Was Pro kostet und ob als Einmalkauf oder Abo, lege ich mit den Alpha-Testern fest. Deshalb steht noch kein Preis da. Alpha-Tester, die bis zum Ende Rückmeldung geben, behalten die Vollversion dauerhaft.</p>",
+      "<p>Bewerbungen verfolgen ist kostenlos, ohne Grenze bei der Anzahl. Pro bringt Komfort dazu, etwa den Auto-Modus und den Sync-Server. Ob Pro als Einmalkauf oder Abo kommt und was es kostet, wird mit den Alpha-Testern festgelegt. Deshalb steht noch kein Preis da. Alpha-Tester, die bis zum Ende Rückmeldung geben, behalten die Vollversion dauerhaft.</p>",
   },
   {
     frage: "Brauche ich einen kostenpflichtigen KI-Zugang?",
@@ -43,11 +43,11 @@ const fragen = [
   {
     frage: "Gibt es cockpit für den Mac?",
     antwort:
-      "<p>Noch nicht. macOS ist in Arbeit, aber mir fehlt gerade ein Mac zum Testen, und ungetestete Installer gebe ich nicht raus. Du kannst dich trotzdem anmelden und kommst auf die Mac-Warteliste.</p>",
+      "<p>Noch nicht. macOS ist in Arbeit; ungetestete Installer werden nicht veröffentlicht. Du kannst dich trotzdem anmelden und kommst auf die Mac-Warteliste.</p>",
   },
   {
     frage: "Wie komme ich in die Alpha?",
-    antwort: `<p>Über das <a href="/alpha/">Anmeldeformular</a>. Es gibt ${SITE.alphaPlaetze} Plätze, ich vergebe sie persönlich. Wenn du dabei bist, bekommst du deinen Alpha-Schlüssel per Mail.</p>`,
+    antwort: `<p>Über das <a href="/alpha/">Anmeldeformular</a>. Es gibt ${SITE.alphaPlaetze} Plätze, die einzeln vergeben werden. Wenn du dabei bist, bekommst du deinen Alpha-Schlüssel per Mail.</p>`,
   },
 ];
 ---
@@ -257,7 +257,7 @@ const fragen = [
         <div class="karte rv" style="--d:2">
           <div class="ic"><Icon name="cpu" /></div>
           <h3>Bring deine eigene KI mit</h3>
-          <p>Eigener API-Schlüssel beim Anbieter deiner Wahl oder ein lokales Modell über Ollama oder LM Studio. Deine Texte gehen nie über mich.</p>
+          <p>Eigener API-Schlüssel beim Anbieter deiner Wahl oder ein lokales Modell über Ollama oder LM Studio. Deine Texte laufen nie über einen cockpit-Server.</p>
         </div>
         <div class="karte rv" style="--d:3">
           <div class="ic"><Icon name="wallet" /></div>
@@ -291,7 +291,7 @@ const fragen = [
           <div class="eyebrow">Geschlossene Alpha</div>
           <h2>{SITE.alphaPlaetze} Plätze. Kostenlos. Und du behältst sie.</h2>
           <p>
-            Die App läuft bei mir. Jetzt muss sie auf fremden Rechnern bestehen. Dafür suche ich Menschen, die gerade wirklich auf Jobsuche sind. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
+            Die App ist im täglichen Einsatz erprobt. Jetzt geht es um viele unterschiedliche Rechner und Situationen; gesucht sind Menschen, die gerade aktiv suchen. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
           </p>
           <p class="micro" data-alpha-plaetze hidden></p>
         </div>

@@ -39,7 +39,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <div class="feld">
           <label for="f-mail">E-Mail-Adresse</label>
           <input class="eingabe" type="email" id="f-mail" name="mail" autocomplete="email" placeholder="du@beispiel.de" required />
-          <p class="hilfe">Dahin schicke ich deinen Alpha-Schlüssel. Kein Newsletter, keine Weitergabe.</p>
+          <p class="hilfe">An diese Adresse geht dein Alpha-Schlüssel. Kein Newsletter, keine Weitergabe.</p>
         </div>
         <div class="feld">
           <span class="label" id="l-os">Womit arbeitest du?</span>
@@ -55,7 +55,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
               ))
             }
           </div>
-          <p class="hilfe" data-mac-hinweis hidden>macOS ist noch in Arbeit. Du kommst auf die Mac-Warteliste und hörst von mir, sobald es eine getestete Version gibt.</p>
+          <p class="hilfe" data-mac-hinweis hidden>macOS ist noch in Arbeit. Du kommst auf die Mac-Warteliste und bekommst eine Nachricht, sobald es eine getestete Version gibt.</p>
         </div>
       </fieldset>
 
@@ -83,7 +83,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <div class="feld">
           <label for="f-grund">Was ist beim Bewerben gerade deine größte Hürde?</label>
           <textarea class="eingabe" id="f-grund" name="grund" required placeholder="Ein, zwei Sätze genügen. Zum Beispiel: Ich verliere bei vielen Bewerbungen den Überblick und brauche ewig für Anschreiben."></textarea>
-          <p class="hilfe">Hilft mir bei der Auswahl. Ich nehme vor allem Leute, die gerade wirklich suchen.</p>
+          <p class="hilfe">Hilft bei der Auswahl. Vorrang haben Menschen, die gerade aktiv suchen.</p>
         </div>
       </fieldset>
 
@@ -116,7 +116,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
           </div>
         </div>
         <p class="hilfe">
-          Mit dem Absenden stimmst du zu, dass ich deine Angaben zur Auswahl der Alpha-Teilnehmenden und zur Verbesserung von cockpit verwende. Einzelheiten in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.
+          Mit dem Absenden stimmst du zu, dass deine Angaben zur Auswahl der Alpha-Teilnehmenden und zur Verbesserung von cockpit verwendet werden. Einzelheiten in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.
         </p>
       </fieldset>
 
@@ -140,7 +140,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
       </svg>
     </div>
     <h3 data-fertig-titel>Angekommen.</h3>
-    <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. In den nächsten Tagen melde ich mich bei dir. Bist du dabei, steht dein Alpha-Schlüssel gleich mit drin.</p>
+    <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. In den nächsten Tagen meldet sich das cockpit-Team. Bist du dabei, steht dein Alpha-Schlüssel gleich mit drin.</p>
     <div class="fertig-links">
       <a href="/hilfe/erste-schritte/" class="btn btn-s btn-sm">Schon mal reinlesen: Erste Schritte</a>
       {SITE.discord && <a href={SITE.discord} class="btn btn-s btn-sm">Zum Discord</a>}
@@ -269,7 +269,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         if (!r.ok || !d.ok) {
           weiter.disabled = false;
           weiter.textContent = "Anmeldung abschicken";
-          return zeigeFehler(d.fehler || "Das hat nicht geklappt. Schreib mir gern direkt an Kontakt@mesco.cc.");
+          return zeigeFehler(d.fehler || "Das hat nicht geklappt. Schreib gern direkt an Kontakt@mesco.cc.");
         }
         const titel = wurzel.querySelector<HTMLElement>("[data-fertig-titel]")!;
         const text = wurzel.querySelector<HTMLElement>("[data-fertig-text]")!;
@@ -280,8 +280,8 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
           titel.textContent = "Du stehst auf der Warteliste.";
           text.textContent =
             daten.os === "macos"
-              ? "Danke! Sobald es eine getestete Mac-Version gibt, melde ich mich bei dir. Eine Bestätigung ist per Mail unterwegs."
-              : "Danke! Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, melde ich mich. Eine Bestätigung ist per Mail unterwegs.";
+              ? "Danke! Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
+              : "Danke! Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
         }
         wurzel.querySelector<HTMLElement>("[data-formular]")!.hidden = true;
         const fertig = wurzel.querySelector<HTMLElement>("[data-fertig]")!;

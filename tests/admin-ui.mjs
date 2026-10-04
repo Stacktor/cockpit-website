@@ -89,6 +89,24 @@ const DOKU_HTML = {
 
 // ── Externe Dienste ──
 const lizenz = (i) => ({ id: String(100 + i), attributes: { key_short: `XXXX-${1000 + i}`, status: i === 3 ? "expired" : "active", disabled: i === 4, activation_usage: i % 3, activation_limit: 3, user_email: `k${i}@example.org`, user_name: namen[i], product_name: "Bewerbungs-Cockpit", created_at: tag(i * 3), expires_at: null } });
+const INHALT_PUT = [];
+const INHALT_MD = `---
+titel: Kalender
+beschreibung: "Termine, Aufgaben und Wiedervorlagen: alles mit Datum."
+reihenfolge: 22
+kategorie: Kommunikation und Termine
+stand: Oktober 2026
+icon: calendar-days
+---
+
+Der Kalender zeigt alles mit Datum an einer Stelle.
+
+## Die Ansicht
+
+| Art | Woher |
+|---|---|
+| **Termin** | von Hand |
+`;
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
   const j = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
@@ -119,6 +137,15 @@ globalThis.fetch = async (url, init = {}) => {
   if (u.includes("cockpit-docs/contents/")) {
     const pfad = decodeURIComponent(u.split("/contents/")[1]);
     return DOKU_HTML[pfad] ? new Response(DOKU_HTML[pfad], { status: 200 }) : j({ message: "Not Found" }, 404);
+  }
+  if (u.includes("cockpit-website/git/trees"))
+    return j({ tree: [{ path: "src/content/hilfe/kalender.md", type: "blob", size: 900 }, { path: "src/content/hilfe/sync.md", type: "blob", size: 900 }, { path: "src/content/blog/alpha-startet.md", type: "blob", size: 900 }, { path: "src/pages/index.astro", type: "blob", size: 9 }] });
+  if (u.includes("cockpit-website/contents/")) {
+    if (init.method === "PUT") {
+      INHALT_PUT.push(JSON.parse(init.body));
+      return j({ content: { sha: "c".repeat(40) }, commit: { html_url: "https://github.com/Stacktor/cockpit-website/commit/1" } }, 200);
+    }
+    return j({ type: "file", sha: "a".repeat(40), content: Buffer.from(INHALT_MD, "utf8").toString("base64") });
   }
   if (u.includes("/issues")) return j([]);
   if (u.includes("api.github.com")) return j([]);
@@ -158,7 +185,7 @@ try {
     for (let v = 0; v < 40; v++) {
       try { await page.goto("http://localhost:4329/admin/", { waitUntil: "networkidle" }); break; } catch { await new Promise((r) => setTimeout(r, 500)); }
     }
-    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "speicher", "builds", "alarme", "doku", "einstellungen"]) {
+    for (const bereich of ["uebersicht", "alpha", "umfragen", "fehler", "lizenzen", "umsatz", "mail", "analytics", "speicher", "builds", "alarme", "doku", "inhalte", "einstellungen"]) {
       await page.goto(`http://localhost:4329/admin/#/${bereich}`, { waitUntil: "networkidle" });
       await page.waitForTimeout(700);
       const text = await page.locator("#a-inhalt").innerText();
@@ -309,6 +336,58 @@ try {
       await page.locator(".a-doku-inhalt a", { hasText: "Übersicht" }).click();
       await page.waitForTimeout(500);
       if (!(await page.locator(".a-doku-inhalt h1").innerText()).includes("interne Doku")) funde.push("Doku: ../README.md öffnet nicht");
+
+      // Inhalte-Editor: öffnen, Vorschau, Textprüfung, Säuberung, Speichern.
+      await page.goto("http://localhost:4329/admin/#/inhalte", { waitUntil: "networkidle" });
+      await page.waitForTimeout(500);
+      await page.locator(".a-doku-link", { hasText: "kalender" }).click();
+      await page.waitForTimeout(600);
+      if ((await page.locator(".a-ed-vorschau h2").innerText()) !== "Die Ansicht") funde.push("Editor: Vorschau ohne Überschrift");
+      if ((await page.locator(".a-ed-vorschau td").count()) !== 2) funde.push("Editor: Tabelle fehlt in der Vorschau");
+      if ((await page.locator(".a-ed-felder select").inputValue()) !== "Kommunikation und Termine") funde.push("Editor: Kategorie nicht übernommen");
+      if (!(await page.locator(".a-ed-speichern, .a-ed-aktionen .a-p").isDisabled())) funde.push("Editor: Speichern ohne Änderung aktiv");
+      const feld = page.locator(".a-ed-text");
+      await feld.click();
+      await page.keyboard.press("Control+End");
+      await page.keyboard.type("\nDas klappt nahtlos — und ich finde das gut.\n\n<img src=\"\" onerror=\"window.__xss=1\"><script>window.__xss=2</script>\n");
+      await page.waitForTimeout(500);
+      const pruefung = await page.locator(".a-ed-pruefung").innerText();
+      for (const regel of ["Gedankenstrich", "nahtlos", "Ich-Form"]) if (!pruefung.includes(regel)) funde.push(`Editor: Textprüfung ohne ${regel}`);
+      const ed = await page.evaluate(() => ({ xss: window.__xss ?? 0, script: document.querySelectorAll(".a-ed-vorschau script").length, on: [...document.querySelectorAll(".a-ed-vorschau *")].some((e) => [...e.attributes].some((a) => a.name.startsWith("on"))) }));
+      if (ed.xss || ed.script || ed.on) funde.push(`Editor-Säuberung: ${JSON.stringify(ed)}`);
+      if (!(await page.locator(".a-ed-status").innerText()).includes("Ungespeichert")) funde.push("Editor: Änderung nicht erkannt");
+      await page.locator(".a-ed-felder input").first().fill("Kalender und Termine");
+      await page.screenshot({ path: `${OUT}/desktop-inhalte-editor.png`, fullPage: true });
+      await page.keyboard.press("Control+s");
+      await page.waitForTimeout(600);
+      const put = INHALT_PUT.at(-1);
+      if (!put) funde.push("Editor: Strg+S speichert nicht");
+      else {
+        const text = Buffer.from(put.content, "base64").toString("utf8");
+        if (put.sha !== "a".repeat(40)) funde.push("Editor: falsche Version beim Speichern");
+        if (!text.startsWith("---\ntitel: Kalender und Termine\nbeschreibung: \"Termine, Aufgaben und Wiedervorlagen: alles mit Datum.\"\nreihenfolge: 22\n")) funde.push(`Editor: Kopf falsch geschrieben: ${text.slice(0, 160)}`);
+        if (!text.includes("nahtlos")) funde.push("Editor: Text nicht gespeichert");
+      }
+      if (!(await page.locator(".a-ed-status").innerText()).includes("Gespeichert")) funde.push("Editor: Status nach dem Speichern");
+
+      // Dunkles Theme: Umschalter und System-Einstellung.
+      await page.locator("#a-theme").click();
+      if ((await page.evaluate(() => document.body.dataset.theme)) !== "hell") funde.push("Theme: erster Klick nicht hell");
+      await page.locator("#a-theme").click();
+      const hg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      if (hg !== "rgb(11, 15, 23)") funde.push(`Theme: dunkel nicht aktiv (${hg})`);
+      for (const bereich of ["uebersicht", "analytics", "lizenzen", "inhalte"]) {
+        await page.goto(`http://localhost:4329/admin/#/${bereich}`, { waitUntil: "networkidle" });
+        await page.waitForTimeout(900);
+        await page.screenshot({ path: `${OUT}/dunkel-${bereich}.png` });
+      }
+      await page.reload({ waitUntil: "networkidle" });
+      if ((await page.evaluate(() => document.body.dataset.theme)) !== "dunkel") funde.push("Theme: nach Neuladen vergessen");
+      await page.locator("#a-theme").click();
+      await page.emulateMedia({ colorScheme: "dark" });
+      const sys = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      if (sys !== "rgb(11, 15, 23)") funde.push(`Theme: System dunkel greift nicht (${sys})`);
+      await page.emulateMedia({ colorScheme: "light" });
     }
     await page.close();
   }

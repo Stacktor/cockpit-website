@@ -5,8 +5,19 @@ import Seitenkopf from "../../components/Seitenkopf.astro";
 import Icon from "../../components/Icon.astro";
 import Faq from "../../components/Faq.astro";
 import { SITE } from "../../config";
+import { HILFE_KATEGORIEN } from "../../lib/hilfe-kategorien";
 
 const artikel = (await getCollection("hilfe")).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const gruppen = HILFE_KATEGORIEN.map((k) => ({ titel: k, artikel: artikel.filter((a) => a.data.kategorie === k) })).filter(
+  (g) => g.artikel.length > 0,
+);
+const anker = (k: string) =>
+  k
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/[^a-z0-9]+/g, "-");
 const fragen = [
   { frage: "Läuft cockpit ohne Internet?", antwort: "<p>Ja. Pipeline, Profil, Anschreiben-Bearbeitung, Erinnerungen und Auswertung laufen komplett offline. Online brauchst du nur, was von Natur aus online ist: Stellensuche, KI mit Anbieter-Schlüssel, dein Postfach und gelegentlich die Lizenzprüfung.</p>" },
   { frage: "Auf wie vielen Geräten kann ich cockpit nutzen?", antwort: "<p>Mit einer Lizenz auf bis zu drei Rechnern. Unter <i>Einstellungen → Lizenz</i> meldest du ein Gerät ab und gibst den Platz frei.</p>" },
@@ -17,35 +28,45 @@ const fragen = [
 ];
 ---
 
-<Base title="Hilfe-Center" description="Hilfe zu cockpit: Installation, KI einrichten, Alpha-Schlüssel, Daten sichern und Lösungen für häufige Probleme.">
+<Base title="Hilfe-Center" description="Dokumentation zu cockpit: Installation, Stellensuche, Pipeline, Mail-Konten, Kalender, KI, Sync, Datenschutz und Lösungen für häufige Probleme.">
   <Seitenkopf
     eyebrow="Hilfe-Center"
     titel="Wie können wir helfen?"
-    lead="Anleitungen für den Start und Lösungen für die häufigsten Stolpersteine. Nichts gefunden? Schreib mir."
+    lead="Anleitungen zu jedem Bereich der App, vom ersten Start bis zum Abgleich mehrerer Geräte, und Lösungen für die häufigsten Stolpersteine."
     krumen={[["Hilfe", "/hilfe/"]]}
   />
 
   <section class="abschnitt">
     <div class="wrap">
-      <div class="raster r3">
-        {
-          artikel.map((a, i) => (
-            <a href={`/hilfe/${a.id}/`} class="karte rv" style={`--d:${i % 3}`}>
-              <div class="ic">
-                <Icon name={a.data.icon} />
-              </div>
-              <h2 class="klein">{a.data.titel}</h2>
-              <p>{a.data.beschreibung}</p>
-              <span class="mehr">
-                Lesen <Icon name="arrow-right" size={15} />
-              </span>
-            </a>
-          ))
-        }
-        <a href={`mailto:${SITE.mail}`} class="karte kontakt rv" style="--d:2">
+      <nav class="sprung" aria-label="Kategorien">
+        {gruppen.map((g) => <a href={`#${anker(g.titel)}`}>{g.titel}</a>)}
+      </nav>
+      {
+        gruppen.map((g) => (
+          <div class="gruppe" id={anker(g.titel)}>
+            <h2 class="gruppe-titel">{g.titel}</h2>
+            <div class="raster r3">
+              {g.artikel.map((a, i) => (
+                <a href={`/hilfe/${a.id}/`} class="karte rv" style={`--d:${i % 3}`}>
+                  <div class="ic">
+                    <Icon name={a.data.icon} />
+                  </div>
+                  <h3 class="klein">{a.data.titel}</h3>
+                  <p>{a.data.beschreibung}</p>
+                  <span class="mehr">
+                    Lesen <Icon name="arrow-right" size={15} />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+      <div class="gruppe">
+        <a href={`mailto:${SITE.mail}`} class="karte kontakt rv">
           <div class="ic"><Icon name="mail" /></div>
-          <h2 class="klein">Direkt fragen</h2>
-          <p>Ich antworte persönlich, meist innerhalb eines Tages.</p>
+          <h3 class="klein">Nichts gefunden?</h3>
+          <p>Schreib an den Support. Antwort in der Regel innerhalb eines Werktags.</p>
           <span class="mehr">{SITE.mail} <Icon name="arrow-right" size={15} /></span>
         </a>
       </div>
@@ -64,11 +85,40 @@ const fragen = [
 </Base>
 
 <style>
-  h2.klein {
+  h3.klein {
     font-size: 17.5px;
     margin-bottom: 6px;
   }
   .kontakt {
     border-style: dashed;
+  }
+  .sprung {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+  .sprung a {
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .sprung a:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+  .gruppe {
+    scroll-margin-top: 96px;
+  }
+  .gruppe + .gruppe {
+    margin-top: 56px;
+  }
+  .gruppe-titel {
+    font-size: 22px;
+    margin-bottom: 18px;
   }
 </style>

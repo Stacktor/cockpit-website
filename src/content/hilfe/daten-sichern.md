@@ -1,7 +1,9 @@
 ---
 titel: Daten sichern & umziehen
 beschreibung: Wie cockpit deine Daten von selbst sichert, wie du einen alten Stand zurückholst, mehrere Geräte abgleichst und auf einen neuen Rechner umziehst.
-reihenfolge: 4
+reihenfolge: 40
+kategorie: Daten und Sicherheit
+stand: Oktober 2026
 icon: hard-drive
 ---
 
@@ -52,7 +54,7 @@ Unter **Einstellungen → Sync & Geräte** hältst du zwei oder mehr Rechner auf
 - **Ordner (kostenlos):** Du wählst einen Ordner, den dein Cloud-Speicher ohnehin abgleicht, etwa Nextcloud, OneDrive oder Dropbox. cockpit legt dort verschlüsselte Pakete ab.
 - **cockpit-Server (Pro und Alpha):** Kein eigener Cloud-Speicher nötig. Der Server bekommt nur verschlüsselte Pakete zu sehen.
 
-Für beide Wege legst du eine Sync-Passphrase fest. Ohne sie kann niemand die Daten lesen, auch ich nicht. Vergisst du sie, lässt sich nichts wiederherstellen. Schreib sie also irgendwo auf. Mehr dazu unter [Geräte-Sync](/funktionen/geraete-sync/).
+Für beide Wege legst du eine Sync-Passphrase fest. Ohne sie kann niemand die Daten lesen, auch der Betreiber des Servers nicht. Vergisst du sie, lässt sich nichts wiederherstellen. Schreib sie also irgendwo auf. Mehr dazu unter [Geräte-Sync](/funktionen/geraete-sync/).
 
 ## Auf einen neuen Rechner umziehen
 

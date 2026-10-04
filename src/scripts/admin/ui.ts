@@ -276,7 +276,7 @@ export function balken(liste: { name: string; anzahl: number }[] | null | undefi
 /** Flächendiagramm für Tageswerte. */
 export function verlauf(
   werte: { tag: string; wert: number }[] | null | undefined,
-  farbe = "#0f172a",
+  farbe = "var(--a-ink)",
   zweite?: { werte: { tag: string; wert: number }[]; farbe?: string; name: string; erste: string },
 ) {
   if (!werte?.length) return leer("Noch keine Daten.");
@@ -305,7 +305,7 @@ export function verlauf(
   ]) {
     const st = document.createElementNS(ns, "stop");
     st.setAttribute("offset", o);
-    st.setAttribute("stop-color", farbe);
+    st.style.stopColor = farbe;
     st.setAttribute("stop-opacity", a);
     grad.append(st);
   }
@@ -317,7 +317,7 @@ export function verlauf(
     l.setAttribute("x2", String(B));
     l.setAttribute("y1", String((H / 4) * i));
     l.setAttribute("y2", String((H / 4) * i));
-    l.setAttribute("stroke", "#f1f5f9");
+    l.style.stroke = "var(--a-linie-2)";
     s.append(l);
   }
   const flaeche = document.createElementNS(ns, "path");
@@ -326,7 +326,7 @@ export function verlauf(
   const pfad = document.createElementNS(ns, "path");
   pfad.setAttribute("d", linie);
   pfad.setAttribute("fill", "none");
-  pfad.setAttribute("stroke", farbe);
+  pfad.style.stroke = farbe;
   pfad.setAttribute("stroke-width", "2");
   pfad.setAttribute("vector-effect", "non-scaling-stroke");
   s.append(flaeche, pfad);
@@ -339,7 +339,7 @@ export function verlauf(
     const p2 = document.createElementNS(ns, "path");
     p2.setAttribute("d", l2);
     p2.setAttribute("fill", "none");
-    p2.setAttribute("stroke", zweite.farbe ?? "#6366f1");
+    p2.style.stroke = zweite.farbe ?? "var(--a-indigo)";
     p2.setAttribute("stroke-width", "2");
     p2.setAttribute("stroke-dasharray", "4 4");
     p2.setAttribute("vector-effect", "non-scaling-stroke");
@@ -363,7 +363,7 @@ export function verlauf(
         "div",
         { class: "a-legende" },
         h("span", {}, h("i", { style: `background:${farbe}` }), `${zweite.erste} (max. ${max.toLocaleString("de-DE")})`),
-        h("span", {}, h("i", { class: "gestrichelt", style: `border-color:${zweite.farbe ?? "#6366f1"}` }), `${zweite.name} (max. ${zweitMax.toLocaleString("de-DE")})`),
+        h("span", {}, h("i", { class: "gestrichelt", style: `border-color:${zweite.farbe ?? "var(--a-indigo)"}` }), `${zweite.name} (max. ${zweitMax.toLocaleString("de-DE")})`),
       )
     : null;
   return h(

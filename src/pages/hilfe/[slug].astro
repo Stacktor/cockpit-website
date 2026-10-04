@@ -11,11 +11,15 @@ export async function getStaticPaths() {
 const { a, alle } = Astro.props;
 const { Content, headings } = await render(a);
 const inhalt = headings.filter((h) => h.depth === 2);
+const verwandt = alle.filter((x) => x.data.kategorie === a.data.kategorie);
+const pos = alle.findIndex((x) => x.id === a.id);
+const vorher = pos > 0 ? alle[pos - 1] : null;
+const nachher = pos < alle.length - 1 ? alle[pos + 1] : null;
 ---
 
 <Base title={`${a.data.titel} · Hilfe`} description={a.data.beschreibung}>
   <Seitenkopf
-    eyebrow="Hilfe-Center"
+    eyebrow={a.data.kategorie}
     titel={a.data.titel}
     lead={a.data.beschreibung}
     krumen={[
@@ -41,10 +45,10 @@ const inhalt = headings.filter((h) => h.depth === 2);
           )
         }
         <nav aria-label="Weitere Artikel">
-          <p class="micro titel">Hilfe-Artikel</p>
+          <p class="micro titel">{a.data.kategorie}</p>
           <ul>
             {
-              alle.map((x) => (
+              verwandt.map((x) => (
                 <li>
                   <a href={`/hilfe/${x.id}/`} aria-current={x.id === a.id ? "page" : undefined}>
                     <Icon name={x.data.icon} size={15} /> {x.data.titel}
@@ -53,13 +57,37 @@ const inhalt = headings.filter((h) => h.depth === 2);
               ))
             }
           </ul>
+          <a href="/hilfe/" class="alle">
+            <Icon name="chevron-left" size={15} /> Alle Themen
+          </a>
         </nav>
       </aside>
       <article class="prosa">
         <Content />
-        <div class="hinweis" style="margin-top:40px">
+        {a.data.stand && <p class="stand">Stand: {a.data.stand}</p>}
+        <nav class="blaettern" aria-label="Weiterlesen">
+          {
+            vorher ? (
+              <a href={`/hilfe/${vorher.id}/`} class="zurueck">
+                <span class="micro">Zurück</span>
+                <span>{vorher.data.titel}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            nachher && (
+              <a href={`/hilfe/${nachher.id}/`} class="weiter">
+                <span class="micro">Weiter</span>
+                <span>{nachher.data.titel}</span>
+              </a>
+            )
+          }
+        </nav>
+        <div class="hinweis" style="margin-top:32px">
           <b>Hat das geholfen?</b>
-          Wenn nicht, schreib mir an <a href="mailto:Kontakt@mesco.cc">Kontakt@mesco.cc</a>, dann ergänze ich den Artikel.
+          Wenn nicht, schreib an <a href="mailto:Kontakt@mesco.cc">Kontakt@mesco.cc</a>; der Artikel wird dann ergänzt.
         </div>
       </article>
     </div>
@@ -113,6 +141,51 @@ const inhalt = headings.filter((h) => h.depth === 2);
   }
   .prosa :global(h2) {
     scroll-margin-top: 90px;
+  }
+  .seitenleiste .alle {
+    margin-top: 10px;
+    font-size: 13.5px;
+  }
+  .stand {
+    margin-top: 40px;
+    font-size: 13.5px;
+    color: var(--faint);
+  }
+  .blaettern {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .blaettern a {
+    display: grid;
+    gap: 2px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    transition: border-color 0.15s;
+  }
+  .blaettern a:hover {
+    border-color: var(--accent);
+  }
+  .blaettern .micro {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .blaettern .weiter {
+    text-align: right;
+    grid-column: 2;
+  }
+  @media (max-width: 560px) {
+    .blaettern {
+      grid-template-columns: 1fr;
+    }
+    .blaettern .weiter {
+      grid-column: 1;
+    }
   }
   @media (max-width: 860px) {
     .hilfe-raster {

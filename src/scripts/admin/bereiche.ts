@@ -27,6 +27,7 @@ import {
 
 import { dashboard } from "./uebersicht";
 import { dialogFenster, popupMenue } from "./menue";
+import { saeubern } from "./saeubern";
 
 export type Bereich = (ziel: HTMLElement, neu: () => void) => Promise<void>;
 
@@ -864,6 +865,7 @@ const APP_FUNKTION: Record<string, string> = {
   jobs: "Stellen",
   auto: "Auto",
   contacts: "Kontakte",
+  kalender: "Kalender",
   inbox: "Inbox",
   mailserver: "Mailserver",
   profile: "Profil",
@@ -901,6 +903,9 @@ const APP_FUNKTION: Record<string, string> = {
   erinnerung: "Erinnerung angelegt",
   autofill: "Formular ausgefüllt",
   export: "Daten exportiert",
+  kalender_import: "Kalender importiert",
+  mail_ereignis: "Mail-Vorschlag angewendet",
+  kontakt_uebernommen: "Ansprechpartner übernommen",
 };
 const appName = (x: Daten): { name: string; anzahl: number } => ({
   name: APP_FUNKTION[x.name] ?? String(x.name).replace(/_/g, " "),
@@ -935,7 +940,7 @@ function appNutzung(n: Daten | null) {
         h("div", {}, h("h3", { class: "a-zwischentitel" }, "Ansichten"), balken((n.ansichten as Daten[]).map(appName), 12)),
         h("div", {}, h("h3", { class: "a-zwischentitel" }, "Aktionen"), balken((n.aktionen as Daten[]).map(appName), 12)),
       ),
-      verlauf((n.proTag as Daten[]).map((x) => ({ tag: x.tag, wert: x.berichte })), "#0f172a"),
+      verlauf((n.proTag as Daten[]).map((x) => ({ tag: x.tag, wert: x.berichte })), "var(--a-ink)"),
       h("p", { class: "a-fussnote" }, "Gezählt werden nur Funktionsnamen, ohne Lizenz, Geräte-ID oder Inhalte. Nutzer können die Statistik in der App abschalten."),
     ),
   );
@@ -973,8 +978,8 @@ export const analytics: Bereich = async (ziel) => {
           `Besuche und Anmeldungen, ${zeitraum}`,
           verlauf(
             b.proTag.map((x: Daten) => ({ tag: x.tag, wert: x.besuche })),
-            "#0f172a",
-            e.ok ? { werte: b.proTag.map((x: Daten) => ({ tag: x.tag, wert: anmeldungenNach.get(x.tag) ?? 0 })), farbe: "#6366f1", name: "Anmeldungen", erste: "Besuche" } : undefined,
+            "var(--a-ink)",
+            e.ok ? { werte: b.proTag.map((x: Daten) => ({ tag: x.tag, wert: anmeldungenNach.get(x.tag) ?? 0 })), farbe: "var(--a-indigo)", name: "Anmeldungen", erste: "Besuche" } : undefined,
           ),
           h("p", { class: "a-fussnote" }, `Insgesamt ${zahl(b.besuche)} Besuche und ${zahl(b.seiten)} Seitenaufrufe. Beide Linien haben eine eigene Skala.`),
         )
@@ -1146,40 +1151,8 @@ export const speicher: Bereich = async (ziel, neu) => {
 
 // ═════════════ Doku ═════════════
 // Interne Doku aus einem privaten GitHub-Repo (nur lesend). GitHub rendert das
-// Markdown; bevor es ins DOM kommt, lässt `saeubern` nur harmlose Elemente und
-// Attribute durch — die einzige Stelle im Admin, an der HTML eingefügt wird.
-
-const DOKU_TAGS = new Set(
-  "A P BR HR H1 H2 H3 H4 H5 H6 UL OL LI PRE CODE BLOCKQUOTE TABLE THEAD TBODY TR TH TD EM STRONG B I DEL S KBD SUP SUB DL DT DD DETAILS SUMMARY IMG INPUT DIV SPAN".split(" "),
-);
-const DOKU_WEG = new Set(["SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "FORM", "TEMPLATE", "NOSCRIPT", "svg", "math"]);
-const DOKU_ATTR = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "align", "type", "checked", "disabled", "open", "id"]);
-const SICHERE_URL = /^(https?:\/\/|#|mailto:)|^(?!\/\/)[\p{L}\p{N}_.\/()-]+(#[\w-]*)?$/u;
-
-function saeubern(html: string): DocumentFragment {
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const raus: Element[] = [];
-  for (const el of Array.from(doc.body.querySelectorAll("*"))) {
-    if (!DOKU_TAGS.has(el.tagName) || (el.tagName === "INPUT" && el.getAttribute("type") !== "checkbox")) {
-      raus.push(el);
-      continue;
-    }
-    for (const a of Array.from(el.attributes)) {
-      const n = a.name.toLowerCase();
-      if (!DOKU_ATTR.has(n) || ((n === "href" || n === "src") && !SICHERE_URL.test(a.value.trim()))) el.removeAttribute(a.name);
-    }
-    if (el.tagName === "INPUT") el.setAttribute("disabled", "");
-  }
-  // Verbotene Elemente samt Inhalt entfernen, unbekannte nur „auspacken".
-  for (const el of raus) {
-    if (!el.isConnected) continue;
-    if (DOKU_WEG.has(el.tagName) || el.namespaceURI !== "http://www.w3.org/1999/xhtml") el.remove();
-    else el.replaceWith(...Array.from(el.childNodes));
-  }
-  const frag = document.createDocumentFragment();
-  frag.append(...Array.from(doc.body.childNodes).map((k) => document.importNode(k, true)));
-  return frag;
-}
+// Markdown; bevor es ins DOM kommt, lässt `saeubern` (saeubern.ts) nur harmlose
+// Elemente und Attribute durch.
 
 /** Relativen Link aus einer Doku-Datei gegen deren Ordner auflösen. */
 function dokuZiel(von: string, href: string): string | null {
@@ -1848,3 +1821,5 @@ export const einstellungen: Bereich = async (ziel, neu) => {
     ),
   );
 };
+
+export { inhalte } from "./inhalte";

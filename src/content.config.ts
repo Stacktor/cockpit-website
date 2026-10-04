@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { HILFE_KATEGORIEN, ROADMAP_STATUS } from "./lib/hilfe-kategorien";
 
 /** Funktionen — je eine Unterseite unter /funktionen/<slug>/. */
 const funktionen = defineCollection({
@@ -29,6 +30,7 @@ const blog = defineCollection({
   }),
 });
 
+
 const hilfe = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/hilfe" }),
   schema: z.object({
@@ -36,6 +38,9 @@ const hilfe = defineCollection({
     beschreibung: z.string(),
     reihenfolge: z.number(),
     icon: z.string(),
+    kategorie: z.enum(HILFE_KATEGORIEN).default("Einstieg"),
+    /** Stand des Artikels (Monat), für „Zuletzt geprüft“. */
+    stand: z.string().optional(),
   }),
 });
 
@@ -44,7 +49,7 @@ const roadmap = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/roadmap" }),
   schema: z.object({
     titel: z.string(),
-    status: z.enum(["erledigt", "jetzt", "naechstes", "spaeter"]),
+    status: z.enum(ROADMAP_STATUS),
     reihenfolge: z.number(),
   }),
 });

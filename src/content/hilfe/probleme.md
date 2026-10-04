@@ -1,7 +1,9 @@
 ---
 titel: Probleme lösen
 beschreibung: "Die häufigsten Stolpersteine und was hilft: SmartScreen-Warnung, AppImage startet nicht, KI, Postfach, Lizenz oder Erweiterung."
-reihenfolge: 5
+reihenfolge: 50
+kategorie: Fehlerbehebung
+stand: Oktober 2026
 icon: life-buoy
 ---
 
@@ -21,15 +23,13 @@ cockpit legt alle Geheimnisse in **einem** Eintrag im Schlüsselbund ab. Unter L
 
 ## Die KI antwortet nicht
 
-- Unter **Einstellungen → KI** auf *Verbindung testen* klicken.
+- Unter **Einstellungen → KI** auf **Speichern und testen** klicken.
 - Beim Anbieter nachsehen, ob Guthaben bzw. ein Zahlungsmittel hinterlegt ist.
 - Lokales Modell: Läuft Ollama bzw. LM Studio, und stimmt die Adresse?
 
 ## Das Postfach verbindet sich nicht
 
-- Viele Anbieter verlangen für Programme ein **App-Passwort** statt deines normalen Passworts.
-- Bei manchen (z. B. GMX, Web.de) musst du den **IMAP-Zugriff** erst in den Einstellungen des Postfachs erlauben.
-- Server und Port stehen in der Hilfe deines Mail-Anbieters (IMAP meist Port 993, SMTP 465 oder 587).
+Meist liegt es am Passwort: Viele Anbieter verlangen für Programme ein App-Passwort oder ein eigenes E-Mail-Passwort. Die Lösungen je Anbieter stehen unter [Postfach verbindet sich nicht](/hilfe/mail-probleme/).
 
 ## Der Lebenslauf wird nicht richtig eingelesen
 
@@ -42,7 +42,7 @@ cockpit legt alle Geheimnisse in **einem** Eintrag im Schlüsselbund ab. Unter L
 cockpit läuft dann als Kostenlos weiter, deine Daten bleiben unangetastet. Unter **Einstellungen → Lizenz** steht der Grund.
 
 - **Gerät abgemeldet:** *Neu aktivieren* klicken.
-- **Abgelaufen oder gesperrt:** Schreib mir an [Kontakt@mesco.cc](mailto:Kontakt@mesco.cc). Wenn die Lizenz wieder gilt, reicht *Erneut prüfen*.
+- **Abgelaufen oder gesperrt:** Schreib an [Kontakt@mesco.cc](mailto:Kontakt@mesco.cc). Wenn die Lizenz wieder gilt, reicht *Erneut prüfen*.
 - **Offline:** Bis zu 30 Tage ohne Verbindung bleibt Pro aktiv.
 
 ## Die Browser-Erweiterung findet cockpit nicht

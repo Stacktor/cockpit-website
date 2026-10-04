@@ -25,6 +25,6 @@ Jedes Paket wird mit AES-256-GCM verschlüsselt. Den Schlüssel bildet cockpit a
 
 ## Was abgeglichen wird
 
-Bewerbungen mit Verlauf, Notizen, Kontakten und Aufgaben, Profil, Dokumente bis 10 MB, Stellenquellen und die meisten Einstellungen. Mail-Konten und API-Schlüssel bleiben auf dem jeweiligen Gerät.
+Bewerbungen mit Verlauf, Notizen, Kontakten und Aufgaben, Erinnerungen und Termine, Profil, Dokumente bis 10 MB, Stellenquellen und Treffer, Mail-Konten, Antwortregeln und Mails sowie die Einstellungen samt Erscheinungsbild. Passwörter und API-Schlüssel bleiben im Schlüsselbund des jeweiligen Geräts.
 
 Haben zwei Geräte dieselbe Bewerbung geändert, gilt die jüngere Änderung, und cockpit zeigt dir, was passiert ist.

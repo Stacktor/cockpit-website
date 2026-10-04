@@ -5,28 +5,28 @@ import Icon from "../components/Icon.astro";
 import { SITE } from "../config";
 
 const werte = [
-  { icon: "lock", titel: "Deine Daten gehören dir", text: "Local-first ist keine Einstellung, sondern die Bauweise. Es gibt keinen Server, der deine Bewerbungen annimmt." },
-  { icon: "wallet", titel: "Faire Preise", text: "Ich habe keine Server- und KI-Kosten pro Nutzer. Deshalb muss cockpit kein Abo sein. Den Preis lege ich mit den Testern fest." },
-  { icon: "check", titel: "Ehrlich statt Marketing", text: "Was nicht fertig ist, steht als „in Arbeit“ da. Was cockpit ins Netz schickt, steht vollständig im Blog." },
-  { icon: "users", titel: "Mit den Nutzern gebaut", text: "Was als Nächstes kommt, entscheiden die Menschen mit, die cockpit täglich benutzen." },
+  { icon: "lock", titel: "Deine Daten gehören dir", text: "cockpit speichert alles in einer Datenbank auf deinem Rechner. Es gibt keinen Server, der Bewerbungen, Lebenslauf oder Mails annimmt." },
+  { icon: "wallet", titel: "Faire Preise", text: "Ohne Server- und KI-Kosten pro Nutzer muss cockpit kein Abo sein. Der Preis wird mit den Alpha-Testern festgelegt." },
+  { icon: "check", titel: "Nachvollziehbar", text: "Was nicht fertig ist, ist als „in Arbeit“ gekennzeichnet. Welche Daten cockpit wohin sendet, steht vollständig in der Datenschutzerklärung." },
+  { icon: "users", titel: "Mit den Nutzern entwickelt", text: "Die Roadmap richtet sich nach den Rückmeldungen der Menschen, die cockpit täglich einsetzen." },
 ];
 ---
 
-<Base title="Über das Projekt" description="Wer hinter Bewerbungs-Cockpit steht, warum es die App gibt und wofür sie steht.">
-  <Seitenkopf eyebrow="Über das Projekt" titel="Ein Werkzeug, das ich selbst haben wollte." krumen={[["Über", "/ueber/"]]} />
+<Base title="Über cockpit" description="Wer Bewerbungs-Cockpit entwickelt, welches Problem die App löst und nach welchen Grundsätzen sie gebaut ist.">
+  <Seitenkopf eyebrow="Über cockpit" titel="Bewerbungen als Projekt führen, mit Daten auf dem eigenen Rechner." krumen={[["Über", "/ueber/"]]} />
   <section class="abschnitt">
     <div class="wrap eng prosa">
       <p class="lead" style="color:var(--ink-2)">
-        Hallo, ich bin Thomas. cockpit mache ich allein, als einzelner Entwickler aus Norddeutschland. Kein Konzern, kein Start-up mit Wachstumsdruck.
+        Bewerbungs-Cockpit ist eine Desktop-App für den gesamten Bewerbungsprozess. Entwickelt wird sie von Thomas Graf in Delmenhorst, unabhängig und ohne Investoren.
       </p>
       <p>
-        cockpit beginnt mit einer einfachen Beobachtung: Bewerben ist Projektarbeit, aber die Werkzeuge dafür sind entweder eine Tabelle, die niemand pflegt, oder Cloud-Dienste, die Lebenslauf, Wunschgehalt und jede Absage auf fremden Servern speichern. Beides fand ich unbefriedigend.
+        Ausgangspunkt ist eine einfache Beobachtung: Eine Jobsuche ist Projektarbeit, die Werkzeuge dafür sind aber entweder Tabellen, die niemand pflegt, oder Cloud-Dienste, die Lebenslauf, Gehaltswunsch und jede Absage auf fremden Servern speichern.
       </p>
       <p>
-        Also habe ich gebaut, was es meiner Meinung nach geben sollte: eine App für den ganzen Ablauf. Stellen finden, Anschreiben entwerfen, Bewerbungen verfolgen, Mails im Blick behalten, fürs Gespräch üben. Und alles bleibt auf dem eigenen Rechner. Die KI bringst du selbst mit, als eigenen Schlüssel oder komplett lokal.
+        cockpit verbindet die einzelnen Schritte in einer Anwendung: Stellen aus mehreren Quellen suchen und bewerten, Anschreiben und Lebenslauf je Stelle erstellen, Bewerbungen und Termine verfolgen, Mails einordnen und Gespräche vorbereiten. Die Daten liegen lokal. Die KI kommt über einen eigenen Schlüssel oder läuft vollständig auf dem Rechner.
       </p>
       <p>
-        Jetzt ist cockpit so weit, dass es auf fremden Rechnern funktionieren soll. Dafür gibt es die <a href="/alpha/">Alpha</a>: {SITE.alphaPlaetze} Menschen, die gerade wirklich suchen, testen die App und sagen mir ehrlich, was taugt und was nicht.
+        Derzeit läuft die <a href="/alpha/">Alpha</a> mit {SITE.alphaPlaetze} Plätzen für Menschen, die aktiv suchen. Ihre Rückmeldungen bestimmen, was bis zur ersten stabilen Version fertig wird.
       </p>
     </div>
   </section>
@@ -55,8 +55,8 @@ const werte = [
 
   <section class="abschnitt">
     <div class="wrap eng center">
-      <h2 class="rv">Schreib mir</h2>
-      <p class="lead rv" style="--d:1">Fragen, Ideen, Kritik: Ich lese alles und antworte selbst.</p>
+      <h2 class="rv">Kontakt</h2>
+      <p class="lead rv" style="--d:1">Fragen, Vorschläge und Fehlerberichte gehen direkt an die Entwicklung. Antwort in der Regel innerhalb eines Werktags.</p>
       <div class="knoepfe rv" style="--d:2">
         <a href={`mailto:${SITE.mail}`} class="btn btn-p"><Icon name="mail" size={17} /> {SITE.mail}</a>
         {SITE.discord && <a href={SITE.discord} class="btn btn-s"><Icon name="message-circle" size={17} /> Discord</a>}
