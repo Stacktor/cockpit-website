@@ -37,6 +37,12 @@ Karten in der Pipeline, Treffer in der Stellensuche und Kontakte haben ein eigen
 
 Ein Klick auf eine Bewerbung öffnet ihr Detail als Panel von rechts. Die Pipeline bleibt dahinter sichtbar. Mit **Esc** oder einem Klick daneben schließt du das Panel wieder.
 
+## Fenster schließen und Infobereich
+
+Beim ersten Schließen fragt cockpit, ob es beendet wird oder im Infobereich der Taskleiste weiterläuft. Im Infobereich bleiben Erinnerungen, Mail-Abruf und Stellensuche aktiv. Ein Klick auf das cockpit-Symbol öffnet das Fenster wieder, das Menü des Symbols beendet cockpit. Ein erneuter Start aus dem Startmenü holt das vorhandene Fenster nach vorn.
+
+Die Wahl lässt sich jederzeit unter **Einstellungen → System → Beim Schließen** ändern. Sie gilt nur für das jeweilige Gerät.
+
 ## Hell, dunkel und Dichte
 
 Unter **Einstellungen → Erscheinungsbild** wählst du hell, dunkel oder nach System. Eine kompaktere Darstellung für kleine Bildschirme findest du unter **Experimentell**. Mit eingeschaltetem [Sync](/hilfe/sync/) gelten diese Einstellungen auf allen Geräten.
