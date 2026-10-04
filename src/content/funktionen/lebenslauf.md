@@ -1,15 +1,15 @@
 ---
 titel: Lebenslauf
-kurz: Einlesen, Profil füllen, als PDF gestalten
-beschreibung: Lebenslauf einlesen und daraus dein Profil bauen, oder aus dem Profil einen sauberen Lebenslauf als PDF erzeugen. Drei Vorlagen, Deutsch oder Englisch, auf Wunsch angepasst an eine Stelle (Pro).
+kurz: Einlesen, gestalten, als PDF speichern
+beschreibung: "Lebenslauf einlesen und daraus dein Profil bauen, dann in vier Vorlagen mit Foto als PDF gestalten. Mit Versionen, passendem Anschreiben und einer Version je Stelle (Pro)."
 icon: scroll-text
 reihenfolge: 8
 screen: lebenslauf
 punkte:
   - Lebenslauf als PDF oder Word-Datei einlesen, Werdegang, Ausbildung und Skills landen im Profil
-  - "Lebenslauf-Designer mit drei Vorlagen: klassisch, modern, kompakt"
-  - "Lebenslauf je Stelle (Pro): Kurzprofil und Reihenfolge passen sich der Anzeige an"
-  - Das Profil ist die Grundlage für Anschreiben, Suche und Match-Score
+  - "Vier Vorlagen: Klassisch, Modern, Kompakt, Zweispaltig, mit Foto, Akzentfarbe und zwei Schriften"
+  - Vorschau und PDF sind identisch, Schriften eingebettet, mehrseitig mit Seitenzahlen
+  - "Anschreiben im selben Design und eine Version je Stelle (Pro)"
 ---
 
 Dein Profil ist die Grundlage für fast alles in cockpit: Anschreiben, Stellensuche, Match-Score, Interview-Fragen. Damit du es nicht abtippen musst, liest cockpit deinen vorhandenen Lebenslauf ein.
@@ -20,14 +20,20 @@ PDF oder Word-Datei (.docx) auswählen, kurz warten, prüfen. Werdegang, Ausbild
 
 ## Gestalten
 
-Der **Lebenslauf-Designer** macht aus dem Profil ein fertiges PDF:
+Der Lebenslauf-Ersteller übernimmt die Daten aus dem Profil in eine eigene Version. Dort änderst du Texte, Reihenfolge und Abschnitte, ohne das Profil anzufassen.
 
-- **Klassisch:** ruhig, passt fast überall
-- **Modern:** mit Akzentfarbe und klarer Gliederung
-- **Kompakt:** viel Inhalt auf wenig Platz
+- **Vier Vorlagen:** Klassisch, Modern, Kompakt, Zweispaltig
+- **Schrift:** serifenlos (Geist) oder mit Serifen (Source Serif 4), im PDF eingebettet
+- **Foto:** rund oder eckig, automatisch zugeschnitten und verkleinert
+- **Sprache:** Deutsch oder Englisch
+- **Versionen:** etwa eine kurze, eine englische und eine je Stelle
 
-Jede Vorlage auf **Deutsch oder Englisch**. Fehlen Angaben, sagt dir cockpit vorher, welche.
+Die Vorschau entsteht aus derselben Satz-Logik wie das PDF. Was du siehst, steht so auch in der Datei.
+
+## Anschreiben im selben Design
+
+Das Anschreiben einer Bewerbung lässt sich mit Kopf, Schrift und Farbe des Lebenslaufs als PDF speichern. So passen beide Dokumente zusammen.
 
 ## Für eine bestimmte Stelle (Pro)
 
-Aus dem Detail einer Bewerbung heraus schreibt die KI ein Kurzprofil für genau diese Stelle und ordnet Skills und Stationen nach Relevanz. Sie erfindet nichts dazu. Du siehst die Änderungen vor dem Speichern.
+Die KI schreibt ein Kurzprofil für genau diese Stelle und ordnet Stationen und Kenntnisse nach Relevanz. Sie erfindet nichts dazu. Das Ergebnis ist eine eigene Version, die du vor dem Export prüfst.
