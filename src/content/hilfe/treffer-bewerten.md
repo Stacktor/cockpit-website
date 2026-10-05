@@ -33,7 +33,7 @@ Hast du das [Lernen aus Entscheidungen](/hilfe/lernen/) eingeschaltet, bekommt d
 
 ## Kosten
 
-Mit einem eigenen API-Schlüssel kostet jede Bewertung einen Bruchteil eines Cents. Bei hunderten Treffern summiert sich das. Zwei Stellschrauben helfen:
+Mit einem eigenen API-Schlüssel kostet jede Bewertung einen Bruchteil eines Cents. Bei hunderten Treffern summiert sich das. Drei Stellschrauben helfen:
 
 - Für *Bewerten* ein günstiges oder lokales Modell wählen (**Einstellungen → KI → Je Funktion**).
 - Vor dem Bewerten nach Umkreis und Anstellung filtern. Bewertet werden nur die sichtbaren Treffer.

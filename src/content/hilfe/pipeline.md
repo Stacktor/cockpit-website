@@ -18,7 +18,7 @@ Die Pipeline zeigt jede Bewerbung als Karte in einer von vier Spalten: *Entwurf*
 
 ## Stufen und Ergebnis
 
-Karten verschiebst du per Ziehen in eine andere Spalte. Für abgeschlossene Bewerbungen hältst du das **Ergebnis** fest: Zusage oder Absage. Die [Analyse](/funktionen/skill-test-analyse/) rechnet mit diesen Ergebnissen. Steht das Ergebnis auf *Offen*, fehlt die Bewerbung in den Quoten.
+Karten verschiebst du per Ziehen in eine andere Spalte. Für abgeschlossene Bewerbungen hältst du das **Ergebnis** fest: Zusage oder Absage. Die [Analyse](/hilfe/analyse/) rechnet mit diesen Ergebnissen. Steht das Ergebnis auf *Offen*, fehlt die Bewerbung in den Quoten.
 
 Kommt eine Absage oder Einladung per Mail, schlägt die [Inbox](/hilfe/inbox/) den passenden Schritt vor. Du bestätigst mit einem Klick.
 

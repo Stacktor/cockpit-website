@@ -23,7 +23,7 @@ macOS ist in Arbeit. Ungetestete Installer werden nicht veröffentlicht, deshalb
 
 ### Windows
 
-Doppelklick auf die Datei. Die Installer sind noch nicht signiert, deshalb zeigt Windows einmal die Meldung *„Der Computer wurde durch Windows geschützt"*. Klick auf **Weitere Informationen → Trotzdem ausführen**. Bei neuen, kleinen Programmen ist das normal. Sobald cockpit signiert ist, fällt die Meldung weg.
+Doppelklick auf die Datei. Die Installer sind noch nicht signiert, deshalb zeigt Windows einmal die Meldung *„Der Computer wurde durch Windows geschützt“*. Klick auf **Weitere Informationen → Trotzdem ausführen**. Bei neuen, kleinen Programmen ist das normal. Sobald cockpit signiert ist, fällt die Meldung weg.
 
 ### Linux (AppImage)
 
@@ -51,16 +51,16 @@ Beides geht auch später unter **Einstellungen** (Zahnrad oben rechts).
 
 ## 4. Profil anlegen
 
-Öffne **Profil** und lies deinen Lebenslauf ein (PDF oder Word). cockpit füllt Werdegang, Ausbildung und Skills aus, du prüfst und korrigierst. Unter *Stil* beschreibst du, wie deine Anschreiben klingen sollen.
+Öffne **Profil** und lies deinen Lebenslauf ein (PDF oder Word). cockpit füllt Werdegang, Ausbildung und Skills aus, du prüfst und korrigierst. Unter *Schreibstil* beschreibst du, wie deine Anschreiben klingen sollen.
 
 ## 5. Erste Bewerbung
 
-Zwei Wege:
+Drei Wege:
 
 - **Stellen → Aggregation:** suchen, Treffer ansehen, *Übernehmen*. Die Stelle landet als Entwurf in der Pipeline.
 - **Stellen → Erfassen:** Link oder Anzeigentext einfügen, cockpit legt die Bewerbung an.
-- **Browser-Erweiterung:** auf der Anzeige im Browser *In cockpit speichern* klicken. Wie du sie installierst, steht auf der [Download-Seite](/download/).
+- **Browser-Erweiterung:** auf der Anzeige im Browser **Diese Stelle speichern** klicken. Wie du sie installierst, steht auf der [Download-Seite](/download/).
 
 In der **Pipeline** öffnest du die Karte, lässt ein Anschreiben entwerfen und schiebst sie nach dem Absenden auf *Beworben*. Unter *Übersicht* zeigt dir der Stichwort-Abgleich, welche Begriffe aus der Anzeige in deinen Unterlagen noch fehlen.
 
-Das war's. Noch ein Tipp: <kbd>Strg</kbd>+<kbd>K</kbd> öffnet die Befehlspalette, damit kommst du zu jeder Ansicht und jeder Bewerbung.
+Tipp: <kbd>Strg</kbd>+<kbd>K</kbd> öffnet die Befehlspalette, damit kommst du zu jeder Ansicht und jeder Bewerbung.

@@ -17,7 +17,7 @@ Ein gutes Anschreiben kostet 30 bis 60 Minuten. Mit ChatGPT geht es schneller, a
 ## So funktioniert es
 
 1. Einmal dein **Profil** anlegen. Am schnellsten liest du dafür deinen Lebenslauf ein.
-2. Unter *Profil → Stil* beschreibst du, wie du schreibst: knapp oder ausführlich, du oder Sie, was dir wichtig ist.
+2. Unter *Profil → Schreibstil* beschreibst du, wie du schreibst: knapp oder ausführlich, du oder Sie, was dir wichtig ist.
 3. Bei jeder Bewerbung ein Klick: cockpit setzt Anzeige, Profil und Stil zu einem Entwurf zusammen.
 4. Du überarbeitest, was dir nicht passt, und exportierst als PDF.
 
@@ -32,6 +32,6 @@ cockpit hat keinen eigenen KI-Server. Du wählst selbst:
 
 Der Schlüssel liegt im Schlüsselbund deines Betriebssystems, nicht in einer Datei.
 
-## Ehrlich gesagt
+## Was die KI nicht abnimmt
 
 KI schreibt Entwürfe, keine fertigen Bewerbungen. Lies jedes Anschreiben, bevor es rausgeht. cockpit schickt nichts ohne dich ab.

@@ -31,8 +31,9 @@ Die Oberfläche der App bekommt diese Werte nie zu sehen. Nur der Kern der App l
 | **Sync-Ordner oder cockpit-Server** | verschlüsselte Pakete | nur mit eingeschaltetem Sync |
 | **Lizenzserver** | Lizenzschlüssel und eine zufällige Geräte-ID | gelegentlich zur Prüfung, nur mit Lizenz |
 | **Update-Server** | Versionsnummer | beim Suchen nach Updates |
+| **cockpit-Server** | Nutzungsstatistik: Funktionsnamen mit Anzahl je Tag, App-Version, Betriebssystem | einmal am Tag, solange die Statistik eingeschaltet ist |
 
-Die anonyme Nutzungsstatistik zählt, welche Bereiche wie oft geöffnet werden, ohne Inhalte. Du schaltest sie unter **Einstellungen → System** ab.
+Die anonyme Nutzungsstatistik zählt, welche Bereiche wie oft geöffnet werden. Inhalte, Lizenz oder Geräte-ID gehen nicht mit. Du schaltest sie unter **Einstellungen → System** ab, dort siehst du auch, was gerade gesammelt ist.
 
 ## Verschlüsselung beim Sync
 

@@ -12,7 +12,7 @@ punkte:
   - Konkrete Tipps aus deinen eigenen Zahlen
 ---
 
-Nach ein paar Wochen Suche stellt sich die Frage: Was funktioniert eigentlich? cockpit beantwortet sie mit deinen eigenen Daten, ausgewertet auf deinem Rechner.
+Nach ein paar Wochen Suche willst du wissen, was funktioniert. cockpit zeigt es dir mit deinen eigenen Daten, ausgewertet auf deinem Rechner.
 
 ## Analyse
 

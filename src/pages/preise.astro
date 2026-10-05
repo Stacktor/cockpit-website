@@ -9,7 +9,7 @@ const fragen = [
   { frage: "Einmalkauf oder Abo?", antwort: "<p>Auch das ist offen und Teil der Umfrage. Fest steht: Weil cockpit keine Server und keine KI-Kosten pro Nutzer hat, muss es kein Abo sein.</p>" },
   { frage: "Bleibt die kostenlose Version wirklich kostenlos?", antwort: "<p>Ja, dauerhaft und ohne Grenze bei den Bewerbungen. Pipeline, Stellensuche, Kontakte, Aufgaben, Stichwort-Abgleich, Anschreiben mit deiner KI, Interview-Training und der Sync über einen eigenen Ordner bleiben frei.</p>" },
   { frage: "Was bringt Pro?", antwort: '<p>Komfort für alle, die viel bewerben: den Auto-Modus, der Bewerbungen vorbereitet, den cockpit-Sync-Server (Sync ohne eigenen Cloud-Ordner), den Lebenslauf je Stelle, das automatische Ausfüllen von Formularen mit der Browser-Erweiterung und die erweiterte Analyse. <a href="/vergleich/">Vergleich mit Teal und Huntr</a></p>' },
-  { frage: "Was passiert mit meiner Alpha-Lizenz nach der Alpha?", antwort: "<p>Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft, auch mit allen späteren Updates. Das ist der Dank fürs Mitmachen.</p>" },
+  { frage: "Was passiert mit meiner Alpha-Lizenz nach der Alpha?", antwort: "<p>Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft, auch mit allen späteren Updates.</p>" },
   { frage: "Bekomme ich eine ordentliche Rechnung?", antwort: "<p>Ja. Verkauft wird über Lemon Squeezy als Händler; du bekommst automatisch eine Rechnung mit korrekt ausgewiesener Umsatzsteuer. Unternehmen können ihre USt-IdNr. angeben.</p>" },
   { frage: "Kann ich zurückgeben?", antwort: '<p>Sobald der Verkauf startet: 30 Tage Geld zurück, ohne Begründung, eine Mail genügt. Einzelheiten in der <a href="/widerruf/">Widerrufsbelehrung</a>.</p>' },
 ];
@@ -18,8 +18,8 @@ const fragen = [
 <Base title="Preise" description="cockpit: Bewerbungen ohne Grenze und dauerhaft kostenlos. Pro bringt Komfortfunktionen; der Preis wird mit den Alpha-Testern festgelegt.">
   <Seitenkopf
     eyebrow="Preise"
-    titel="Ehrlich gerechnet, gemeinsam festgelegt."
-    lead="Bewerbungen verfolgen ist kostenlos, ohne Grenze. Pro bringt Komfort. Der Preis für Pro wird mit den Alpha-Testern festgelegt."
+    titel="Bewerben kostet nichts. Den Preis für Pro legen die Tester mit fest."
+    lead="Bewerbungen verfolgen ist kostenlos, ohne Grenze. Pro bringt Komfortfunktionen wie den Auto-Modus und den Sync-Server."
     krumen={[["Preise", "/preise/"]]}
     zentriert
   />
@@ -132,7 +132,7 @@ const fragen = [
     left: 50%;
     transform: translateX(-50%);
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     font-size: 12px;
     font-weight: 700;
     padding: 4px 14px;

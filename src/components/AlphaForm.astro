@@ -39,7 +39,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <div class="feld">
           <label for="f-mail">E-Mail-Adresse</label>
           <input class="eingabe" type="email" id="f-mail" name="mail" autocomplete="email" placeholder="du@beispiel.de" required />
-          <p class="hilfe">An diese Adresse geht dein Alpha-Schlüssel. Kein Newsletter, keine Weitergabe.</p>
+          <p class="hilfe">An diese Adresse geht dein Alpha-Schlüssel. Wir schicken keinen Newsletter und geben sie nicht weiter.</p>
         </div>
         <div class="feld">
           <span class="label" id="l-os">Womit arbeitest du?</span>
@@ -139,7 +139,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <path d="M4 12.5l5.2 5.2L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </div>
-    <h3 data-fertig-titel>Angekommen.</h3>
+    <h2 data-fertig-titel>Angekommen.</h2>
     <p data-fertig-text>Du bekommst gleich eine Bestätigung per Mail. In den nächsten Tagen meldet sich das cockpit-Team. Bist du dabei, steht dein Alpha-Schlüssel gleich mit drin.</p>
     <div class="fertig-links">
       <a href="/hilfe/erste-schritte/" class="btn btn-s btn-sm">Schon mal reinlesen: Erste Schritte</a>
@@ -204,7 +204,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         m.classList.toggle("aktiv", i === s);
         m.classList.toggle("erledigt", i < s);
       });
-      balken.style.width = `${((s + 1) / schritte.length) * 100}%`;
+      balken.style.transform = `scaleX(${(s + 1) / schritte.length})`;
       zurueck.hidden = s === 0;
       schrittText.textContent = `Schritt ${s + 1} von ${schritte.length}`;
       weiter.innerHTML =
@@ -280,8 +280,8 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
           titel.textContent = "Du stehst auf der Warteliste.";
           text.textContent =
             daten.os === "macos"
-              ? "Danke! Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
-              : "Danke! Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
+              ? "Danke. Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
+              : "Danke. Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
         }
         wurzel.querySelector<HTMLElement>("[data-formular]")!.hidden = true;
         const fertig = wurzel.querySelector<HTMLElement>("[data-fertig]")!;
@@ -347,7 +347,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
   .schritte li:global(.aktiv) .nr {
     background: var(--accent);
     border-color: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     transform: scale(1.08);
   }
   .schritte li:global(.erledigt) {
@@ -368,10 +368,11 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
   .balken span {
     display: block;
     height: 100%;
-    width: 33.33%;
+    transform: scaleX(0.3333);
+    transform-origin: left;
     background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #7dd3fc));
     border-radius: inherit;
-    transition: width 0.5s var(--ease);
+    transition: transform 0.5s var(--ease);
   }
   fieldset {
     border: 0;
@@ -438,7 +439,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
     place-items: center;
     margin: 0 auto 18px;
   }
-  .fertig h3 {
+  .fertig h2 {
     font-size: 23px;
     margin-bottom: 8px;
   }

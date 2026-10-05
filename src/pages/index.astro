@@ -16,13 +16,13 @@ const beitraege = (await getCollection("blog")).sort((a, b) => +b.data.datum - +
 const folien = [
   { id: "start", label: "Start", text: "Kennzahlen, offene Aufgaben und neue passende Stellen auf einen Blick." },
   { id: "pipeline", label: "Pipeline", text: "Jede Bewerbung als Karte, von „Entwurf“ bis „Abgeschlossen“." },
-  { id: "stellen", label: "Stellen", text: "Arbeitsagentur, Arbeitnow, Adzuna und RSS in einer Suche, mit Match-Score." },
+  { id: "stellen", label: "Stellen", text: "Arbeitsagentur, Jobbörsen und RSS-Feeds in einer Suche, mit Match-Score." },
   { id: "inbox", label: "Inbox", text: "Bewerbungs-Mails zusammengefasst, einsortiert und mit der Bewerbung verknüpft." },
   { id: "interview", label: "Interview", text: "Üben mit Fragen zur Stelle, Bewertung und Musterantworten." },
   { id: "lebenslauf", label: "Lebenslauf", text: "Aus deinem Profil ein sauberes PDF. Drei Vorlagen, Deutsch oder Englisch." },
 ];
 
-const quellen = ["Bundesagentur für Arbeit", "Arbeitnow", "Adzuna", "RSS-Feeds", "IMAP-Postfächer", "Anthropic", "OpenAI", "Google Gemini", "Perplexity", "xAI", "Ollama", "LM Studio"];
+const quellen = ["Bundesagentur für Arbeit", "Arbeitnow", "Remotive", "Adzuna", "Jooble", "RSS-Feeds", "IMAP-Postfächer", "Anthropic", "OpenAI", "Google Gemini", "Perplexity", "xAI", "Ollama", "LM Studio"];
 
 const fragen = [
   {
@@ -68,7 +68,7 @@ const fragen = [
           <span class="zeile">Bewerbungen im Griff.</span> <span class="zeile">Ohne Cloud.</span> <span class="zeile verlauf">Auf deinem Gerät.</span>
         </h1>
         <p class="lead rv an" style="--d:2">
-          cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App. Gespeichert wird alles auf <b>deinem Rechner</b>. Kein Konto, keine Cloud, kein Abo-Zwang.
+          cockpit bündelt Stellensuche, Bewerbungen, KI-Anschreiben und Interview-Training in einer App. Gespeichert wird alles auf <b>deinem Rechner</b>. Ein Konto brauchst du nicht, und Bewerbungen verfolgen bleibt kostenlos.
         </p>
         <div class="cta rv an" style="--d:3">
           <a href="/alpha/" class="btn btn-p btn-lg">Alpha-Zugang anfragen <Icon name="arrow-up-right" size={17} /></a>
@@ -81,7 +81,7 @@ const fragen = [
       <ul class="held-merkmale" aria-label="Auf einen Blick">
         <li class="rv an" style="--d:5">
           <span class="rund"><Icon name="user-x" size={18} /></span>
-          <div><b>Kein Konto</b><span>Installieren, loslegen. Keine Registrierung.</span></div>
+          <div><b>Kein Konto</b><span>Installieren und loslegen, ohne Registrierung.</span></div>
         </li>
         <li class="rv an" style="--d:6">
           <span class="rund"><Icon name="cpu" size={18} /></span>
@@ -130,7 +130,7 @@ const fragen = [
     <div class="wrap">
       <div class="abschnitt-kopf">
         <div class="eyebrow rv">Das Problem</div>
-        <h2 class="rv" style="--d:1">Bewerben ist Projektarbeit. Nur meist ohne Werkzeug.</h2>
+        <h2 class="rv" style="--d:1">Bewerben ist Projektarbeit, meist ohne passendes Werkzeug.</h2>
         <p class="lead rv" style="--d:2">
           Fünf Portale, drei Postfächer, eine Tabelle, die niemand pflegt. Und ein Anschreiben, das 45 Minuten kostet und trotzdem generisch klingt.
         </p>
@@ -161,7 +161,7 @@ const fragen = [
       <CardRail label="Funktionen">
         <div slot="kopf">
           <div class="eyebrow rv">Die Lösung</div>
-          <h2 class="rv" style="--d:1">Alles an einem Ort. Auf deinem Gerät.</h2>
+          <h2 class="rv" style="--d:1">Alles an einem Ort, auf deinem Gerät.</h2>
           <p class="lead rv" style="--d:2">Zehn Werkzeuge, die auf dieselben Daten zugreifen.</p>
         </div>
         {
@@ -195,7 +195,7 @@ const fragen = [
         <li class="rv" style="--d:1">
           <span class="schritt-nr">1</span>
           <h3>Installieren</h3>
-          <p>Installer für Windows oder Linux laden und starten. Kein Konto, keine Registrierung.</p>
+          <p>Installer für Windows oder Linux laden und starten. Ein Konto brauchst du nicht.</p>
         </li>
         <li class="rv" style="--d:2">
           <span class="schritt-nr">2</span>
@@ -240,7 +240,7 @@ const fragen = [
     <div class="wrap zwei">
       <div>
         <div class="eyebrow rv">Datenschutz</div>
-        <h2 class="rv" style="--d:1">Das ist keine Funktion. Das ist die Architektur.</h2>
+        <h2 class="rv" style="--d:1">Datenschutz steckt im Aufbau der App.</h2>
         <p class="lead rv" style="--d:2">
           Bewerbungsdaten gehören zu den sensibelsten Daten, die du hast. cockpit ist so gebaut, dass sie auf deinem Gerät bleiben. Es gibt kein Konto und keinen Server, der deine Bewerbungen im Klartext annimmt. Gleichst du Geräte ab, gehen nur verschlüsselte Pakete raus.
         </p>
@@ -248,7 +248,7 @@ const fragen = [
           <span class="chip"><i></i>SQLite auf deiner Festplatte</span>
           <span class="chip"><i></i>Schlüssel im System-Schlüsselbund</span>
           <span class="chip"><i></i>Kein Konto</span>
-          <span class="chip"><i></i>Keine Telemetrie</span>
+          <span class="chip"><i></i>Nutzungsstatistik anonym und abschaltbar</span>
           <span class="chip"><i></i>Nur offizielle Stellenquellen</span>
         </div>
         <a href="/blog/warum-local-first/" class="mehr rv" style="--d:4">Alles, was cockpit ins Netz schickt <Icon name="arrow-right" size={15} /></a>
@@ -262,7 +262,7 @@ const fragen = [
         <div class="karte rv" style="--d:3">
           <div class="ic"><Icon name="wallet" /></div>
           <h3>Warum das den Preis senkt</h3>
-          <p>Keine Server und keine KI-Kosten pro Nutzer heißt: cockpit muss kein Abo sein, das jeden Monat die Rechnung deckt.</p>
+          <p>Ohne eigene Server und ohne KI-Kosten pro Nutzer muss cockpit kein Abo sein, das jeden Monat eine Rechnung deckt.</p>
         </div>
       </div>
     </div>
@@ -289,7 +289,7 @@ const fragen = [
       <div class="alpha-band rv">
         <div>
           <div class="eyebrow">Geschlossene Alpha</div>
-          <h2>{SITE.alphaPlaetze} Plätze. Kostenlos. Und du behältst sie.</h2>
+          <h2>{SITE.alphaPlaetze} kostenlose Plätze, die Vollversion bleibt dir.</h2>
           <p>
             Die App ist im täglichen Einsatz erprobt. Jetzt geht es um viele unterschiedliche Rechner und Situationen; gesucht sind Menschen, die gerade aktiv suchen. Wer bis zum Ende Rückmeldung gibt, behält die Vollversion dauerhaft.
           </p>

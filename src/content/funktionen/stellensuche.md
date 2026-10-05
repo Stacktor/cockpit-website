@@ -12,7 +12,7 @@ punkte:
   - Match-Score, Gehalt, Ansprechpartner und Entfernung je Stelle
 ---
 
-Fünf Portale, fünf Suchmasken, fünf Merklisten. cockpit holt die Stellen dorthin, wo du auch den Rest deiner Bewerbung organisierst.
+Jedes Portal hat seine eigene Suchmaske und Merkliste. cockpit holt die Stellen dorthin, wo du auch den Rest deiner Bewerbung organisierst.
 
 ## Quellen
 

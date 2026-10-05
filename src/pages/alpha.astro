@@ -6,18 +6,18 @@ import Faq from "../components/Faq.astro";
 import { SITE } from "../config";
 
 const ablauf = [
-  { icon: "pen-line", titel: "Anmelden", text: "Das Formular unten. Drei kurze Schritte, etwa zwei Minuten." },
+  { icon: "pen-line", titel: "Anmelden", text: "Füll das Formular unten aus. Es hat drei kurze Schritte und dauert etwa zwei Minuten." },
   { icon: "mail", titel: "Schlüssel bekommen", text: "Die Plätze werden einzeln vergeben. Bist du dabei, kommt dein Alpha-Schlüssel per Mail." },
   { icon: "download", titel: "Loslegen", text: "App laden und den Schlüssel beim ersten Start eintragen. Dann ist alles frei." },
   { icon: "messages-square", titel: "Rückmeldung geben", text: "Zwei kurze Umfragen direkt in der App (nach 3 und 14 Tagen) und „Fehler melden“, wenn etwas hakt." },
 ];
 
 const fragen = [
-  { frage: "Was kostet die Alpha?", antwort: "<p>Nichts. Und wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft, auch mit allen späteren Updates.</p>" },
+  { frage: "Was kostet die Alpha?", antwort: "<p>Nichts. Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft, auch mit allen späteren Updates.</p>" },
   { frage: "Wie viel Zeit muss ich investieren?", antwort: "<p>Nutz cockpit einfach für deine echte Jobsuche. Dazu kommen zwei Umfragen in der App. Die erste dauert eine Minute, die zweite etwa fünf. Alles andere ist freiwillig.</p>" },
-  { frage: "Nach welchen Kriterien vergibst du die Plätze?", antwort: "<p>Gesucht ist eine gute Mischung: verschiedene Situationen, Branchen und Erfahrung mit Technik. Vor allem Menschen, die gerade wirklich auf Jobsuche sind und das Werkzeug brauchen.</p>" },
+  { frage: "Nach welchen Kriterien werden die Plätze vergeben?", antwort: "<p>Gesucht ist eine gute Mischung: verschiedene Situationen, Branchen und Erfahrung mit Technik. Vor allem Menschen, die gerade wirklich auf Jobsuche sind und das Werkzeug brauchen.</p>" },
   { frage: "Ich nutze einen Mac. Kann ich trotzdem mitmachen?", antwort: "<p>Noch nicht. macOS ist in Arbeit, und ein Installer erscheint erst, wenn er auf echter Hardware getestet ist. Melde dich trotzdem an: Du kommst auf die Mac-Warteliste und bekommst Bescheid, sobald es eine getestete Version gibt.</p>" },
-  { frage: "Was passiert mit meinen Angaben?", antwort: '<p>Sie dienen der Auswahl und der Weiterentwicklung. Keine Weitergabe, kein Newsletter. Spätestens drei Monate nach Ende der Alpha werden sie gelöscht, auf Wunsch jederzeit früher. Details in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.</p>' },
+  { frage: "Was passiert mit meinen Angaben?", antwort: '<p>Sie dienen der Auswahl und der Weiterentwicklung. Wir geben sie nicht weiter und schicken keinen Newsletter. Spätestens drei Monate nach Ende der Alpha werden sie gelöscht, auf Wunsch jederzeit früher. Details in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.</p>' },
   { frage: "Alle Plätze sind weg. Und jetzt?", antwort: "<p>Melde dich trotzdem an. Du kommst auf die Warteliste. Wenn jemand aussteigt oder die nächste Runde startet, geht es nach Reihenfolge.</p>" },
 ];
 ---
@@ -50,7 +50,7 @@ const fragen = [
     <div class="wrap">
       <div class="abschnitt-kopf center">
         <div class="eyebrow rv">So läuft die Alpha</div>
-        <h2 class="rv" style="--d:1">Vier Schritte, kein Aufwand</h2>
+        <h2 class="rv" style="--d:1">In vier Schritten dabei</h2>
       </div>
       <ol class="ablauf raster r4">
         {

@@ -11,38 +11,39 @@ Die meisten Bewerbungs-Tools laden genau das in ihre Cloud. Für die Anbieter is
 
 ## Local-first: Deine Bewerbungen liegen bei dir
 
-cockpit speichert alles in einer Datenbank-Datei auf deinem Rechner. Zugangsdaten wie Mail-Passwörter, KI-Schlüssel und deine Lizenz liegen im Schlüsselbund deines Betriebssystems. Ein Konto bei mir brauchst du nicht.
+cockpit speichert alles in einer Datenbank-Datei auf deinem Rechner. Zugangsdaten wie Mail-Passwörter, KI-Schlüssel und deine Lizenz liegen im Schlüsselbund deines Betriebssystems. Ein Konto bei uns brauchst du nicht.
 
-Das ist keine Einstellung, die man vergessen kann. Es steckt im Aufbau der App: Es gibt keinen cockpit-Server, der deine Bewerbungen lesbar entgegennimmt. Was ich nicht habe, kann ich nicht verlieren, nicht verkaufen und nicht aus Versehen herausgeben.
+Das steckt im Aufbau der App, es gibt also keinen Schalter, den man vergessen kann. Kein cockpit-Server nimmt deine Bewerbungen lesbar entgegen. Daten, die wir nicht haben, können wir weder verlieren noch verkaufen oder aus Versehen herausgeben.
 
 ## Und die KI?
 
 Damit ein Sprachmodell ein Anschreiben entwerfen kann, muss es deine Daten sehen. In cockpit entscheidest du, wer das ist:
 
-- **Dein eigener API-Schlüssel** bei einem Anbieter deiner Wahl. Die Texte gehen direkt von deinem Rechner dorthin, nicht über mich.
+- **Dein eigener API-Schlüssel** bei einem Anbieter deiner Wahl. Die Texte gehen direkt von deinem Rechner dorthin, nicht über uns.
 - **Ein lokales Modell** über Ollama oder LM Studio. Dann verlässt nichts deinen Rechner.
 
-Für mich hat das einen schönen Nebeneffekt: Ich zahle keine KI-Kosten für meine Nutzer. Deshalb muss cockpit kein Abo sein, das jeden Monat eine Server-Rechnung deckt.
+Dadurch fallen bei uns keine KI-Kosten für Nutzer an. cockpit muss deshalb kein Abo sein, das jeden Monat eine Server-Rechnung deckt.
 
-## Und wenn ich mehrere Geräte habe?
+## Mehrere Geräte
 
-Dafür gibt es den Geräte-Sync. Bevor irgendetwas dein Gerät verlässt, verschlüsselt cockpit es mit einer Passphrase, die nur du kennst. Die Pakete landen dann entweder in einem Ordner deines eigenen Cloud-Speichers oder, mit Pro, auf dem cockpit-Server. Beide sehen nur Datensalat. Ohne deine Passphrase kann ich die Daten nicht lesen, auch wenn sie auf meinem Server liegen.
+Dafür gibt es den Geräte-Sync. Bevor irgendetwas dein Gerät verlässt, verschlüsselt cockpit es mit einer Passphrase, die nur du kennst. Die Pakete landen dann entweder in einem Ordner deines eigenen Cloud-Speichers oder, mit Pro, auf dem cockpit-Server. Beide sehen nur Datensalat. Ohne deine Passphrase können wir die Daten nicht lesen, auch wenn sie auf unserem Server liegen.
 
 Der Sync ist aus, bis du ihn einschaltest. Nutzt du den cockpit-Server, landen dort auf Wunsch auch die drei neuesten Sicherungen, genauso verschlüsselt. Geht dein Laptop kaputt, holst du sie auf dem neuen Rechner mit deiner Passphrase zurück.
 
 ## Was cockpit doch ins Netz schickt
 
-Damit nichts im Kleingedruckten steht, hier die ganze Liste:
+Diese Verbindungen baut cockpit auf, mehr nicht:
 
 - **Stellensuche:** deine Suchbegriffe an die Quelle, die du nutzt, etwa die Arbeitsagentur.
 - **KI:** deine Texte an den Anbieter, den du eingerichtet hast.
 - **Postfach:** die Verbindung zu deinem eigenen Mail-Server.
-- **Lizenz:** ab und zu eine Prüfung deines Schlüssels bei Lemon Squeezy. Ist sie gültig, meldet die App mir App-Version, Betriebssystem und Lizenzstatus. So sehe ich, welche Versionen im Umlauf sind.
+- **Lizenz:** ab und zu eine Prüfung deines Schlüssels bei Lemon Squeezy. Ist sie gültig, meldet die App uns App-Version, Betriebssystem und Lizenzstatus. Daran sehen wir, welche Versionen im Umlauf sind.
 - **Updates:** die Frage an GitHub, ob es eine neue Version gibt.
+- **Nutzungsstatistik:** einmal am Tag, welche Funktionen wie oft genutzt wurden, mit App-Version und Betriebssystem. Ohne Inhalte und ohne Kennung, abschaltbar unter **Einstellungen → System**.
 - **Sync, nur wenn du ihn einschaltest:** verschlüsselte Pakete an deinen Ordner oder den cockpit-Server. Mit Server-Sync auch verschlüsselte Sicherungen, abschaltbar.
-- **Nur als Alpha-Tester und nur auf Klick:** Umfrage-Antworten und Fehlerberichte an mich. Vorher siehst du genau, was rausgeht. Bewerbungsdaten sind nie dabei.
+- **Nur als Alpha-Tester und nur auf Klick:** Umfrage-Antworten und Fehlerberichte an uns. Vorher siehst du genau, was rausgeht. Bewerbungsdaten sind nie dabei.
 
-Keine Analyse-Tools, keine Werbung, kein Tracking. Die Einzelheiten stehen in der [Datenschutzerklärung](/datenschutz/).
+Werbung und Tracking gibt es in cockpit nicht. Die Einzelheiten stehen in der [Datenschutzerklärung](/datenschutz/).
 
 ## Der Haken
 
