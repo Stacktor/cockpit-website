@@ -4,10 +4,10 @@
  * oder per Tippen (Mobil) klappt eine Karte mit kurzer Vorstellung und Links auf.
  * Liegt ein Bild unter public/autor.(jpg|png|webp), ersetzt es automatisch das „T“.
  */
-import { existsSync } from "node:fs";
 import Icon from "./Icon.astro";
 
-const bild = ["jpg", "png", "webp"].map((e) => `autor.${e}`).find((d) => existsSync(new URL(`../../public/${d}`, import.meta.url)));
+// Nur die Dateinamen; geladen wird nichts (public/ wird 1:1 ausgeliefert).
+const bild = Object.keys(import.meta.glob("/public/autor.{jpg,png,webp}"))[0]?.replace("/public/", "");
 const id = `autor-${Math.random().toString(36).slice(2, 8)}`;
 ---
 

@@ -25,9 +25,9 @@ Der Start zeigt, was heute ansteht: offene Aufgaben, Termine der nächsten Tage,
 
 ## Befehlspalette und Tastatur
 
-Mit **Strg + K** (auf dem Mac **Cmd + K**) öffnest du die Befehlspalette. Darüber springst du zu jedem Bereich und startest häufige Aktionen, ohne die Maus zu nehmen.
+Mit **Strg + K** öffnest du die Befehlspalette. Darüber springst du zu jedem Bereich und startest häufige Aktionen, ohne die Maus zu nehmen.
 
-Einbuchstabige Tastenkürzel für die Bereiche gibt es unter **Einstellungen → Experimentell → Tastenkürzel**. Ist das eingeschaltet, zeigt **?** eine Übersicht.
+Tastenkürzel für die Bereiche gibt es unter **Einstellungen → Experimentell → Tastatur-Shortcuts**: **g** und danach ein Buchstabe, etwa **g p** für die Pipeline. Ist das eingeschaltet, zeigt **?** eine Übersicht.
 
 ## Rechtsklick
 

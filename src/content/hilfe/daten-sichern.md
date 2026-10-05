@@ -25,7 +25,7 @@ Unter **Einstellungen → Sicherungen** stellst du den Rhythmus auf täglich, w�
 
 ### Sicherungen in der Cloud
 
-Gleichst du deine Geräte über den **cockpit-Server** ab (Pro und Alpha), legt cockpit die drei neuesten Sicherungen zusätzlich dort ab. Sie sind mit deiner Sync-Passphrase verschlüsselt, genau wie der Sync. Geht dein Rechner kaputt, richtest du auf dem neuen Gerät den Sync mit derselben Passphrase ein und holst unter **Einstellungen → Sicherungen → Aus der Cloud** einen Stand zurück. Abschalten kannst du das an derselben Stelle.
+Gleichst du deine Geräte über den **cockpit-Server** ab (Pro und Alpha), legt cockpit die drei neuesten Sicherungen zusätzlich dort ab. Sie sind mit deiner Sync-Passphrase verschlüsselt, genau wie der Sync. Geht dein Rechner kaputt, richtest du auf dem neuen Gerät den Sync mit derselben Passphrase ein und holst unter **Einstellungen → Sicherungen → In der Cloud** einen Stand zurück. Abschalten kannst du das an derselben Stelle mit **Auch in der Cloud sichern**.
 
 ### Wie lange Sicherungen bleiben
 
