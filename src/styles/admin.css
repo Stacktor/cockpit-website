@@ -8,7 +8,7 @@
  *   primary #000000 + text-primary #FFFFFF → Hauptaktion, aktive/hervorgehobene Elemente
  *   secondary/accent #94A3B8 → Rahmen um die Fläche, Akzente, Fokus
  *   border #CBD5E1 → Ränder von Bedienelementen
- *   text-secondary #A1A1AA → Metadaten
+ *   text-secondary #6B6B76 → Metadaten (dunkler als die Vorlage, für 4,5:1 Kontrast)
  *   Radius: Karte/Bedienelement 14px, Pille 9999px
  *   Abstände: Basis 8px, Lücke 16px, Karteninnenabstand 24px
  *   Schrift: Inter (Anzeige/Text), JetBrains Mono 12px/600 (Labels, Technisches)
@@ -25,8 +25,8 @@
   --a-linie-2: #f1f5f9;
   --a-ink: #0f172a;
   --a-ink-2: #334155;
-  --a-muted: #64748b;
-  --a-faint: #a1a1aa;
+  --a-muted: #56657a;
+  --a-faint: #6b6b76;
   --a-weich: #f1f5f9;
   --a-ok: #047857;
   --a-ok-soft: #ecfdf5;
@@ -79,7 +79,7 @@
     --a-ink: #e2e8f0;
     --a-ink-2: #cbd5e1;
     --a-muted: #94a3b8;
-    --a-faint: #64748b;
+    --a-faint: #8391a7;
     --a-weich: #19212f;
     --a-ok: #34d399;
     --a-ok-soft: rgb(16 185 129 / 0.12);
@@ -119,7 +119,7 @@
   --a-ink: #e2e8f0;
   --a-ink-2: #cbd5e1;
   --a-muted: #94a3b8;
-  --a-faint: #64748b;
+  --a-faint: #8391a7;
   --a-weich: #19212f;
   --a-ok: #34d399;
   --a-ok-soft: rgb(16 185 129 / 0.12);
@@ -1521,7 +1521,7 @@ a.a-kachel:hover {
 .a-zitat small {
   display: block;
   margin-top: 2px;
-  font: 600 11px/1.4 var(--a-mono);
+  font: 600 12px/1.4 var(--a-mono);
   color: var(--a-faint);
 }
 .a-sperre {
