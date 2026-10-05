@@ -11,7 +11,7 @@ Diese sechs Regeln funktionieren mit jedem Werkzeug, auch mit Papier. Du musst n
 
 ## 1. Ein Ort für alles
 
-Anzeige, Anschreiben, Ansprechpartner, Datum, Status, Notizen: Wenn das über Browser-Lesezeichen, Mail-Ordner und eine halb gepflegte Tabelle verteilt ist, geht etwas verloren. Entscheide dich für **einen** Ort. Das kann eine Tabelle sein. Wichtig ist, dass alles dort landet.
+Anzeige, Anschreiben, Ansprechpartner, Datum, Status, Notizen: Wenn das über Browser-Lesezeichen, Mail-Ordner und eine halb gepflegte Tabelle verteilt ist, geht etwas verloren. Entscheide dich für einen einzigen Ort. Das kann eine Tabelle sein. Wichtig ist, dass alles dort landet.
 
 ## 2. Wenige, klare Stufen
 
@@ -44,4 +44,4 @@ Wie viele Bewerbungen führen zu einem Gespräch? Welche Quellen bringen etwas, 
 
 ---
 
-**Und cockpit?** All das habe ich in cockpit eingebaut, weil ich es selbst so machen wollte: Pipeline mit vier Stufen, Wiedervorlage, gespeicherte Anzeigen, Anschreiben und Dokumente an der Bewerbung und eine Auswertung aus deinen eigenen Zahlen. Alles liegt lokal auf deinem Rechner. Wenn du das ausprobieren willst: Die [Alpha](/alpha/) ist offen.
+cockpit setzt diese Regeln um: Pipeline mit vier Stufen, Wiedervorlage, gespeicherte Anzeigen, Anschreiben und Dokumente an der Bewerbung und eine Auswertung aus deinen eigenen Zahlen. Alles liegt lokal auf deinem Rechner. Zum Ausprobieren ist die [Alpha](/alpha/) offen.

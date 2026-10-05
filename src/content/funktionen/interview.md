@@ -12,7 +12,7 @@ punkte:
   - Frühere Runden bleiben gespeichert, damit du deinen Fortschritt siehst
 ---
 
-Die meisten Gespräche scheitern nicht am Können, sondern an der Antwort auf „Erzählen Sie mal von einer schwierigen Situation". Üben hilft, am besten mit Fragen, die zur konkreten Stelle passen.
+Fragen wie „Erzählen Sie mal von einer schwierigen Situation“ bringen auch erfahrene Leute ins Stocken. Üben hilft, am besten mit Fragen, die zur konkreten Stelle passen.
 
 ## So läuft eine Runde
 

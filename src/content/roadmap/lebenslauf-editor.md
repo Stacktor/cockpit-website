@@ -4,4 +4,4 @@ status: naechstes
 reihenfolge: 3
 ---
 
-Ein Editor mit mehr Vorlagen und Abschnitten zum Ein- und Ausblenden.
+Weitere Vorlagen für den Lebenslauf-Ersteller, zusätzlich zu Klassisch, Modern, Kompakt und Zweispaltig.

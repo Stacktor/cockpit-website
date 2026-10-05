@@ -9,7 +9,7 @@ icon: life-buoy
 
 ## Windows warnt vor dem Installer
 
-*„Der Computer wurde durch Windows geschützt"* erscheint, weil der Installer noch nicht signiert ist. **Weitere Informationen → Trotzdem ausführen.** Lade cockpit nur von dieser Website oder aus dem offiziellen [Release-Repo](https://github.com/Stacktor/cockpit-releases/releases).
+*„Der Computer wurde durch Windows geschützt“* erscheint, weil der Installer noch nicht signiert ist. **Weitere Informationen → Trotzdem ausführen.** Lade cockpit nur von dieser Website oder aus dem offiziellen [Release-Repo](https://github.com/Stacktor/cockpit-releases/releases).
 
 ## Das AppImage startet nicht
 
@@ -19,7 +19,7 @@ icon: life-buoy
 
 ## cockpit fragt ständig nach dem Schlüsselbund
 
-cockpit legt alle Geheimnisse in **einem** Eintrag im Schlüsselbund ab. Unter Linux braucht es dafür einen laufenden Secret-Service (GNOME-Schlüsselbund oder KWallet). Bestätige die Abfrage einmal mit „Immer erlauben", dann ist Ruhe.
+cockpit legt alle Geheimnisse in einem einzigen Eintrag im Schlüsselbund ab. Unter Linux braucht es dafür einen laufenden Secret-Service (GNOME-Schlüsselbund oder KWallet). Bestätige die Abfrage einmal mit „Immer erlauben“, dann fragt das System nicht mehr.
 
 ## Die KI antwortet nicht
 

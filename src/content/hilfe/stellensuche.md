@@ -63,3 +63,9 @@ Unvollständige Treffer sind markiert: **Link führt zu einer Suchseite**, wenn 
 Ein Klick auf **Übernehmen** legt eine Bewerbung im Status *Entwurf* an. Gehalt, Anstellung und Arbeitsort wandern mit. Ist ein Ansprechpartner genannt, legt cockpit ihn als [Kontakt](/hilfe/kontakte/) an und verknüpft ihn mit der Bewerbung.
 
 Per Rechtsklick auf einen Treffer erreichst du dieselben Aktionen und zusätzlich *Anzeige öffnen*, *Passung bewerten* und *Löschen*.
+
+## Aufräumen
+
+Über **Aufräumen** löschst du verworfene Treffer, entfernst Anzeigen, die älter als 14 oder 30 Tage sind, oder leerst die ganze Liste. Gemerkte und übernommene Treffer bleiben dabei stehen. Gelöschte Treffer kommen beim nächsten Abruf nicht wieder, auch wenn die Quelle sie noch liefert.
+
+Brauchst du sie doch, holt **Aufräumen → Gelöschte Treffer zurückholen** alle gelöschten Treffer als offen zurück. Beschreibung und Kategorien füllt der nächste Abruf wieder auf. Nach 120 Tagen entfernt cockpit gelöschte Treffer endgültig.

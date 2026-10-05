@@ -12,7 +12,7 @@ punkte:
   - Ohne Grenze, auch in der kostenlosen Version
 ---
 
-Nach der zwanzigsten Bewerbung weiß niemand mehr, wo er sich wann beworben hat. In cockpit ist jede Bewerbung eine Karte, und die Spalte zeigt, wo sie steht.
+Nach der zwanzigsten Bewerbung weiß kaum noch jemand, wo und wann die einzelnen Bewerbungen rausgingen. In cockpit ist jede Bewerbung eine Karte, und die Spalte zeigt, wo sie steht.
 
 ## Was drinsteckt
 

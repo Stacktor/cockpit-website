@@ -32,13 +32,11 @@ Monatelang lief cockpit nur intern. Jetzt startet die **0.1 Alpha**. 50 Leute, d
 
 ## Was noch fehlt
 
-Zu einer Alpha gehört, offen zu sagen, was fehlt:
-
 - **macOS** ist in Arbeit. Ein Installer erscheint erst, wenn er auf echter Hardware getestet ist.
 - Die Anmeldung per **Google- oder Microsoft-Konto** im Postfach und der **eingebettete Browser** sind eingebaut. In der Alpha stecken sie aber unter *Experimentell*, bis sie auf vielen Rechnern gelaufen sind.
 - Die Browser-Erweiterung gibt es noch nicht im Chrome Web Store. Du lädst sie als ZIP und installierst sie von Hand, die [Download-Seite](/download/) zeigt, wie.
 - Die Installer sind **noch nicht signiert**. Windows warnt deshalb beim ersten Start einmal.
-- Es wird **Fehler** geben. Genau dafür ist die Alpha da.
+- Es wird **Fehler** geben. Die Alpha ist dazu da, sie zu finden.
 
 ## Wie du mitmachst
 
@@ -50,6 +48,6 @@ Nach etwa drei Tagen stellt dir die App fünf kurze Fragen zum Start. Nach zwei 
 
 ## Und danach?
 
-Was die Tester sagen, entscheidet, was als Nächstes kommt und was cockpit kostet. Was geplant ist, steht auf der [Roadmap](/roadmap/). Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, **behält die Vollversion dauerhaft**. Das ist der Dank fürs Mitmachen.
+Was die Tester sagen, entscheidet, was als Nächstes kommt und was cockpit kostet. Was geplant ist, steht auf der [Roadmap](/roadmap/). Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, **behält die Vollversion dauerhaft**.
 
 Viel Erfolg bei der Suche.

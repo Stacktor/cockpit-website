@@ -4,4 +4,4 @@ status: naechstes
 reihenfolge: 4
 ---
 
-Sobald ich die Mac-Version wieder selbst testen kann.
+Sobald die Mac-Version wieder auf echter Hardware getestet werden kann.

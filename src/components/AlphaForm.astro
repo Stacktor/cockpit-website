@@ -39,7 +39,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <div class="feld">
           <label for="f-mail">E-Mail-Adresse</label>
           <input class="eingabe" type="email" id="f-mail" name="mail" autocomplete="email" placeholder="du@beispiel.de" required />
-          <p class="hilfe">An diese Adresse geht dein Alpha-Schlüssel. Kein Newsletter, keine Weitergabe.</p>
+          <p class="hilfe">An diese Adresse geht dein Alpha-Schlüssel. Wir schicken keinen Newsletter und geben sie nicht weiter.</p>
         </div>
         <div class="feld">
           <span class="label" id="l-os">Womit arbeitest du?</span>
@@ -280,8 +280,8 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
           titel.textContent = "Du stehst auf der Warteliste.";
           text.textContent =
             daten.os === "macos"
-              ? "Danke! Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
-              : "Danke! Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
+              ? "Danke. Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
+              : "Danke. Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
         }
         wurzel.querySelector<HTMLElement>("[data-formular]")!.hidden = true;
         const fertig = wurzel.querySelector<HTMLElement>("[data-fertig]")!;

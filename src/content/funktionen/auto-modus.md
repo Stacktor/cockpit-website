@@ -18,7 +18,7 @@ Wenn du viele Bewerbungen schreibst, ist das meiste davon Fleißarbeit: Stelle f
 
 1. Du legst fest, **wie oft** gesucht wird, ab welchem **Match-Score** eine Stelle infrage kommt und **wie viele** Bewerbungen pro Durchlauf höchstens vorbereitet werden.
 2. cockpit sucht, bewertet und bereitet für passende Stellen Anschreiben und Bewerbungs-E-Mail samt Anhängen vor.
-3. Auf der Startseite steht: *„2 Bewerbungen bereit zum Check"*. Du prüfst, änderst und sendest, oder du verwirfst.
+3. Auf der Startseite steht: *„2 Bewerbungen bereit zum Check“*. Du prüfst, änderst und sendest, oder du verwirfst.
 
 ## Schutzgitter
 
