@@ -1,0 +1,30 @@
+name: CI
+
+# Typprüfung, Build und Tests der Functions bei jedem PR und Push auf main.
+# Den Build für die Seite selbst macht Cloudflare Pages; dieser Lauf soll
+# rote Tests und Typfehler vorher sichtbar machen.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - run: npm run test:api
