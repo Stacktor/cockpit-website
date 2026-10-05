@@ -12,7 +12,7 @@ Die Pipeline zeigt jede Bewerbung als Karte in einer von vier Spalten: *Entwurf*
 ## Eine Bewerbung anlegen
 
 - **Aus der Stellensuche:** *Übernehmen* bei einem Treffer. Firma, Position, Ort, Gehalt und Ansprechpartner kommen mit.
-- **Per Link:** Unter **Stellen → Stelle per Link** die Adresse einer Anzeige einfügen.
+- **Per Link:** Unter **Stellen → Suchen & Quellen → Stelle per Link** die Adresse einer Anzeige einfügen.
 - **Aus dem Browser:** mit der [Browser-Erweiterung](/hilfe/browser-erweiterung/).
 - **Von Hand:** **Neue Bewerbung** oben in der Pipeline.
 

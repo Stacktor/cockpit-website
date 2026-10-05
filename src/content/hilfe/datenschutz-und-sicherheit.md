@@ -7,7 +7,7 @@ stand: Oktober 2026
 icon: shield-check
 ---
 
-cockpit arbeitet lokal. Es gibt kein Konto und keinen cockpit-Server, auf dem deine Bewerbungen liegen. Dieser Artikel beschreibt, was trotzdem das Gerät verlässt und wie es geschützt ist. Die rechtlichen Details stehen in der [Datenschutzerklärung](/datenschutz/).
+cockpit arbeitet lokal. Es gibt kein Konto und keinen cockpit-Server, auf dem deine Bewerbungen lesbar liegen. Dieser Artikel beschreibt, was trotzdem das Gerät verlässt und wie es geschützt ist. Die rechtlichen Details stehen in der [Datenschutzerklärung](/datenschutz/).
 
 ## Wo die Daten liegen
 

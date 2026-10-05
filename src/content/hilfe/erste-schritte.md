@@ -57,8 +57,8 @@ Beides geht auch später unter **Einstellungen** (Zahnrad oben rechts).
 
 Drei Wege:
 
-- **Stellen → Aggregation:** suchen, Treffer ansehen, *Übernehmen*. Die Stelle landet als Entwurf in der Pipeline.
-- **Stellen → Erfassen:** Link oder Anzeigentext einfügen, cockpit legt die Bewerbung an.
+- **Stellen → Treffer & Suche:** suchen, Treffer ansehen, *Übernehmen*. Die Stelle landet als Entwurf in der Pipeline.
+- **Stellen → Manuell erfassen:** Link oder Anzeigentext einfügen, cockpit legt die Bewerbung an.
 - **Browser-Erweiterung:** auf der Anzeige im Browser **Diese Stelle speichern** klicken. Wie du sie installierst, steht auf der [Download-Seite](/download/).
 
 In der **Pipeline** öffnest du die Karte, lässt ein Anschreiben entwerfen und schiebst sie nach dem Absenden auf *Beworben*. Unter *Übersicht* zeigt dir der Stichwort-Abgleich, welche Begriffe aus der Anzeige in deinen Unterlagen noch fehlen.

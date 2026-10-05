@@ -43,7 +43,7 @@ In der Liste steht der Rahmen als „Rahmen 72 %“ neben der Quelle. Im Detail 
 
 Offene Treffer mit Ausschluss-Begriff oder gesperrter Firma verschwinden aus der Liste. Über der Liste steht, wie viele es sind; **Anzeigen** holt sie zurück, markiert als ausgeblendet. Gelöscht wird nichts. Gemerkte, übernommene und verworfene Treffer bleiben immer sichtbar.
 
-Bewertung, **Finden & vorbereiten**, der [Auto-Modus](/hilfe/auto-modus/) und die Benachrichtigungen der Hintergrundsuche überspringen ausgeblendete Treffer.
+Bewertung, **Finden & Entwürfe vorbereiten**, der [Auto-Modus](/hilfe/auto-modus/) und die Benachrichtigungen der Hintergrundsuche überspringen ausgeblendete Treffer.
 
 ## Verwerfen mit Grund
 
