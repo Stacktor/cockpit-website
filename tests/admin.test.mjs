@@ -317,6 +317,28 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen?id=7"), data: ldata })).json();
   assert.equal(d.lizenz.notiz, "Rabatt zugesagt");
   assert.equal(d.geraete[0].name, "Laptop");
+
+  // Gerät abmelden: Die License-API braucht den identifier (UUID), nicht die Nummer der Store-API.
+  lemonAntworten = {
+    "license-key-instances/55": { body: { data: { id: "55", attributes: { identifier: "uuid-55", name: "Laptop" } } } },
+    "license-key-instances": { body: { data: [{ id: "55", attributes: { identifier: "uuid-55", name: "Laptop", created_at: "2026-09-01T10:00:00Z" } }] } },
+    "license-keys/7": { body: { data: { id: "7", attributes: { key: "SECRET-KEY-FULL-1234", status: "active" } } } },
+    "licenses/deactivate": { body: { deactivated: true } },
+  };
+  await ldata.env.ALPHA.put("lping:7", JSON.stringify({ zeit: "2026-10-02T10:00:00Z", version: "0.1.0", instanz: "uuid-55" }));
+  d = await (await L.onRequestGet({ request: anfrage("/api/admin/lizenzen?id=7"), data: ldata })).json();
+  assert.equal(d.geraete[0].identifier, "uuid-55");
+  assert.equal(d.geraete[0].zuletzt, "2026-10-02T10:00:00Z");
+  for (const instanz of ["uuid-55", "55"]) {
+    r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "geraet-abmelden", instanz } }), data: ldata });
+    assert.equal(r.status, 200, instanz);
+    const body = new URLSearchParams(aufrufe.findLast((a) => a.u.endsWith("licenses/deactivate")).init.body);
+    assert.equal(body.get("instance_id"), "uuid-55");
+  }
+  lemonAntworten["licenses/deactivate"] = { body: { deactivated: false, error: "license_key instance not found." } };
+  r = await L.onRequestPost({ request: anfrage("/api/admin/lizenzen", { methode: "POST", body: { id: "7", aktion: "geraet-abmelden", instanz: "uuid-x" } }), data: ldata });
+  assert.equal(r.status, 422);
+  assert.match((await r.json()).fehler, /instance not found/);
   assert.ok(d.verlauf.some((e) => e.aktion === "Lizenz gesperrt"), "Verlauf aus dem Audit-Log");
   assert.equal(d.sync, null, "ohne R2 kein Sync-Speicher");
 

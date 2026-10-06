@@ -79,6 +79,41 @@ const gepingt = JSON.parse(await env.ALPHA.get("lping:222"));
 assert.equal(gepingt.version, "0.1.0"); assert.ok(!JSON.stringify(gepingt).includes("PRO-1"));
 [st] = await call(ping, { schluessel: "FALSCH", instanz: "x" }); assert.equal(st, 403);
 
+// Geräte einer Lizenz: auch ohne Instanz (neues Gerät am Limit), nur mit gültigem Schlüssel
+{
+  const { onRequestPost: geraete } = await import(W + "geraete.js");
+  const vorher = globalThis.fetch;
+  const validiert = [];
+  globalThis.fetch = async (u, o) => {
+    const url = String(u);
+    if (url.includes("/v1/license-keys/222")) return new Response(JSON.stringify({ data: { id: "222", attributes: { activation_usage: 2, activation_limit: 2 } } }));
+    if (url.includes("/v1/license-key-instances")) {
+      assert.match(url, /filter\[license_key_id\]=222/);
+      return new Response(JSON.stringify({ data: [
+        { id: "5", attributes: { identifier: "uuid-alt", name: "Alter Laptop", created_at: "2026-09-01T10:00:00Z" } },
+        { id: "6", attributes: { identifier: "uuid-hier", name: "Desktop", created_at: "2026-08-01T10:00:00Z" } },
+      ] }));
+    }
+    if (url.includes("/v1/licenses/validate")) validiert.push(Object.fromEntries(new URLSearchParams(o.body)));
+    return vorher(u, o);
+  };
+  [st, d] = await call(geraete, { schluessel: "PRO-1" });
+  assert.equal(st, 503, "ohne Lemon-Schlüssel keine Liste"); assert.equal(d.ok, false);
+  env.LEMONSQUEEZY_API_KEY = "ls_x";
+  [st, d] = await call(geraete, { schluessel: "PRO-1", instanz: "uuid-hier" });
+  assert.equal(st, 200, JSON.stringify(d));
+  assert.deepEqual(d.geraete.map((g) => [g.id, g.diesesGeraet]), [["uuid-hier", true], ["uuid-alt", false]]);
+  assert.equal(d.genutzt, 2); assert.equal(d.limit, 2);
+  [st, d] = await call(geraete, { schluessel: "PRO-1" });
+  assert.equal(st, 200); assert.ok(d.geraete.every((g) => !g.diesesGeraet));
+  assert.ok(validiert.some((v) => !("instance_id" in v)), "Prüfung nur mit Schlüssel");
+  [st, d] = await call(geraete, { schluessel: "FALSCH" }); assert.equal(st, 403);
+  [st, d] = await call(geraete, {}); assert.equal(st, 400);
+  assert.ok(![...env.ALPHA.m.values()].some((v) => String(v).includes("PRO-1")), "Schlüssel wird nie gespeichert");
+  delete env.LEMONSQUEEZY_API_KEY;
+  globalThis.fetch = vorher;
+}
+
 // Fehler melden
 [st, d] = await call(fehler, { ...alpha, beschreibung: "x" }); assert.equal(st, 422);
 [st, d] = await call(fehler, { ...alpha, beschreibung: "Absturz beim Export", protokoll: "v0.1.0 windows\nfehler", version: "0.1.0", system: "windows" });

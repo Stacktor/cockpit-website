@@ -22,7 +22,7 @@ Danach steht unter *Einstellungen → Lizenz* „Alpha-Tester“. In der Seitenl
 
 ## Was du wissen solltest
 
-- **Mehrere Geräte:** Ein Schlüssel reicht für bis zu drei Rechner. Ein Gerät meldest du unter *Einstellungen → Lizenz* ab.
+- **Mehrere Geräte:** Ein Schlüssel reicht für bis zu drei Rechner. Unter *Einstellungen → Lizenz → Geräte dieser Lizenz* stehen alle Geräte, auf denen der Schlüssel freigeschaltet ist. Dort lässt sich jedes davon abmelden, auch ein Rechner, den du nicht mehr hast. Ist das Limit erreicht, zeigt cockpit die Liste beim Freischalten auf dem neuen Gerät an, damit du dort einen Platz freimachen kannst.
 - **Offline:** cockpit prüft die Lizenz ab und zu im Hintergrund. Bis zu 30 Tage ohne Internet sind kein Problem.
 - **Gesperrt oder abgelaufen:** Dann bleibt der Schlüssel gespeichert, und cockpit läuft als Kostenlos weiter. Deine Daten bleiben, wie sie sind. Unter *Einstellungen → Lizenz* steht der Grund, und mit *Erneut prüfen* holst du Pro zurück, sobald die Lizenz wieder gilt.
 - **Der Schlüssel bleibt privat:** Er liegt im Schlüsselbund deines Betriebssystems.
