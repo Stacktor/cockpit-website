@@ -291,9 +291,9 @@ async function lizenzDetail(id: string, neu: () => void) {
               h(
                 "div",
                 { class: "a-frage-kopf" },
-                h("span", { class: "a-luecke" }, g.name, h("div", { class: "a-klein a-blass" }, `seit ${datum(g.erstellt)}`)),
+                h("span", { class: "a-luecke" }, g.name, h("div", { class: "a-klein a-blass" }, `seit ${datum(g.erstellt)}${g.zuletzt ? ` · zuletzt geprüft ${relativ(g.zuletzt)}` : ""}`)),
                 knopf("Abmelden", async (ev) => {
-                  if (await bestaetigen("Gerät abmelden?", `„${g.name}“ verliert die Freischaltung; der Platz wird frei.`, "Abmelden")) tu({ aktion: "geraet-abmelden", instanz: g.id })(ev);
+                  if (await bestaetigen("Gerät abmelden?", `„${g.name}“ verliert die Freischaltung; der Platz wird frei.`, "Abmelden")) tu({ aktion: "geraet-abmelden", instanz: g.identifier || g.id })(ev);
                 }),
               ),
             ),

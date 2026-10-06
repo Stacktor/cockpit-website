@@ -4,7 +4,7 @@
  *               Verlauf (Audit-Log) und Sync-Speicher; sonst Liste (bis 300,
  *               neueste zuerst) mit letzter App-Prüfung und Notiz
  *   POST { id | ids[], aktion: sperren | entsperren | unbefristet | verlaengern (tage)
- *          | geraete (limit) | geraet-abmelden (instanz) | notiz (text)
+ *          | geraete (limit) | geraet-abmelden (instanz = identifier) | notiz (text)
  *          | mail (betreff, text) | sync-leeren }
  *        Mit `ids` (bis 50) als Sammelaktion für sperren, entsperren, verlaengern.
  * Der Admin bekommt den vollständigen Schlüssel (zum Kopieren für Support-Fälle).
@@ -29,7 +29,7 @@ async function zusatz(env, ids) {
   for (const id of ids) aus[id] = {};
   for (const p of pings) {
     const id = p._key.slice("lping:".length);
-    if (aus[id]) aus[id].ping = { zeit: p.zeit, version: p.version, system: p.system, status: p.status };
+    if (aus[id]) aus[id].ping = { zeit: p.zeit, version: p.version, system: p.system, status: p.status, instanz: p.instanz || null };
   }
   for (const n of notizen) {
     const id = n._key.slice("lnotiz:".length);
@@ -72,9 +72,18 @@ export async function onRequestGet({ request, data }) {
       leseProtokoll(env, 500),
       env.SYNC ? belegtGeteilt(env.SYNC, praefixFuer(sauber)) : null,
     ]);
+    const ping = z[sauber]?.ping;
     return json(200, {
       lizenz: { ...ansicht(l.daten.data), ...z[sauber] },
-      geraete: (inst.daten?.data || []).map((i) => ({ id: i.id, name: i.attributes.name, erstellt: i.attributes.created_at })),
+      // `identifier` ist die Instanz-ID der License-API (UUID); nur damit lässt
+      // sich ein Gerät abmelden. `id` ist die interne Nummer der Store-API.
+      geraete: (inst.daten?.data || []).map((i) => ({
+        id: i.id,
+        identifier: i.attributes?.identifier || null,
+        name: i.attributes?.name,
+        erstellt: i.attributes?.created_at,
+        zuletzt: ping?.instanz && ping.instanz === i.attributes?.identifier ? ping.zeit : null,
+      })),
       verlauf: protokoll.filter((e) => String(e.details).includes(`Lizenz ${sauber}`)).slice(0, 30),
       sync: sync ? { ...sync.sync, grenze: GESAMT_MAX, sicherungen: { ...sync.sicherungen, grenze: SICHERUNG_MAX } } : null,
     });
@@ -144,17 +153,28 @@ export async function onRequestPost({ request, data }) {
   }
 
   if (d.aktion === "geraet-abmelden") {
-    // Die Admin-API kann Instanzen nicht löschen; die License-API kann es mit Schlüssel + Instanz.
+    // Die Admin-API kann Instanzen nicht löschen; die License-API kann es mit
+    // Schlüssel + Instanz. Sie erwartet den `identifier` (UUID), nicht die
+    // interne Nummer der Store-API. Kommt doch eine Nummer an (ältere
+    // Oberfläche), wird der identifier nachgeschlagen.
+    let instanz = String(d.instanz || "").trim();
+    if (!instanz) return json(400, { fehler: "Es fehlt das Gerät (instanz)." });
+    if (/^\d+$/.test(instanz)) {
+      const i = await lemon(env, `license-key-instances/${instanz}`);
+      instanz = i.daten?.data?.attributes?.identifier || "";
+      if (!instanz) return json(i.status === 404 ? 404 : 502, { fehler: i.ok ? "Gerät nicht gefunden." : lsFehler(i) });
+    }
     const l = await lemon(env, `license-keys/${id}`);
     const schluessel = l.daten?.data?.attributes?.key;
-    if (!l.ok || !schluessel) return json(502, { fehler: lsFehler(l) });
+    if (!l.ok || !schluessel) return json(l.status && l.status !== 200 ? l.status : 502, { fehler: lsFehler(l) });
     const r = await fetch("https://api.lemonsqueezy.com/v1/licenses/deactivate", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ license_key: schluessel, instance_id: String(d.instanz || "") }),
+      body: new URLSearchParams({ license_key: schluessel, instance_id: instanz }),
     }).catch(() => null);
-    const j = await r?.json().catch(() => null);
-    if (!j?.deactivated) return json(502, { fehler: j?.error || "Gerät konnte nicht abgemeldet werden." });
+    if (!r) return json(502, { fehler: "Lemon Squeezy nicht erreichbar." });
+    const j = await r.json().catch(() => null);
+    if (!j?.deactivated) return json(422, { fehler: j?.error ? `Lemon Squeezy: ${j.error}` : "Gerät konnte nicht abgemeldet werden." });
     await protokolliere(env, data.benutzer, "Lizenz: Gerät abgemeldet", `Lizenz ${id}`);
     return json(200, { ok: true, meldung: "Gerät abgemeldet. Der Platz ist wieder frei." });
   }
