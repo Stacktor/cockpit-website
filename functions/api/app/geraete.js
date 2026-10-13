@@ -15,6 +15,7 @@
 import { imKontingent, json, pruefeLizenz } from "../../../lib/app-lizenz.js";
 import { lemon } from "../../../lib/admin/daten.js";
 import { mitSchluesseln } from "../../../lib/admin/tresor.js";
+import { istPolarId, polar } from "../../../lib/polar.js";
 
 export async function onRequestPost({ request, env }) {
   const d = await request.json().catch(() => null);
@@ -25,6 +26,7 @@ export async function onRequestPost({ request, env }) {
     return json(429, { ok: false, fehler: "Zu viele Abfragen. Bitte in einer Stunde erneut versuchen." });
 
   const e = await mitSchluesseln(env);
+  if (istPolarId(p.lizenz.id)) return polarGeraete(e, p.lizenz.id, String(d.instanz || "").trim());
   if (!e.LEMONSQUEEZY_API_KEY) return json(503, { ok: false, fehler: "Die Geräteliste ist gerade nicht verfügbar." });
   const id = String(p.lizenz.id).replace(/\D/g, "");
   const [l, inst] = await Promise.all([
@@ -51,4 +53,21 @@ export async function onRequestPost({ request, env }) {
     genutzt: a.activation_usage ?? geraete.length,
     limit: a.activation_limit ?? null,
   });
+}
+
+/** Polar: Aktivierungen des Schlüssels über das Organisations-Token. `id` = Aktivierungs-ID. */
+async function polarGeraete(e, id, eigene) {
+  if (!e.POLAR_ACCESS_TOKEN) return json(503, { ok: false, fehler: "Die Geräteliste ist gerade nicht verfügbar." });
+  const r = await polar(e, `license-keys/${encodeURIComponent(id)}`);
+  if (!r.ok) return json(502, { ok: false, fehler: "Polar hat nicht geantwortet. Bitte später erneut versuchen." });
+  const geraete = (r.daten?.activations || [])
+    .map((a) => ({
+      id: String(a.id || ""),
+      name: String(a.label || "Unbenanntes Gerät").slice(0, 120),
+      seit: a.created_at || null,
+      diesesGeraet: Boolean(eigene) && a.id === eigene,
+    }))
+    .filter((g) => g.id)
+    .sort((a, b) => Number(b.diesesGeraet) - Number(a.diesesGeraet) || String(b.seit).localeCompare(String(a.seit)));
+  return json(200, { ok: true, geraete, genutzt: geraete.length, limit: r.daten?.limit_activations ?? null });
 }

@@ -10,7 +10,7 @@ icon: key-round
 ## So bekommst du einen
 
 1. Melde dich auf der [Alpha-Seite](/alpha/) an. Das dauert zwei Minuten.
-2. Die Plätze werden von Hand vergeben. Bist du dabei, kommt eine Mail mit deinem **Alpha-Schlüssel**. Absender ist Lemon Squeezy, darüber wird cockpit später auch verkauft. Der Schlüssel sieht so aus: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`.
+2. Die Plätze werden von Hand vergeben. Bist du dabei, kommt eine Mail mit deinem **Alpha-Schlüssel**. Absender ist Polar, darüber wird cockpit später auch verkauft. Der Schlüssel beginnt mit `COCKPIT-`, zum Beispiel `COCKPIT-1A2B3C4D-…`.
 3. Keine Mail da? Schau in den Spam-Ordner oder schreib an [Kontakt@mesco.cc](mailto:Kontakt@mesco.cc).
 
 ## Eintragen

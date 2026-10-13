@@ -1,5 +1,6 @@
 /**
- * /api/admin/lizenzen — Lizenzen bei Lemon Squeezy, ergänzt um eigene Daten.
+ * /api/admin/lizenzen — Lizenzen bei Polar (neu, `COCKPIT-…`) und Lemon Squeezy (ältere
+ * Schlüssel), ergänzt um eigene Daten. Polar-IDs sind UUIDs, Lemon-Squeezy-IDs Zahlen.
  *   GET  ?id=…  Einzelne Lizenz mit Geräten, letzter App-Prüfung, Notiz,
  *               Verlauf (Audit-Log) und Sync-Speicher; sonst Liste (bis 300,
  *               neueste zuerst) mit letzter App-Prüfung und Notiz
@@ -15,6 +16,59 @@ import { lemon, leseAlle, alleSchluessel, lsFehler, resend } from "../../../lib/
 import { leseProtokoll, protokolliere } from "../../../lib/admin/protokoll.js";
 import { alsText, escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vorlage.js";
 import { allesLoeschen, belegtGeteilt, GESAMT_MAX, praefixFuer, SICHERUNG_MAX } from "../../../lib/sync.js";
+import { istPolarId, lizenzId, polar, polarAnsicht, polarFehler, polarLizenz, polarOrg } from "../../../lib/polar.js";
+
+const OHNE_ANBIETER = "Weder Polar noch Lemon Squeezy ist verbunden. Trag das Polar-Token unter Einstellungen ein.";
+
+/** Polar-Lizenz samt Aktivierungen (Organisations-Token). */
+const polarLizenzLaden = (env, id) => polar(env, `license-keys/${encodeURIComponent(id)}`);
+
+/** Alle Polar-Lizenzen (bis 300, neueste zuerst). */
+async function polarListe(env) {
+  const alle = [];
+  for (let seite = 1; seite <= 3; seite++) {
+    const r = await polar(env, `license-keys/?organization_id=${encodeURIComponent(polarOrg(env))}&limit=100&page=${seite}`);
+    if (!r.ok) return { fehler: polarFehler(r), status: r.status || 502 };
+    alle.push(...(r.daten?.items || []));
+    if ((r.daten?.pagination?.max_page ?? 1) <= seite) break;
+  }
+  alle.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  return { liste: alle.map((k) => polarAnsicht(k, env)) };
+}
+
+/** Änderungen an einer Polar-Lizenz aus den Aktionen des Admins. */
+function polarAenderung(d, bisherAblauf) {
+  switch (d.aktion) {
+    case "sperren":
+      return { felder: { status: "disabled" }, beschreibung: "gesperrt" };
+    case "entsperren":
+      return { felder: { status: "granted" }, beschreibung: "wieder freigegeben" };
+    case "unbefristet":
+      return { felder: { expires_at: null }, beschreibung: "auf unbefristet gesetzt" };
+    case "verlaengern": {
+      const tage = Math.min(3650, Math.max(1, Number(d.tage) || 365));
+      const bisher = bisherAblauf ? new Date(bisherAblauf).getTime() : 0;
+      const basis = bisher > Date.now() ? bisher : Date.now();
+      return { felder: { expires_at: new Date(basis + tage * 864e5).toISOString() }, beschreibung: `um ${tage} Tage verlängert` };
+    }
+    case "geraete": {
+      const limit = Math.min(100, Math.max(1, Number(d.limit) || 3));
+      return { felder: { limit_activations: limit }, beschreibung: `auf ${limit} Geräte gesetzt` };
+    }
+    default:
+      return null;
+  }
+}
+
+async function polarAendern(env, id, d) {
+  let bisher = null;
+  if (d.aktion === "verlaengern") bisher = (await polarLizenzLaden(env, id)).daten?.expires_at ?? null;
+  const a = polarAenderung(d, bisher);
+  if (!a) return { fehler: "Unbekannte Aktion.", status: 400 };
+  const r = await polar(env, `license-keys/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(a.felder) });
+  if (!r.ok) return { fehler: polarFehler(r), status: r.status || 502 };
+  return { beschreibung: a.beschreibung, lizenz: polarAnsicht(r.daten, env) };
+}
 
 const SAMMEL = new Set(["sperren", "entsperren", "verlaengern"]);
 
@@ -61,8 +115,16 @@ const ansicht = (l) => {
 
 export async function onRequestGet({ request, data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
+  if (!env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
   const id = new URL(request.url).searchParams.get("id");
+  if (id && istPolarId(lizenzId(id))) return polarEinzeln(env, lizenzId(id));
+  if (!env.LEMONSQUEEZY_API_KEY) {
+    if (id) return json(404, { fehler: "Lizenz nicht gefunden." });
+    const p = await polarListe(env);
+    if (p.fehler) return json(p.status, { fehler: p.fehler });
+    const z = await zusatz(env, p.liste.map((l) => l.id));
+    return json(200, { lizenzen: p.liste.map((l) => ({ ...l, ...z[l.id] })) });
+  }
   if (id) {
     const sauber = String(id).replace(/\D/g, "");
     const [l, inst] = await Promise.all([lemon(env, `license-keys/${sauber}`), lemon(env, `license-key-instances?filter[license_key_id]=${sauber}&page[size]=50`)]);
@@ -95,18 +157,51 @@ export async function onRequestGet({ request, data }) {
     alle.push(...(r.daten?.data || []));
     if (!r.daten?.meta?.page || r.daten.meta.page.lastPage <= seite) break;
   }
-  const liste = alle.map(ansicht);
+  let liste = alle.map(ansicht);
+  if (env.POLAR_ACCESS_TOKEN) {
+    const p = await polarListe(env);
+    if (p.liste) liste = [...p.liste, ...liste];
+  }
   const z = await zusatz(env, liste.map((l) => l.id));
   return json(200, { lizenzen: liste.map((l) => ({ ...l, ...z[l.id] })) });
 }
 
+/** Einzelne Polar-Lizenz mit Geräten, Verlauf und Sync-Speicher. */
+async function polarEinzeln(env, id) {
+  if (!env.POLAR_ACCESS_TOKEN) return json(412, { fehler: OHNE_ANBIETER });
+  const l = await polarLizenzLaden(env, id);
+  if (!l.ok) return json(l.status || 502, { fehler: polarFehler(l) });
+  const [z, protokoll, sync] = await Promise.all([
+    zusatz(env, [id]),
+    leseProtokoll(env, 500),
+    env.SYNC ? belegtGeteilt(env.SYNC, praefixFuer(id)) : null,
+  ]);
+  const ping = z[id]?.ping;
+  return json(200, {
+    lizenz: { ...polarAnsicht(l.daten, env), ...z[id] },
+    // Bei Polar ist die Aktivierungs-ID zugleich das, womit die App und der Admin abmelden.
+    geraete: (l.daten?.activations || []).map((a) => ({
+      id: a.id,
+      identifier: a.id,
+      name: a.label,
+      erstellt: a.created_at,
+      zuletzt: ping?.instanz && ping.instanz === a.id ? ping.zeit : null,
+    })),
+    verlauf: protokoll.filter((e) => String(e.details).includes(`Lizenz ${id}`)).slice(0, 30),
+    sync: sync ? { ...sync.sync, grenze: GESAMT_MAX, sicherungen: { ...sync.sicherungen, grenze: SICHERUNG_MAX } } : null,
+  });
+}
+
 export async function onRequestPost({ request, data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
+  if (!env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
   const d = await request.json().catch(() => null);
   if (Array.isArray(d?.ids)) return sammelaktion(env, data, d);
-  const id = String(d?.id || "").replace(/\D/g, "");
+  const id = lizenzId(d?.id);
   if (!id || !d?.aktion) return json(400, { fehler: "Es fehlen Angaben (id, aktion)." });
+  const istPolar = istPolarId(id);
+  if (istPolar && !env.POLAR_ACCESS_TOKEN) return json(412, { fehler: OHNE_ANBIETER });
+  if (!istPolar && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Für ältere Lizenzen fehlt der Lemon-Squeezy-Schlüssel." });
 
   if (d.aktion === "notiz") {
     const text = String(d.text || "").trim().slice(0, 2000);
@@ -128,9 +223,16 @@ export async function onRequestPost({ request, data }) {
     const text = String(d.text || "").trim().slice(0, 10000);
     if (betreff.length < 3 || text.length < 5) return json(422, { fehler: "Betreff und Text dürfen nicht leer sein." });
     if (!env.RESEND_API_KEY) return json(412, { fehler: "Der Resend-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
-    const l = await lemon(env, `license-keys/${id}`);
-    const a = l.daten?.data?.attributes || {};
-    if (!l.ok || !a.user_email) return json(502, { fehler: lsFehler(l) || "Zur Lizenz gibt es keine E-Mail-Adresse." });
+    let a;
+    if (istPolar) {
+      const l = await polarLizenzLaden(env, id);
+      a = { user_email: l.daten?.customer?.email, user_name: l.daten?.customer?.name };
+      if (!l.ok || !a.user_email) return json(502, { fehler: l.ok ? "Zur Lizenz gibt es keine E-Mail-Adresse." : polarFehler(l) });
+    } else {
+      const l = await lemon(env, `license-keys/${id}`);
+      a = l.daten?.data?.attributes || {};
+      if (!l.ok || !a.user_email) return json(502, { fehler: lsFehler(l) || "Zur Lizenz gibt es keine E-Mail-Adresse." });
+    }
     const vorname = String(a.user_name || "").split(/\s+/)[0];
     const html = mailHtml(`${vorname ? `<p style="margin:0 0 14px;">Hallo ${escapeHtml(vorname)},</p>` : ""}${textZuHtml(text)}`, {
       vorschau: text.split("\n")[0].slice(0, 120),
@@ -150,6 +252,24 @@ export async function onRequestPost({ request, data }) {
     if (!r.ok) return json(502, { fehler: `Mail konnte nicht gesendet werden (Resend ${r.status}).` });
     await protokolliere(env, data.benutzer, "Lizenz: Mail an Kunden", `Lizenz ${id}: ${betreff}`);
     return json(200, { ok: true, meldung: `Mail an ${a.user_email} gesendet.` });
+  }
+
+  if (d.aktion === "geraet-abmelden" && istPolar) {
+    const instanz = String(d.instanz || "").trim();
+    if (!instanz) return json(400, { fehler: "Es fehlt das Gerät (instanz)." });
+    const l = await polarLizenzLaden(env, id);
+    if (!l.ok || !l.daten?.key) return json(l.status || 502, { fehler: polarFehler(l) });
+    const r = await polarLizenz(env, "deactivate", { key: l.daten.key, activation_id: instanz });
+    if (!(r.status === 204 || r.ok)) return json(r.status === 404 ? 404 : 502, { fehler: r.status === 404 ? "Gerät nicht gefunden." : polarFehler(r) });
+    await protokolliere(env, data.benutzer, "Lizenz: Gerät abgemeldet", `Lizenz ${id}`);
+    return json(200, { ok: true, meldung: "Gerät abgemeldet. Der Platz ist wieder frei." });
+  }
+
+  if (istPolar) {
+    const e = await polarAendern(env, id, d);
+    if (e.fehler) return json(e.status, { fehler: e.fehler });
+    await protokolliere(env, data.benutzer, `Lizenz ${e.beschreibung}`, `Lizenz ${id}`);
+    return json(200, { ok: true, meldung: `Lizenz ${e.beschreibung}.`, lizenz: e.lizenz });
   }
 
   if (d.aktion === "geraet-abmelden") {
@@ -232,11 +352,20 @@ function attributeFuer(d) {
 /** Sperren, Entsperren oder Verlängern für mehrere Lizenzen (bis 50). */
 async function sammelaktion(env, data, d) {
   if (!SAMMEL.has(d.aktion)) return json(400, { fehler: "Diese Aktion gibt es nicht als Sammelaktion." });
-  const ids = [...new Set(d.ids.map((x) => String(x).replace(/\D/g, "")).filter(Boolean))].slice(0, 50);
+  const ids = [...new Set(d.ids.map(lizenzId).filter(Boolean))].slice(0, 50);
   if (!ids.length) return json(400, { fehler: "Keine Lizenzen ausgewählt." });
   let ok = 0;
   const fehler = [];
   for (const id of ids) {
+    if (istPolarId(id)) {
+      const e = env.POLAR_ACCESS_TOKEN ? await polarAendern(env, id, d) : { fehler: OHNE_ANBIETER };
+      if (e.fehler) fehler.push(id);
+      else {
+        ok += 1;
+        await protokolliere(env, data.benutzer, `Lizenz ${e.beschreibung} (Sammelaktion)`, `Lizenz ${id}`);
+      }
+      continue;
+    }
     let bisherAblauf = null;
     if (d.aktion === "verlaengern") {
       const l = await lemon(env, `license-keys/${id}`);
