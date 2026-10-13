@@ -1,7 +1,7 @@
 /**
  * POST /api/app/nutzung — anonyme Nutzungsstatistik der App (abschaltbar).
  *
- * Körper: { version, system, tage: { "JJJJ-MM-TT": { funktion: anzahl } } }
+ * Körper: { version, system, systemVersion?, tage: { "JJJJ-MM-TT": { funktion: anzahl } } }
  * Keine Lizenz, keine Geräte-ID, keine Inhalte. Gegen Missbrauch höchstens
  * 20 Meldungen je Stunde und Absender; die IP wird dafür nur mit dem
  * Tagesdatum gehasht und nie gespeichert. Gespeichert werden Tagessummen
@@ -22,7 +22,7 @@ export async function onRequestPost({ request, env }) {
   for (const [tag, werte] of m.tage) {
     const key = `nutzung:${tag}`;
     const stand = JSON.parse((await env.ALPHA.get(key)) || "null");
-    await env.ALPHA.put(key, JSON.stringify(addiere(stand, werte, m.version, m.system)), { expirationTtl: TTL });
+    await env.ALPHA.put(key, JSON.stringify(addiere(stand, werte, m.version, m.system, m.systemVersion)), { expirationTtl: TTL });
   }
   return json(200, { ok: true, tage: m.tage.length });
 }

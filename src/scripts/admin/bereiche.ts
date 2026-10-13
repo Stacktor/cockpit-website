@@ -936,7 +936,7 @@ function appNutzung(n: Daten | null) {
       kpi("App-Meldungen (30 Tage)", zahl(n.berichte), "eine je Gerät und Tag"),
       kpi("Geräte am Tag", n.schnittGeraete.toLocaleString("de-DE"), "im Schnitt, an Tagen mit Meldungen"),
       kpi("Meistgenutzte Ansicht", top ? APP_FUNKTION[top.name] ?? top.name : "—", top ? `${zahl(top.anzahl)}× geöffnet` : ""),
-      kpi("Häufigste Version", (n.versionen as Daten[])[0]?.name ?? "—", (n.systeme as Daten[]).map((x) => `${x.name} ${x.anzahl}`).join(" · ")),
+      kpi("Häufigste Version", (n.versionen as Daten[])[0]?.name ?? "—", (n.systeme as Daten[]).map((x) => `${SYSTEME[x.name as string] ?? x.name} ${x.anzahl}`).join(" · ")),
     ),
     karte(
       "Was in der App genutzt wird (30 Tage)",
@@ -945,10 +945,25 @@ function appNutzung(n: Daten | null) {
         h("div", {}, h("h3", { class: "a-zwischentitel" }, "Ansichten"), balken((n.ansichten as Daten[]).map(appName), 12)),
         h("div", {}, h("h3", { class: "a-zwischentitel" }, "Aktionen"), balken((n.aktionen as Daten[]).map(appName), 12)),
       ),
+      raster(
+        "a-r2 a-innen",
+        h("div", {}, h("h3", { class: "a-zwischentitel" }, "Betriebssysteme mit Version"), balken(((n.systemVersionen ?? []) as Zaehlung[]).map(systemName), 8)),
+        h("div", {}, h("h3", { class: "a-zwischentitel" }, "App-Versionen"), balken(n.versionen as Zaehlung[], 8)),
+      ),
       verlauf((n.proTag as Daten[]).map((x) => ({ tag: x.tag, wert: x.berichte })), "var(--a-ink)"),
       h("p", { class: "a-fussnote" }, "Gezählt werden nur Funktionsnamen, ohne Lizenz, Geräte-ID oder Inhalte. Nutzer können die Statistik in der App abschalten."),
     ),
   );
+}
+
+const SYSTEME: Record<string, string> = { macos: "macOS", windows: "Windows", linux: "Linux", ios: "iOS", android: "Android" };
+
+/** „macos 27.2“ → „macOS 27.2“. */
+type Zaehlung = { name: string; anzahl: number };
+
+function systemName(x: Zaehlung): Zaehlung {
+  const [system, ...rest] = x.name.split(" ");
+  return { ...x, name: [SYSTEME[system] ?? system, ...rest].join(" ") };
 }
 
 export const analytics: Bereich = async (ziel) => {

@@ -414,11 +414,20 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   assert.deepEqual(tag.systeme, { windows: 1, linux: 1 });
   assert.ok(![...env.ALPHA.m.keys()].some((k) => k.includes("1.2.3.4")), "IP wird nicht gespeichert");
 
+  // Version des Betriebssystems: wird je System gezählt, ältere Apps ohne Version stören nicht.
+  assert.equal(pruefeMeldung({ system: "macos", systemVersion: "27.2<b>", tage: { [gestern]: { a: 1 } } }).systemVersion, "27.2b");
+  r = await post({ version: "0.1.0", system: "macos", systemVersion: "27.2", tage: { [gestern]: { ansicht_pipeline: 1 } } }, "9.9.9.9");
+  assert.equal(r.status, 200);
+  const mitVersion = JSON.parse(env.ALPHA.m.get(`nutzung:${gestern}`));
+  assert.deepEqual(mitVersion.systemVersionen, { "macos 27.2": 1 });
+  assert.deepEqual(mitVersion.systeme, { windows: 1, linux: 1, macos: 1 });
+
   const a = await (await admin({ data: { env } })).json();
-  assert.equal(a.berichte, 3);
+  assert.deepEqual(a.systemVersionen, [{ name: "macos 27.2", anzahl: 1 }]);
+  assert.equal(a.berichte, 4);
   assert.deepEqual(
     Object.fromEntries(a.ansichten.map((x) => [x.name, x.anzahl])),
-    { pipeline: 4, jobs: 4, dashboard: 2 },
+    { pipeline: 5, jobs: 4, dashboard: 2 },
   );
   assert.equal(a.ansichten.at(-1).name, "dashboard", "sortiert nach Häufigkeit");
   assert.deepEqual(a.aktionen, [{ name: "anschreiben", anzahl: 1 }]);
