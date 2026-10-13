@@ -1,5 +1,6 @@
 /**
- * /api/admin/umsatz — Bestellungen, Kunden, Erstattungen, Rabattcodes (Lemon Squeezy).
+ * /api/admin/umsatz — Bestellungen, Kunden, Erstattungen, Rabattcodes (Polar; ohne Polar-Token
+ * wie bisher Lemon Squeezy).
  *   GET
  *   POST { aktion: "rabatt", name, code?, prozent, anzahl? }  Rabattcode anlegen
  *        { aktion: "rabatt-loeschen", id }
@@ -7,9 +8,77 @@
 import { json } from "../../../lib/admin/zugang.js";
 import { lemon, lsFehler, proTag } from "../../../lib/admin/daten.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
+import { polar, polarFehler, polarOrg, polarRabatt } from "../../../lib/polar.js";
+
+const sandbox = (env) => String(env.POLAR_SERVER || "").toLowerCase() === "sandbox";
+
+/** Gleiche Antwort wie bei Lemon Squeezy, Daten aus Polar. */
+async function polarGet(env) {
+  const org = encodeURIComponent(polarOrg(env));
+  const [bestellungen, kunden, rabatte] = await Promise.all([
+    polar(env, `orders/?organization_id=${org}&limit=100&sorting=-created_at`),
+    polar(env, `customers/?organization_id=${org}&limit=100&sorting=-created_at`),
+    polar(env, `discounts/?organization_id=${org}&limit=100`),
+  ]);
+  if (!bestellungen.ok) return json(bestellungen.status || 502, { fehler: polarFehler(bestellungen) });
+  const test = sandbox(env);
+  const be = (bestellungen.daten?.items || []).map((o) => ({
+    id: o.id,
+    nummer: o.invoice_number || o.id.slice(0, 8),
+    kunde: o.customer?.email || null,
+    name: o.customer?.name || o.billing_name || null,
+    status: o.status,
+    erstattet: o.status === "refunded" || (o.refunded_amount || 0) > 0,
+    summe: (o.total_amount || 0) / 100,
+    waehrung: String(o.currency || "eur").toUpperCase(),
+    produkt: o.product?.name || o.description || "",
+    variante: "",
+    rabatt: (o.discount_amount || 0) / 100,
+    testmodus: test,
+    zeit: o.created_at,
+  }));
+  const bezahlt = be.filter((o) => o.status === "paid" && !o.testmodus);
+  const summe = (liste) => +liste.reduce((s, o) => s + o.summe, 0).toFixed(2);
+  const monat = Date.now() - 30 * 864e5;
+  const umsatzJeKunde = {};
+  for (const o of be) if (o.status === "paid") umsatzJeKunde[o.kunde] = (umsatzJeKunde[o.kunde] || 0) + o.summe;
+  return json(200, {
+    kennzahlen: {
+      bestellungen: bezahlt.length,
+      umsatz: summe(bezahlt),
+      umsatz30: summe(bezahlt.filter((o) => new Date(o.zeit).getTime() > monat)),
+      erstattet: be.filter((o) => o.erstattet).length,
+      kunden: kunden.daten?.pagination?.total_count ?? (kunden.daten?.items || []).length,
+      waehrung: be[0]?.waehrung || "EUR",
+    },
+    proTag: proTag(bezahlt.map((o) => o.zeit), 30),
+    bestellungen: be,
+    kunden: (kunden.daten?.items || []).map((c) => ({
+      id: c.id,
+      name: c.name,
+      mail: c.email,
+      land: c.billing_address?.country || null,
+      umsatz: +(umsatzJeKunde[c.email] || 0).toFixed(2),
+      zeit: c.created_at,
+    })),
+    rabatte: (rabatte.daten?.items || []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      code: r.code,
+      betrag: r.type === "percentage" ? (r.basis_points || 0) / 100 : (r.amount || 0) / 100,
+      art: r.type === "percentage" ? "percent" : "fixed",
+      eingeloest: r.redemptions_count ?? null,
+      max: r.max_redemptions ?? null,
+      status: r.ends_at && new Date(r.ends_at) < new Date() ? "expired" : "published",
+      zeit: r.created_at,
+    })),
+  });
+}
+
 
 export async function onRequestGet({ data }) {
   const env = data.env;
+  if (env.POLAR_ACCESS_TOKEN) return polarGet(env);
   if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Der Lemon-Squeezy-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
   const [bestellungen, kunden, rabatte] = await Promise.all([
     lemon(env, "orders?page[size]=100&sort=-createdAt"),
@@ -73,7 +142,8 @@ export async function onRequestGet({ data }) {
 
 export async function onRequestPost({ request, data }) {
   const env = data.env;
-  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Lemon-Squeezy-Schlüssel fehlt." });
+  if (env.POLAR_ACCESS_TOKEN) return polarPost(env, data, await request.json().catch(() => null));
+  if (!env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Weder Polar noch Lemon Squeezy ist verbunden." });
   const d = await request.json().catch(() => null);
   if (d?.aktion === "rabatt-loeschen") {
     const id = String(d.id || "").replace(/\D/g, "");
@@ -109,3 +179,23 @@ export async function onRequestPost({ request, data }) {
   await protokolliere(env, data.benutzer, "Rabattcode angelegt", `${code} (${prozent} %)`);
   return json(200, { ok: true, meldung: `Rabattcode ${code} angelegt.` });
 }
+
+async function polarPost(env, data, d) {
+  if (d?.aktion === "rabatt-loeschen") {
+    const id = String(d.id || "").replace(/[^0-9a-f-]/gi, "");
+    const r = await polar(env, `discounts/${id}`, { method: "DELETE" });
+    if (!r.ok && r.status !== 204) return json(r.status || 502, { fehler: polarFehler(r) });
+    await protokolliere(env, data.benutzer, "Rabattcode gelöscht", id);
+    return json(200, { ok: true, meldung: "Rabattcode gelöscht." });
+  }
+  if (d?.aktion !== "rabatt") return json(400, { fehler: "Unbekannte Aktion." });
+  const prozent = Number(d.prozent);
+  if (!Number.isInteger(prozent) || prozent < 1 || prozent > 100) return json(422, { fehler: "Rabatt in Prozent: 1 bis 100." });
+  const code = String(d.code || "").trim().toUpperCase() || "CP" + crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase();
+  if (!/^[A-Z0-9]{3,32}$/.test(code)) return json(422, { fehler: "Code: 3–32 Zeichen, nur Buchstaben und Ziffern." });
+  const r = await polarRabatt(env, { name: d.name, code, prozent, anzahl: Number(d.anzahl) || 0 });
+  if (!r.ok) return json(r.status || 502, { fehler: polarFehler(r) });
+  await protokolliere(env, data.benutzer, "Rabattcode angelegt", `${code} (${prozent} %)`);
+  return json(200, { ok: true, meldung: `Rabattcode ${code} angelegt.` });
+}
+

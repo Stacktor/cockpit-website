@@ -12,6 +12,7 @@ import { anmeldungen, escapeHtml, lemon, lsFehler, resend, zaehleBelegt } from "
 import { protokolliere } from "../../../lib/admin/protokoll.js";
 import { alsText, kasten, knopf, link as mailLink, mailHtml, titel } from "../../../lib/mail/vorlage.js";
 import { plaetze } from "../../../lib/alpha-optionen.js";
+import { polarFehler, polarRabatt } from "../../../lib/polar.js";
 
 const STATUS = ["neu", "angenommen", "eingeladen", "warteliste", "abgelehnt"];
 
@@ -19,7 +20,9 @@ export async function onRequestGet({ data }) {
   const env = data.env;
   if (!env.ALPHA) return json(503, { fehler: "KV-Namespace ALPHA ist nicht verbunden." });
   const liste = await anmeldungen(env);
-  const einladenBereit = Boolean(env.LEMONSQUEEZY_API_KEY && env.LS_STORE_ID && env.LS_ALPHA_VARIANT_ID && env.LS_ALPHA_CHECKOUT_URL && env.RESEND_API_KEY);
+  const einladenBereit = env.POLAR_ACCESS_TOKEN
+    ? Boolean(env.POLAR_ALPHA_CHECKOUT_URL && env.POLAR_ALPHA_PRODUCT_ID && env.RESEND_API_KEY)
+    : Boolean(env.LEMONSQUEEZY_API_KEY && env.LS_STORE_ID && env.LS_ALPHA_VARIANT_ID && env.LS_ALPHA_CHECKOUT_URL && env.RESEND_API_KEY);
   return json(200, { plaetze: await plaetze(env), status: STATUS, einladenBereit, eintraege: liste.map(({ _key, ...e }) => e) });
 }
 
@@ -73,6 +76,7 @@ export async function onRequestPost({ request, data }) {
 }
 
 async function einladen(env, benutzer, key, eintrag, ohneCode) {
+  if (env.POLAR_ACCESS_TOKEN) return einladenPolar(env, benutzer, key, eintrag, ohneCode);
   const fehlt = ["LS_ALPHA_CHECKOUT_URL", "RESEND_API_KEY", ...(ohneCode ? [] : ["LEMONSQUEEZY_API_KEY", "LS_STORE_ID", "LS_ALPHA_VARIANT_ID"])].filter((n) => !env[n]);
   if (fehlt.length) return json(412, { fehler: `Für Einladungen fehlt in den Einstellungen: ${fehlt.join(", ")}.` });
 
@@ -107,14 +111,34 @@ async function einladen(env, benutzer, key, eintrag, ohneCode) {
   link.searchParams.set("checkout[email]", eintrag.mail);
   if (eintrag.name) link.searchParams.set("checkout[name]", eintrag.name);
   if (code) link.searchParams.set("checkout[discount_code]", code);
+  return einladungSenden(env, benutzer, key, eintrag, link, code, "Lemon Squeezy");
+}
 
+/** Polar: 100-%-Code nur für das Alpha-Produkt, einmal einlösbar; Link mit Mail und Code vorbefüllt. */
+async function einladenPolar(env, benutzer, key, eintrag, ohneCode) {
+  const fehlt = ["POLAR_ALPHA_CHECKOUT_URL", "RESEND_API_KEY", ...(ohneCode ? [] : ["POLAR_ALPHA_PRODUCT_ID"])].filter((n) => !env[n]);
+  if (fehlt.length) return json(412, { fehler: `Für Einladungen fehlt in den Einstellungen: ${fehlt.join(", ")}.` });
+  let code = null;
+  if (!ohneCode) {
+    code = "ALPHA" + crypto.getRandomValues(new Uint32Array(2)).reduce((s, x) => s + x.toString(36).toUpperCase(), "").slice(0, 8);
+    const r = await polarRabatt(env, { name: `Alpha ${eintrag.mail}`, code, prozent: 100, anzahl: 1, produkte: [String(env.POLAR_ALPHA_PRODUCT_ID)] });
+    if (!r.ok) return json(502, { fehler: `Rabattcode konnte nicht angelegt werden: ${polarFehler(r)}` });
+  }
+  const link = new URL(env.POLAR_ALPHA_CHECKOUT_URL);
+  link.searchParams.set("customer_email", eintrag.mail);
+  if (eintrag.name) link.searchParams.set("customer_name", eintrag.name);
+  if (code) link.searchParams.set("discount_code", code);
+  return einladungSenden(env, benutzer, key, eintrag, link, code, "Polar");
+}
+
+async function einladungSenden(env, benutzer, key, eintrag, link, code, anbieter) {
   const vorname = String(eintrag.name || "").split(/\s+/)[0] || "hallo";
   const html = mailHtml(
     `${titel(`Du bist dabei, ${vorname}!`)}
     <p style="margin:0 0 14px;">Danke für deine Anmeldung. Schön, dass du die <b>0.1 Alpha</b> von cockpit testest.
     So kommst du an deinen Alpha-Schlüssel:</p>
     ${knopf(link.href, "Alpha-Schlüssel abholen")}
-    <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Der Link führt zu Lemon Squeezy, über die cockpit später verkauft wird.
+    <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Der Link führt zu ${anbieter}, über die cockpit später verkauft wird.
     ${code ? `Der Code <b>${escapeHtml(code)}</b> ist schon eingetragen, du zahlst <b>0 €</b>.` : "Die Alpha-Variante kostet 0 €."}
     Danach kommt der Schlüssel per Mail.</p>
     ${kasten(

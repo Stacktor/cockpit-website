@@ -69,7 +69,7 @@ export const alpha: Bereich = async (ziel, neu) => {
       ? h(
           "div",
           { class: "a-hinweis" },
-          "Zum Einladen brauchst du unter Einstellungen den Lemon-Squeezy-Schlüssel, die Store-ID, die Variant-ID und den Checkout-Link der Alpha, dazu den Resend-Schlüssel. Ist die Alpha-Variante ohnehin kostenlos, reichen Checkout-Link und Resend.",
+          "Zum Einladen brauchst du unter Einstellungen das Polar-Token, die Produkt-ID und den Checkout-Link der Alpha, dazu den Resend-Schlüssel. Ist die Alpha ohnehin kostenlos, reichen Checkout-Link und Resend.",
         )
       : null,
     karteMitKopf(
@@ -184,7 +184,7 @@ export const lizenzen: Bereich = async (ziel, neu) => {
   const produkte = [...new Set(l.map((x) => x.produkt).filter(Boolean))] as string[];
   const sammel = (aktionName: string, frage: string, extra: Daten = {}) => async (zeilen: Daten[]) => {
     if (!zeilen.length) return;
-    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an Lemon Squeezy. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
+    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an Polar. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
     await aktion(null, () => api("lizenzen", { ids: zeilen.map((x) => x.id), aktion: aktionName, ...extra }), neu);
   };
   fuege(
@@ -354,7 +354,7 @@ async function lizenzDetail(id: string, neu: () => void) {
             d.verlauf.map((e: Daten) => h("li", {}, h("b", {}, e.aktion), h("div", { class: "a-klein" }, `${zeit(e.zeit)} · ${e.benutzer || "?"}`))),
           )
         : leer("Noch keine Änderungen aus dem Admin."),
-      h("p", { class: "a-klein a-fussnote" }, `Erstellt ${zeit(x.erstellt)} bei Lemon Squeezy.`),
+      h("p", { class: "a-klein a-fussnote" }, `Erstellt ${zeit(x.erstellt)} beim Zahlungsanbieter.`),
     ),
   );
 }

@@ -37,7 +37,7 @@ Diese Verbindungen baut cockpit auf, mehr nicht:
 - **Stellensuche:** deine Suchbegriffe an die Quelle, die du nutzt, etwa die Arbeitsagentur.
 - **KI:** deine Texte an den Anbieter, den du eingerichtet hast.
 - **Postfach:** die Verbindung zu deinem eigenen Mail-Server.
-- **Lizenz:** ab und zu eine Prüfung deines Schlüssels bei Lemon Squeezy. Ist sie gültig, meldet die App uns App-Version, Betriebssystem und Lizenzstatus. Daran sehen wir, welche Versionen im Umlauf sind.
+- **Lizenz:** ab und zu eine Prüfung deines Schlüssels bei unserem Zahlungsanbieter Polar. Ist sie gültig, meldet die App uns App-Version, Betriebssystem und Lizenzstatus. Daran sehen wir, welche Versionen im Umlauf sind.
 - **Updates:** die Frage an GitHub, ob es eine neue Version gibt.
 - **Nutzungsstatistik:** einmal am Tag, welche Funktionen wie oft genutzt wurden, mit App-Version und Betriebssystem. Ohne Inhalte und ohne Kennung, abschaltbar unter **Einstellungen → System**.
 - **Sync, nur wenn du ihn einschaltest:** verschlüsselte Pakete an deinen Ordner oder den cockpit-Server. Mit Server-Sync auch verschlüsselte Sicherungen, abschaltbar.

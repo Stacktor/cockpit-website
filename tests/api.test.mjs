@@ -426,3 +426,63 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   assert.equal(auswerten([["2026-01-01", null]]).schnittGeraete, 0);
   console.log("Nutzungsstatistik: ok");
 }
+
+// ───────────── Polar (Schlüssel COCKPIT-…) ─────────────
+{
+  const L = new URL("../lib/", import.meta.url).href;
+  const { pruefeLizenz } = await import(L + "app-lizenz.js");
+  const { lizenzId, istPolarSchluessel, istPolarId } = await import(L + "polar.js");
+  const { onRequestPost: geraete } = await import(new URL("../functions/api/app/geraete.js", import.meta.url).href);
+
+  assert.equal(istPolarSchluessel("COCKPIT-1234"), true);
+  assert.equal(istPolarSchluessel("AAAA-BBBB"), false);
+  assert.equal(lizenzId("123"), "123");
+  assert.equal(lizenzId("4EA4B13A-08EC-4BF6-80AF-8B388026A68C"), "4ea4b13a-08ec-4bf6-80af-8b388026a68c");
+  assert.equal(lizenzId("../l/1"), "");
+  assert.equal(istPolarId("4ea4b13a-08ec-4bf6-80af-8b388026a68c"), true);
+
+  const ALPHA_ID = "aaaaaaaa-0000-4000-8000-000000000001";
+  const PRO_ID = "bbbbbbbb-0000-4000-8000-000000000002";
+  const SCHLUESSEL = {
+    "COCKPIT-ALPHA": { id: ALPHA_ID, status: "granted", benefit_id: "ben-alpha", expires_at: null, customer: { email: "a@example.org", name: "A" } },
+    "COCKPIT-PRO": { id: PRO_ID, status: "granted", benefit_id: "ben-pro", expires_at: null, customer: { email: "p@example.org" } },
+    "COCKPIT-GESPERRT": null,
+  };
+  const aufrufe = [];
+  globalThis.fetch = async (u, o) => {
+    const url = String(u);
+    aufrufe.push(url);
+    if (url.includes("/customer-portal/license-keys/validate")) {
+      const b = JSON.parse(o.body);
+      assert.equal(b.organization_id, "org-1");
+      if (b.key === "COCKPIT-LAST") return new Response("{}", { status: 429 });
+      const k = SCHLUESSEL[b.key];
+      if (!k) return new Response(JSON.stringify({ error: "ResourceNotFound", detail: b.key === "COCKPIT-GESPERRT" ? "License key is no longer active." : "Not found" }), { status: 404 });
+      return new Response(JSON.stringify(k));
+    }
+    if (url.includes(`/license-keys/${PRO_ID}`)) {
+      assert.match(o.headers.Authorization, /Bearer polar_x/);
+      return new Response(JSON.stringify({ id: PRO_ID, limit_activations: 3, activations: [{ id: "act-1", label: "Mac", created_at: "2026-10-01" }, { id: "act-2", label: "PC", created_at: "2026-10-02" }] }));
+    }
+    throw new Error("unerwartet " + url);
+  };
+  const env = { ALPHA: new KV(), POLAR_ORG_ID: "org-1", POLAR_SERVER: "sandbox", POLAR_ALPHA_BENEFIT_ID: "ben-alpha", POLAR_ACCESS_TOKEN: "polar_x" };
+
+  let p = await pruefeLizenz(env, "COCKPIT-ALPHA", "act-9");
+  assert.equal(p.ok, true); assert.equal(p.lizenz.alpha, true); assert.equal(p.lizenz.id, ALPHA_ID);
+  assert.ok(aufrufe[0].startsWith("https://sandbox-api.polar.sh/v1/"));
+  p = await pruefeLizenz(env, "COCKPIT-PRO", "act-1");
+  assert.equal(p.ok, false); assert.match(p.fehler, /nur in der Alpha/);
+  p = await pruefeLizenz(env, "COCKPIT-PRO", "act-1", { nurAlpha: false });
+  assert.equal(p.ok, true); assert.equal(p.lizenz.email, "p@example.org");
+  p = await pruefeLizenz(env, "COCKPIT-GESPERRT", "act-1", { nurAlpha: false });
+  assert.equal(p.ok, false); assert.equal(p.status, 403);
+  p = await pruefeLizenz(env, "COCKPIT-LAST", "act-1", { nurAlpha: false });
+  assert.equal(p.status, 503, "Drosselung gilt als nicht erreichbar, nicht als ungültig");
+
+  const r = await geraete({ request: new Request("https://x", { method: "POST", body: JSON.stringify({ schluessel: "COCKPIT-PRO", instanz: "act-2" }) }), env });
+  const g = await r.json();
+  assert.equal(r.status, 200); assert.equal(g.genutzt, 2); assert.equal(g.limit, 3);
+  assert.equal(g.geraete[0].id, "act-2"); assert.equal(g.geraete[0].diesesGeraet, true);
+  console.log("Polar-Lizenzen: ok");
+}

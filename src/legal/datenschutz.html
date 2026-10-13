@@ -1,5 +1,5 @@
 <h1>Datenschutzerklärung</h1>
-<p class="upd">Stand: 03.10.2026</p>
+<p class="upd">Stand: 13.10.2026</p>
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
@@ -67,14 +67,15 @@
   geladen. Der folgende Abschnitt beschreibt, was ab dem Verkaufsstart gelten wird.
 </div>
 <p>
-  Der Verkauf wird über <b>Lemon Squeezy, LLC</b> als Händler und Vertragspartner
-  erfolgen („Merchant of Record"). Beim Klick auf einen Kaufknopf öffnet sich dann ein
-  Bezahlfenster von Lemon Squeezy; dafür wird ein Skript von
-  <code>assets.lemonsqueezy.com</code> geladen und dabei deine IP-Adresse übertragen.
+  Der Verkauf wird über <b>Polar Software, Inc.</b> (USA) als Händler und Vertragspartner
+  erfolgen („Merchant of Record"). Beim Klick auf einen Kaufknopf öffnet sich dann die
+  Bezahlseite von Polar auf <code>polar.sh</code>; dabei wird deine IP-Adresse an Polar
+  übertragen. Polar ist ein US-Unternehmen; die Übermittlung stützt sich auf
+  Standardvertragsklauseln.
 </p>
 <p>
   Sämtliche Zahlungs- und Rechnungsdaten — Name, E-Mail-Adresse, Rechnungsanschrift,
-  Zahlungsmittel — werden <b>ausschließlich von Lemon Squeezy</b> erhoben und
+  Zahlungsmittel — werden <b>ausschließlich von Polar</b> erhoben und
   verarbeitet. Wir erhalten davon lediglich die Angaben, die für die Zuordnung des
   Kaufs und den Support erforderlich sind (insbesondere Name, E-Mail-Adresse und
   Bestellnummer). <b>Kreditkarten- oder Kontodaten erhalten wir zu keinem Zeitpunkt.</b>
@@ -83,8 +84,8 @@
   <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO — Vertragserfüllung; für die
     Aufbewahrung Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit steuerlichen
     Aufbewahrungspflichten.</li>
-  <li><b>Datenschutzerklärung von Lemon Squeezy:</b>
-    <a href="https://www.lemonsqueezy.com/privacy" rel="noopener" target="_blank">lemonsqueezy.com/privacy</a></li>
+  <li><b>Datenschutzerklärung von Polar:</b>
+    <a href="https://polar.sh/legal/privacy" rel="noopener" target="_blank">polar.sh/legal/privacy</a></li>
 </ul>
 
 <h2 id="alphateilnahme">3a · Anmeldung zur Alpha</h2>
@@ -151,7 +152,7 @@
 <table>
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
   <tbody>
-    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Prüfung, dass die Anfrage von einem Alpha-Tester kommt (bei Lemon Squeezy); gespeichert wird nur die Lizenz-ID, nie der Schlüssel</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Prüfung, dass die Anfrage von einem Alpha-Tester kommt (bei Polar); gespeichert wird nur die Lizenz-ID, nie der Schlüssel</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
     <tr><td>E-Mail-Adresse und Name aus deiner Lizenz</td><td>Rückfragen zu deiner Antwort oder deinem Fehlerbericht</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Antworten auf Umfragen</td><td>Verbesserung der App, Festlegung von Preis und Lizenzmodell</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Fehlerbeschreibung, optional technisches Protokoll (App-Version, Betriebssystem, letzte Fehlermeldungen, keine Bewerbungsdaten)</td><td>Fehlerbehebung</td><td>Cloudflare Workers KV, Resend (Benachrichtigung an mich)</td></tr>
@@ -192,18 +193,18 @@
 <h2>4 · Lizenzprüfung in der App</h2>
 <p>
   Gibst du einen Lizenzschlüssel in der App ein, sendet die App diesen Schlüssel
-  zusammen mit einem Gerätenamen an die Lizenz-Schnittstelle von Lemon Squeezy, um die
+  zusammen mit einem Gerätenamen an die Lizenz-Schnittstelle von Polar, um die
   Lizenz freizuschalten. Den Gerätenamen bildet die App selbst aus deinem Benutzernamen
   am Rechner, dem Betriebssystem und einer zufälligen Kennung, zum Beispiel
   „anna · Windows (a1b2c3)“. So erkennst du deine Geräte wieder, wenn du eines abmelden
   willst. Danach wird die Gültigkeit gelegentlich im Hintergrund nachgeprüft.
 </p>
 <p>
-  <b>An Lemon Squeezy gehen dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
+  <b>An Polar gehen dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
   Nach einer erfolgreichen Prüfung meldet die App zusätzlich App-Version, Betriebssystem
   und Lizenzstatus an cockpit.mesco.cc. Damit der Server die Meldung der richtigen Lizenz
   zuordnen kann, schickt die App den Lizenzschlüssel und die Geräte-ID mit; der Server
-  prüft beides bei Lemon Squeezy. So sehe ich, welche Versionen im Einsatz sind und
+  prüft beides bei Polar. So sehe ich, welche Versionen im Einsatz sind und
   wann eine Lizenz zuletzt geprüft wurde. Gespeichert wird je Lizenz nur die letzte
   Meldung (Zeitpunkt, App-Version, Betriebssystem, Lizenzstatus und Geräte-ID) in
   Cloudflare Workers KV, höchstens 400 Tage, zur Lizenz-ID und nicht zum Schlüssel.
@@ -246,7 +247,7 @@
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
   <tbody>
     <tr><td>Verschlüsselte Pakete deiner App-Daten und Dokumente</td><td>Abgleich zwischen deinen Geräten</td><td>Cloudflare R2, bis du sie löschst</td></tr>
-    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung bei Lemon Squeezy); gespeichert wird nur die Lizenz-ID</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung bei Polar); gespeichert wird nur die Lizenz-ID</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
     <tr><td>Verschlüsselte Cloud-Sicherungen (Datenbank und Dokumente, genauso verschlüsselt)</td><td>Wiederherstellen, falls ein Gerät kaputtgeht. Läuft nur mit aktivem Server-Sync und lässt sich unter Einstellungen → Sicherungen abschalten</td><td>Cloudflare R2, die drei neuesten je Gerät, bis du sie löschst</td></tr>
     <tr><td>Dateigrößen und Zeitpunkte</td><td>Speichergrenzen (200 MB Sync, 300 MB Sicherungen je Lizenz) und Betrieb</td><td>Cloudflare R2</td></tr>
   </tbody>
