@@ -5,7 +5,7 @@ Quellcode der Website von **Bewerbungs-Cockpit**: **[cockpit.mesco.cc](https://c
 cockpit ist ein Bewerbungsmanager für Windows, Linux und macOS, der die Daten auf dem Gerät lässt:
 Pipeline, Stellensuche, KI-Anschreiben mit eigenem Schlüssel oder lokalem Modell, Inbox, Kalender
 und Interview-Training. Er ist in der geschlossenen **0.1 Alpha**.
-[Alpha-Zugang anfragen](https://cockpit.mesco.cc/alpha/) · [Downloads](https://github.com/Stacktor/cockpit-releases) · [Hilfe-Center](https://cockpit.mesco.cc/hilfe/)
+[Alpha-Zugang anfragen](https://cockpit.mesco.cc/alpha/) · Installer: für Alpha-Tester über Polar · [Hilfe-Center](https://cockpit.mesco.cc/hilfe/)
 
 ---
 

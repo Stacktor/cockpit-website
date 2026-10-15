@@ -252,7 +252,7 @@ const mailAnBewerber = (name, platz, { warteliste, discord }) =>
   diesmal nicht, sage ich dir auch das.</p>
   ${kasten(
     "So geht es dann weiter",
-    `1. App laden: ${link("https://cockpit.mesco.cc/download/", "cockpit.mesco.cc/download")}<br>
+    `1. Installer laden: in deinem Polar-Zugang (Link in der Polar-Mail), ${link("https://cockpit.mesco.cc/download/", "so geht es")}<br>
     2. Alpha-Schlüssel beim ersten Start eintragen (${link("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
     3. Loslegen. Nach ein paar Tagen fragt dich die App kurz, wie es läuft.`,
   )}

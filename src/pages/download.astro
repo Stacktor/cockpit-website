@@ -2,43 +2,47 @@
 import Base from "../layouts/Base.astro";
 import Seitenkopf from "../components/Seitenkopf.astro";
 import Icon from "../components/Icon.astro";
-import { DOWNLOADS, SITE } from "../config";
 ---
 
-<Base title="Download" description="cockpit für Windows, Linux und macOS herunterladen, dazu die Browser-Erweiterung für Chrome und Edge. Kostenlos, ohne Konto.">
+<Base title="Download" description="So bekommst du cockpit für Windows, Linux und macOS: Die Installer gibt es derzeit nicht öffentlich, sondern für Alpha-Tester über Polar.">
   <Seitenkopf
     eyebrow="Download"
-    titel="cockpit herunterladen"
-    lead="Für Windows, Linux und macOS. Kostenlos und ohne Konto. Mit Alpha-Schlüssel sind alle Funktionen frei."
+    titel="So bekommst du cockpit"
+    lead="Für Windows, Linux und macOS. Kostenlos und ohne Konto. Die Installer gibt es in der Alpha nur für Tester, über Polar."
     krumen={[["Download", "/download/"]]}
     zentriert
-  >
-    <p class="micro version rv" style="--d:3" data-version>Neueste Version wird geladen …</p>
-  </Seitenkopf>
+  />
 
   <section class="abschnitt">
     <div class="wrap">
-      <div class="hinweis warn center" data-noch-nicht hidden style="margin-bottom:28px">
-        <b>Die erste öffentliche Version erscheint mit dem Start der Alpha.</b>
-        Melde dich für die <a href="/alpha/">Alpha</a> an. Sobald es losgeht, bekommst du eine Mail.
+      <div class="hinweis warn center" style="margin-bottom:28px">
+        <b>Öffentliche Download-Links sind derzeit nicht verfügbar.</b>
+        Die Installer bekommst du mit der Zusage zur <a href="/alpha/">Alpha</a>: Polar schickt dir eine Mail mit deinem Alpha-Schlüssel und dem Zugang zu den Dateien für dein System.
       </div>
+
+      <ol class="weg">
+        <li class="rv"><span class="schritt-nr">1</span><div><h3>Anmelden</h3><p>Auf der <a href="/alpha/">Alpha-Seite</a>, das dauert zwei Minuten.</p></div></li>
+        <li class="rv" style="--d:1"><span class="schritt-nr">2</span><div><h3>Mail von Polar</h3><p>Bist du dabei, kommt dein Alpha-Schlüssel. Absender ist Polar, nicht cockpit; schau auch im Spam-Ordner nach.</p></div></li>
+        <li class="rv" style="--d:2"><span class="schritt-nr">3</span><div><h3>Installer laden</h3><p>Über den Link in der Mail kommst du zu deinem Polar-Zugang. Dort liegen die Dateien für Windows, Linux und macOS.</p></div></li>
+      </ol>
+
       <div class="systeme">
-        <div class="system karte rv" id="windows" data-system="windows">
+        <div class="system karte rv" id="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
-          <a href={DOWNLOADS.windows} class="btn btn-p" data-dl>Installer (.exe) <Icon name="download" size={16} /></a>
-          <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket für Firmenrechner und Softwareverteilung</a>
+          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <p class="micro">Dateien: Installer (.exe), für Firmenrechner auch als .msi-Paket.</p>
           <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
         </div>
-        <div class="system karte rv" style="--d:1" id="linux" data-system="linux">
+        <div class="system karte rv" style="--d:1" id="linux">
           <div class="kopf"><span class="ic"><Icon name="terminal" /></span><div><h2>Linux</h2><p class="micro">x86_64 · Ubuntu, Debian, Fedora, Arch …</p></div></div>
-          <a href={DOWNLOADS.appimage} class="btn btn-p" data-dl>AppImage <Icon name="download" size={16} /></a>
-          <a href={DOWNLOADS.deb} class="klein" data-dl>oder als .deb-Paket (Debian, Ubuntu, Mint)</a>
+          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <p class="micro">Dateien: AppImage, dazu .deb für Debian, Ubuntu und Mint.</p>
           <p class="micro"><code>chmod +x cockpit-linux-x86_64.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
         </div>
-        <div class="system karte rv" style="--d:2" id="macos" data-system="macos">
+        <div class="system karte rv" style="--d:2" id="macos">
           <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26 oder neuer</p></div></div>
-          <a href={SITE.releases} class="btn btn-p" data-dl data-dl-mac>Mac-App (.zip) <Icon name="download" size={16} /></a>
-          <a href="/hilfe/erste-schritte/#macos" class="klein">Installieren in drei Schritten</a>
+          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <p class="micro">Datei: Mac-App als ZIP.</p>
           <p class="micro">ZIP entpacken, <b>cockpit</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
         </div>
       </div>
@@ -49,7 +53,7 @@ import { DOWNLOADS, SITE } from "../config";
           <h2>Browser-Erweiterung für Chrome und Edge</h2>
           <p>
             Speichert Stellenanzeigen mit einem Klick in cockpit und füllt Bewerbungsformulare aus (Pro).
-            Sie spricht nur mit cockpit auf deinem Rechner.
+            Sie spricht nur mit cockpit auf deinem Rechner. In der Alpha liegt sie als ZIP bei den Dateien in Polar.
           </p>
           <ol>
             <li>ZIP laden und entpacken.</li>
@@ -59,13 +63,12 @@ import { DOWNLOADS, SITE } from "../config";
           </ol>
           <p class="micro">In den Chrome Web Store kommt sie nach der Alpha.</p>
         </div>
-        <a href={DOWNLOADS.erweiterung} class="btn btn-s" data-dl>Erweiterung (.zip) <Icon name="download" size={16} /></a>
       </div>
 
       <div class="danach raster r3">
-        <a href="/hilfe/erste-schritte/" class="karte rv"><div class="ic"><Icon name="rocket" /></div><h3>Erste Schritte</h3><p>Installieren, einrichten, erste Bewerbung. Dauert etwa zehn Minuten.</p></a>
-        <a href="/hilfe/alpha-schluessel/" class="karte rv" style="--d:1"><div class="ic"><Icon name="key-round" /></div><h3>Alpha-Schlüssel eintragen</h3><p>Wo du ihn einträgst und was er freischaltet.</p></a>
-        <a href="/changelog/" class="karte rv" style="--d:2"><div class="ic"><Icon name="git-commit" /></div><h3>Was ist neu?</h3><p>Alle Änderungen je Version im Changelog.</p></a>
+        <a href="/alpha/" class="karte rv"><div class="ic"><Icon name="rocket" /></div><h3>Zur Alpha anmelden</h3><p>Plätze werden einzeln vergeben, kostenlos und mit allen Funktionen.</p></a>
+        <a href="/hilfe/erste-schritte/" class="karte rv" style="--d:1"><div class="ic"><Icon name="book-open" /></div><h3>Erste Schritte</h3><p>Installieren, einrichten, erste Bewerbung. Dauert etwa zehn Minuten.</p></a>
+        <a href="/hilfe/alpha-schluessel/" class="karte rv" style="--d:2"><div class="ic"><Icon name="key-round" /></div><h3>Alpha-Schlüssel eintragen</h3><p>Wo du ihn einträgst und was er freischaltet.</p></a>
       </div>
 
       <div class="technik">
@@ -77,47 +80,47 @@ import { DOWNLOADS, SITE } from "../config";
           <li><b>Speicher:</b> cockpit selbst braucht wenig Platz. Lokale KI-Modelle brauchen zusätzlich mehrere GB und am besten 16 GB Arbeitsspeicher.</li>
           <li><b>Updates:</b> cockpit meldet neue Versionen selbst und installiert sie auf Klick.</li>
         </ul>
-        <p class="micro">Alle Versionen und Prüfsummen: <a href={SITE.releases}>Releases auf GitHub</a>.</p>
       </div>
     </div>
   </section>
 </Base>
 
-<script>
-  (async () => {
-    const ziel = document.querySelector<HTMLElement>("[data-version]");
-    try {
-      const r = await fetch("/api/version", { cache: "no-store" });
-      const d = (await r.json()) as { version?: string | null; datum?: string | null };
-      if (d.version) {
-        const mac = (d as { dateien?: string[] }).dateien?.find((n) => /^cockpit-mac-.*\.zip$/.test(n));
-        const macKnopf = document.querySelector<HTMLAnchorElement>("[data-dl-mac]");
-        if (macKnopf) {
-          if (mac) macKnopf.href = `https://github.com/Stacktor/cockpit-releases/releases/download/${d.version}/${mac}`;
-          else {
-            macKnopf.setAttribute("aria-disabled", "true");
-            macKnopf.removeAttribute("href");
-          }
-        }
-        const datum = d.datum ? new Date(d.datum).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }) : "";
-        if (ziel) ziel.innerHTML = `Neueste Version: <b>${d.version.replace(/^v/, "")}</b>${datum ? ` · ${datum}` : ""} · <a href="/changelog/">Was ist neu?</a>`;
-        return;
-      }
-      if (ziel) ziel.textContent = "";
-      document.querySelector<HTMLElement>("[data-noch-nicht]")?.removeAttribute("hidden");
-      document.querySelectorAll<HTMLAnchorElement>("[data-dl]").forEach((a) => {
-        a.setAttribute("aria-disabled", "true");
-        a.removeAttribute("href");
-      });
-    } catch {
-      if (ziel) ziel.textContent = "";
-    }
-  })();
-</script>
-
 <style>
-  .version :global(a) {
+  .weg {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .weg li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .weg .schritt-nr {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--card);
+    border: 2px solid var(--accent);
     color: var(--accent-ink);
+    font-weight: 750;
+  }
+  .weg h3 {
+    margin-bottom: 4px;
+  }
+  .weg p {
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .weg {
+      grid-template-columns: 1fr;
+    }
   }
   .erweiterung {
     display: grid;

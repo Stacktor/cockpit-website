@@ -9,7 +9,7 @@ icon: rocket
 
 ## 1. Herunterladen
 
-Auf der [Download-Seite](/download/) findest du die Datei für dein System:
+Öffentliche Download-Links gibt es in der Alpha nicht. Mit der Zusage schickt Polar dir eine Mail mit dem Alpha-Schlüssel; über den Link darin kommst du zu deinem Polar-Zugang und findest dort die Datei für dein System ([so geht es](/download/)):
 
 | System | Datei |
 |---|---|

@@ -42,7 +42,7 @@ Monatelang lief cockpit nur intern. Jetzt startet die **0.1 Alpha**. 50 Leute, d
 
 1. Auf der [Alpha-Seite](/alpha/) anmelden. Das dauert zwei Minuten. Nach den Antworten werden die Plätze fair verteilt.
 2. Bist du dabei, kommt dein **Alpha-Schlüssel** per Mail.
-3. App [herunterladen](/download/), Schlüssel eintragen, loslegen.
+3. App über den Polar-Zugang laden ([so geht es](/download/)), Schlüssel eintragen, loslegen.
 
 Nach etwa drei Tagen stellt dir die App fünf kurze Fragen zum Start. Nach zwei Wochen kommt ein längerer Fragebogen, unter anderem dazu, was cockpit kosten darf. Und wenn etwas kaputtgeht: *Feedback geben → Fehler melden*, direkt in der App.
 
