@@ -76,19 +76,30 @@ const kapitel = [
     knopf.addEventListener("click", start);
     film.addEventListener("play", () => huelle.classList.add("laeuft"));
     film.addEventListener("ended", () => huelle.classList.remove("laeuft"));
+    // Cloudflare Pages liefert keine Teilabrufe (Range): Springen geht erst, wenn die Stelle geladen ist.
+    const gehe = (ziel: number) => {
+      const bereit = () => film.seekable.length > 0 && film.seekable.end(film.seekable.length - 1) >= ziel;
+      const los = () => {
+        film.currentTime = ziel;
+        start();
+      };
+      if (bereit()) return los();
+      huelle.classList.add("laedt");
+      const pruefe = () => {
+        if (!bereit()) return;
+        film.removeEventListener("progress", pruefe);
+        film.removeEventListener("loadedmetadata", pruefe);
+        huelle.classList.remove("laedt");
+        los();
+      };
+      film.addEventListener("progress", pruefe);
+      film.addEventListener("loadedmetadata", pruefe);
+      film.preload = "auto";
+      if (film.readyState === 0) film.load();
+    };
     spruenge.forEach((b) =>
       b.addEventListener("click", () => {
-        film.preload = "auto";
-        const ziel = Number(b.dataset.sprung);
-        const los = () => {
-          film.currentTime = ziel;
-          start();
-        };
-        if (film.readyState >= 1) los();
-        else {
-          film.addEventListener("loadedmetadata", los, { once: true });
-          film.load();
-        }
+        gehe(Number(b.dataset.sprung));
         huelle.scrollIntoView({ block: "center", behavior: "smooth" });
       }),
     );
@@ -154,6 +165,21 @@ const kapitel = [
   }
   .film-play span :global(svg) {
     margin-left: 4px;
+  }
+  .film-rahmen.laedt::after {
+    content: "Film lädt …";
+    position: absolute;
+    left: 50%;
+    bottom: 64px;
+    translate: -50% 0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--glas);
+    border: 1px solid var(--glas-linie);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    box-shadow: var(--shadow-2);
   }
   .film-rahmen.laeuft .film-play {
     opacity: 0;
