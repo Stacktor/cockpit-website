@@ -1,0 +1,314 @@
+---
+/**
+ * Gebaute Oberfläche statt Screenshot: Fenster der App als HTML und CSS im Stil von Teal und Huntr (Karten, Chips, ruhige
+ * Flächen), skaliert mit der Breite (1em = 1/80 der Breite) und mit den Farben der Website (Hell und Dunkel).
+ * Die Daten sind erfundene Beispiele. Ansichten: start, pipeline, stellen, inbox, interview, lebenslauf.
+ */
+interface Props {
+  ansicht: string;
+  label?: string;
+}
+const { ansicht, label = "" } = Astro.props;
+
+const nav = ["Start", "Pipeline", "Stellen", "Auto", "Inbox", "Profil", "Lebenslauf", "Interview", "Analyse"];
+const aktiv: Record<string, string> = { start: "Start", pipeline: "Pipeline", stellen: "Stellen", inbox: "Inbox", interview: "Interview", lebenslauf: "Lebenslauf" };
+
+const spalten = [
+  { name: "Entwurf", n: 2, karten: [
+    { f: "Ebital Software", p: "Data Analyst", t: "Entwurf", tag: "" },
+    { f: "Morgenrot Studio", p: "UX Designer", t: "gestern", tag: "" },
+  ] },
+  { name: "Beworben", n: 3, karten: [
+    { f: "Hafenwerk Logistik", p: "IT-Administrator", t: "seit 6 Tagen", tag: "" },
+    { f: "Lindgrün Energie", p: "Data Analyst", t: "seit 3 Tagen", tag: "Nachfassen" },
+    { f: "Nordlicht Digital", p: "Frontend-Entwickler", t: "heute", tag: "" },
+  ] },
+  { name: "Gespräch", n: 2, karten: [
+    { f: "Brückner Medizintechnik", p: "Projektleiter IT", t: "Di 21. Okt., 10:00", tag: "Termin" },
+    { f: "Weber & Söhne", p: "Systemadministrator", t: "Do 23. Okt.", tag: "Termin" },
+  ] },
+  { name: "Abgeschlossen", n: 2, karten: [
+    { f: "Kranich AG", p: "Support Engineer", t: "Zusage", tag: "Zusage" },
+    { f: "Orbis Bank", p: "IT-Support", t: "Absage", tag: "Absage" },
+  ] },
+];
+const treffer = [
+  { f: "Nordlicht Digital", p: "Frontend-Entwickler (m/w/d)", o: "Hamburg · hybrid", m: 82, neu: true },
+  { f: "Lindgrün Energie", p: "Data Analyst", o: "Bremen · vor Ort", m: 74, neu: true },
+  { f: "Hafenwerk Logistik", p: "IT-Administrator", o: "Delmenhorst", m: 69, neu: false },
+  { f: "Ebital Software", p: "React-Entwickler", o: "Wien · remote", m: 66, neu: false },
+  { f: "Morgenrot Studio", p: "Webentwickler", o: "Graz", m: 58, neu: false },
+];
+const mails = [
+  { v: "Brückner Medizintechnik", s: "Einladung zum Gespräch", k: "Einladung", z: "09:14" },
+  { v: "Hafenwerk Logistik", s: "Ihre Bewerbung ist eingegangen", k: "Eingang", z: "Gestern" },
+  { v: "Lindgrün Energie", s: "Rückfrage zu Ihren Unterlagen", k: "Rückfrage", z: "Mo" },
+  { v: "Morgenrot Studio", s: "Ihre Bewerbung bei uns", k: "Absage", z: "Fr" },
+];
+---
+
+<div class="mock" data-ansicht={ansicht} role="img" aria-label={`cockpit: ${label || ansicht}`}>
+  <aside class="m-nav" aria-hidden="true">
+    <div class="m-logo"><i></i><b>cockpit</b></div>
+    {nav.map((n) => <span class:list={["m-nav-i", { an: aktiv[ansicht] === n }]}>{n}</span>)}
+    <span class="m-fuss">Alpha 0.1</span>
+  </aside>
+
+  <main class="m-haupt" aria-hidden="true">
+    {ansicht === "start" && (
+      <>
+        <h3 class="m-titel">Start</h3>
+        <div class="m-einstieg">
+          <div><b>Los geht’s: 2 von 4 erledigt</b><small>Die vier Schritte bis zur ersten Bewerbung.</small></div>
+          <div class="m-spur"><i style="width:50%"></i></div>
+          <ul>
+            <li class="ok">Lebenslauf einlesen</li><li class="ok">KI einrichten</li>
+            <li>Erste Stellen suchen <em>Los</em></li><li>Erste Bewerbung anlegen</li>
+          </ul>
+        </div>
+        <div class="m-stats">
+          <div><small>Bewerbungen</small><b>12</b></div>
+          <div><small>In Arbeit</small><b>7</b></div>
+          <div><small>Zusage-Quote</small><b>25 %</b></div>
+        </div>
+        <div class="m-zwei">
+          <div class="m-karte">
+            <h4>Wochenziel</h4>
+            <div class="m-spur gross"><i style="width:60%"></i></div>
+            <small>3 von 5 Bewerbungen diese Woche</small>
+          </div>
+          <div class="m-karte">
+            <h4>Offene Aufgaben</h4>
+            <ul class="m-liste"><li>Bei Lindgrün nachfassen</li><li>Zeugnisse hochladen</li><li>Gespräch vorbereiten</li></ul>
+          </div>
+        </div>
+        <div class="m-karte">
+          <h4>Neue passende Stellen</h4>
+          {treffer.slice(0, 2).map((t) => (
+            <div class="m-zeile"><span><b>{t.p}</b><small>{t.f} · {t.o}</small></span><span class="m-chip gruen">{t.m} %</span></div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {ansicht === "pipeline" && (
+      <>
+        <h3 class="m-titel">Pipeline <small>9 Bewerbungen, 7 in Arbeit</small></h3>
+        <div class="m-filter"><span class="m-chip an">Alle</span><span class="m-chip">Nachfassen 1</span><span class="m-chip">Mit Termin 2</span></div>
+        <div class="m-kanban">
+          {spalten.map((s) => (
+            <section class="m-spalte">
+              <h4>{s.name}<em>{s.n}</em></h4>
+              {s.karten.map((k) => (
+                <div class:list={["m-bewerbung", { hl: k.tag === "Termin" && k.f.startsWith("Brückner") }]}>
+                  <b>{k.p}</b>
+                  <small>{k.f}</small>
+                  <span class="m-meta">{k.t}{k.tag && <span class:list={["m-chip", "klein", k.tag === "Zusage" ? "gruen" : k.tag === "Absage" ? "rot" : "gelb"]}>{k.tag}</span>}</span>
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
+      </>
+    )}
+
+    {ansicht === "stellen" && (
+      <>
+        <h3 class="m-titel">Stellen</h3>
+        <div class="m-tabs"><span class="an">Treffer 24</span><span>Suchen</span><span>Quellen</span></div>
+        <div class="m-filter"><span class="m-chip an">Offen</span><span class="m-chip">Remote</span><span class="m-chip">ab 70 %</span><span class="m-chip">Österreich</span></div>
+        <div class="m-geteilt">
+          <div class="m-liste-links">
+            {treffer.map((t, i) => (
+              <div class:list={["m-treffer", { an: i === 0 }]}>
+                <span><b>{t.p}</b><small>{t.f} · {t.o}</small></span>
+                <span class:list={["m-chip", t.m >= 70 ? "gruen" : "gelb"]}>{t.m} %</span>
+              </div>
+            ))}
+          </div>
+          <div class="m-detail">
+            <h4>Frontend-Entwickler (m/w/d)</h4>
+            <small>Nordlicht Digital · Hamburg · Vollzeit, hybrid</small>
+            <div class="m-sprachen"><span class="m-chip gruen">✓ Deutsch C1</span><span class="m-chip gelb">≈ Englisch: du B2, verlangt C1</span></div>
+            <h5>Anforderungen</h5>
+            <ul class="m-punkte"><li class="ok">3+ Jahre Erfahrung mit React <em>✓ React</em></li><li class="ok">Sehr gute TypeScript-Kenntnisse <em>✓ TypeScript</em></li><li>Erfahrung mit Kubernetes</li></ul>
+            <h5>Von Vorteil</h5>
+            <ul class="m-punkte"><li>Erfahrung mit Design-Systemen</li></ul>
+            <h5>Das bieten sie</h5>
+            <ul class="m-punkte"><li>Flexible Arbeitszeit, 30 Tage Urlaub</li></ul>
+            <span class="m-knopf">In Pipeline übernehmen</span>
+          </div>
+        </div>
+      </>
+    )}
+
+    {ansicht === "inbox" && (
+      <>
+        <h3 class="m-titel">Postfach <small>4 neue Antworten, sortiert</small></h3>
+        <div class="m-geteilt">
+          <div class="m-liste-links">
+            {mails.map((m, i) => (
+              <div class:list={["m-treffer", { an: i === 0 }]}>
+                <span><b>{m.v}</b><small>{m.s}</small></span>
+                <span class="m-meta"><span class:list={["m-chip", "klein", m.k === "Einladung" ? "gelb" : m.k === "Absage" ? "rot" : m.k === "Rückfrage" ? "blau" : ""]}>{m.k}</span><small>{m.z}</small></span>
+              </div>
+            ))}
+          </div>
+          <div class="m-detail">
+            <h4>Einladung zum Gespräch</h4>
+            <small>Brückner Medizintechnik · 09:14</small>
+            <div class="m-ki"><b>Zusammenfassung</b><p>Frau Weber lädt zum Gespräch am Dienstag, 21. Oktober, um 10:00 Uhr ein. Sie bittet um Rückmeldung bis Freitag.</p></div>
+            <div class="m-aktionen"><span class="m-knopf">Termin eintragen</span><span class="m-knopf hell">Antwort entwerfen</span></div>
+            <p class="m-text">Sehr geehrter Herr Muster, vielen Dank für Ihre Bewerbung als Projektleiter IT. Wir würden Sie gern kennenlernen …</p>
+          </div>
+        </div>
+      </>
+    )}
+
+    {ansicht === "interview" && (
+      <>
+        <h3 class="m-titel">Interview <small>Probegespräch · Projektleiter IT</small></h3>
+        <div class="m-zwei gross">
+          <div class="m-karte">
+            <small>Frage 3 von 8</small>
+            <h4>Erzählen Sie von einem Projekt, das nicht nach Plan lief. Was haben Sie getan?</h4>
+            <div class="m-antwort">Wir hatten bei der Umstellung des Ticketsystems zwei Wochen Verzug, weil die Schnittstelle nicht dokumentiert war. Ich habe …</div>
+            <div class="m-aktionen"><span class="m-knopf">Antwort bewerten</span><span class="m-knopf hell">Nächste Frage</span></div>
+          </div>
+          <div class="m-karte">
+            <h4>Rückmeldung</h4>
+            <div class="m-ring"><b>78</b><small>von 100</small></div>
+            <ul class="m-punkte"><li class="ok">Klare Struktur (Situation, Aufgabe, Handlung)</li><li class="ok">Eigene Rolle gut erkennbar</li><li>Ergebnis fehlt: Zahl oder Wirkung nennen</li></ul>
+          </div>
+        </div>
+      </>
+    )}
+
+    {ansicht === "lebenslauf" && (
+      <>
+        <h3 class="m-titel">Lebenslauf <small>Version: Frontend</small></h3>
+        <div class="m-zwei gross">
+          <div class="m-papier">
+            <h4>Mia Muster</h4>
+            <small>Frontend-Entwicklerin · Bremen</small>
+            <h5>Berufserfahrung</h5>
+            <p><b>Ebital Software</b> · Entwicklerin <i>2022 bis heute</i></p>
+            <ul class="m-punkte"><li>Kundenportal mit React und TypeScript, 40 % schnellere Ladezeit</li><li>Aufbau eines Design-Systems</li></ul>
+            <h5>Sprachen</h5>
+            <p>Deutsch (Muttersprache) · Englisch B2</p>
+            <h5>Fähigkeiten</h5>
+            <p><span class="m-chip">React</span> <span class="m-chip">TypeScript</span> <span class="m-chip">Figma</span></p>
+          </div>
+          <div class="m-karte">
+            <h4>Vorlage</h4>
+            <div class="m-vorlagen"><span class="an">Klar</span><span>Modern</span><span>Kompakt</span><span>Klassisch</span></div>
+            <h4>Version je Stelle</h4>
+            <small>Passt den Lebenslauf an Nordlicht Digital an: Schwerpunkt React und Design-Systeme.</small>
+            <div class="m-aktionen"><span class="m-knopf">Als PDF speichern</span></div>
+          </div>
+        </div>
+      </>
+    )}
+  </main>
+</div>
+
+<style>
+  .mock {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: 11em 1fr;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--soft);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 1.25cqw;
+    line-height: 1.35;
+    text-align: left;
+  }
+  .m-nav { display: flex; flex-direction: column; gap: 0.3em; padding: 1.4em 1em; border-right: 1px solid var(--line); background: var(--card); }
+  .m-logo { display: flex; align-items: center; gap: 0.6em; margin-bottom: 1.2em; }
+  .m-logo i { width: 1.8em; height: 1.8em; border-radius: 0.5em; background: linear-gradient(135deg, var(--accent), var(--cyan)); }
+  .m-logo b { font-size: 1.2em; letter-spacing: -0.02em; }
+  .m-nav-i { padding: 0.55em 0.8em; border-radius: 0.6em; font-size: 0.95em; color: var(--muted); }
+  .m-nav-i.an { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+  .m-fuss { margin-top: auto; font-size: 0.8em; color: var(--faint); padding: 0 0.8em; }
+  .m-haupt { padding: 1.6em 2em; display: flex; flex-direction: column; gap: 1em; overflow: hidden; }
+  .m-titel { margin: 0; font-size: 1.9em; font-weight: 600; letter-spacing: -0.03em; }
+  .m-titel small { display: inline; font-size: 0.5em; font-weight: 400; color: var(--faint); margin-left: 0.8em; letter-spacing: 0; }
+  h4, h5 { margin: 0; font-size: 1.05em; font-weight: 600; letter-spacing: -0.01em; }
+  h5 { margin-top: 0.7em; font-size: 0.85em; color: var(--muted); text-transform: none; }
+  small { font-size: 0.82em; color: var(--faint); display: block; }
+  p { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  .m-karte, .m-einstieg, .m-stats > div { background: var(--card); border: 1px solid var(--line); border-radius: 0.8em; padding: 1em 1.2em; box-shadow: var(--shadow-1); }
+  .m-einstieg { display: grid; gap: 0.6em; border-color: var(--accent-line); background: var(--accent-soft); }
+  .m-einstieg ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3em 1em; font-size: 0.9em; }
+  .m-einstieg li::before { content: "○ "; color: var(--faint); }
+  .m-einstieg li.ok::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+  .m-einstieg li em { font-style: normal; margin-left: 0.6em; padding: 0.1em 0.7em; border-radius: 9em; background: var(--accent); color: var(--on-accent); font-size: 0.85em; }
+  .m-spur { height: 0.5em; background: var(--line); border-radius: 9em; overflow: hidden; }
+  .m-spur.gross { height: 0.8em; margin: 0.6em 0; }
+  .m-spur i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--cyan)); border-radius: 9em; }
+  .m-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; }
+  .m-stats b { font-size: 2em; letter-spacing: -0.03em; font-weight: 600; }
+  .m-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+  .m-zwei.gross { grid-template-columns: 1.4fr 1fr; flex: 1; }
+  .m-liste li { padding: 0.35em 0; border-bottom: 1px solid var(--line); font-size: 0.9em; }
+  .m-liste li:last-child { border: 0; }
+  .m-zeile { display: flex; justify-content: space-between; align-items: center; padding: 0.55em 0; border-bottom: 1px solid var(--line); }
+  .m-zeile:last-child { border: 0; }
+  .m-zeile b { font-size: 0.95em; font-weight: 600; display: block; }
+  .m-chip { display: inline-block; padding: 0.18em 0.8em; border-radius: 9em; border: 1px solid var(--line); background: var(--card); font-size: 0.8em; color: var(--muted); white-space: nowrap; }
+  .m-chip.klein { padding: 0.05em 0.6em; font-size: 0.72em; }
+  .m-chip.an { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .m-chip.gruen { background: var(--ok-soft); color: var(--ok); border-color: transparent; font-weight: 600; }
+  .m-chip.gelb { background: var(--warn-soft); color: var(--warn); border-color: transparent; font-weight: 600; }
+  .m-chip.rot { background: var(--danger-soft); color: var(--danger); border-color: transparent; font-weight: 600; }
+  .m-chip.blau { background: var(--accent-soft); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+  .m-filter { display: flex; gap: 0.5em; flex-wrap: wrap; }
+  .m-tabs { display: flex; gap: 0.3em; padding: 0.25em; background: var(--line); border-radius: 0.7em; width: fit-content; }
+  .m-tabs span { padding: 0.3em 1em; border-radius: 0.5em; font-size: 0.9em; color: var(--muted); }
+  .m-tabs .an { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: var(--shadow-1); }
+  .m-kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; flex: 1; align-items: start; }
+  .m-spalte { background: color-mix(in srgb, var(--line) 45%, transparent); border-radius: 0.8em; padding: 0.8em; display: grid; gap: 0.7em; }
+  .m-spalte h4 { display: flex; justify-content: space-between; font-size: 0.95em; }
+  .m-spalte h4 em { font-style: normal; color: var(--faint); font-weight: 400; }
+  .m-bewerbung { background: var(--card); border: 1px solid var(--line); border-radius: 0.7em; padding: 0.8em; display: grid; gap: 0.15em; box-shadow: var(--shadow-1); }
+  .m-bewerbung.hl { border-color: var(--accent); box-shadow: 0 0 0 0.2em color-mix(in srgb, var(--accent) 18%, transparent); }
+  .m-bewerbung b { font-size: 0.95em; }
+  .m-meta { display: flex; justify-content: space-between; align-items: center; gap: 0.5em; font-size: 0.78em; color: var(--faint); margin-top: 0.4em; }
+  .m-geteilt { display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 1em; flex: 1; min-height: 0; }
+  .m-liste-links { display: grid; align-content: start; background: var(--card); border: 1px solid var(--line); border-radius: 0.8em; overflow: hidden; }
+  .m-treffer { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; padding: 0.8em 1em; border-bottom: 1px solid var(--line); border-left: 0.2em solid transparent; }
+  .m-treffer.an { background: var(--accent-soft); border-left-color: var(--accent); }
+  .m-treffer b { font-size: 0.92em; font-weight: 600; display: block; }
+  .m-detail { background: var(--card); border: 1px solid var(--line); border-radius: 0.8em; padding: 1.2em 1.4em; display: flex; flex-direction: column; gap: 0.35em; overflow: hidden; }
+  .m-detail h4 { font-size: 1.3em; }
+  .m-sprachen { display: flex; gap: 0.5em; flex-wrap: wrap; margin: 0.5em 0; }
+  .m-punkte li { padding: 0.3em 0 0.3em 1.3em; position: relative; font-size: 0.9em; }
+  .m-punkte li::before { content: ""; position: absolute; left: 0.2em; top: 0.85em; width: 0.45em; height: 0.45em; border-radius: 50%; background: var(--line-strong); }
+  .m-punkte li.ok::before { background: var(--ok); }
+  .m-punkte em { font-style: normal; color: var(--ok); font-size: 0.82em; margin-left: 0.5em; font-weight: 600; }
+  .m-knopf { display: inline-block; padding: 0.55em 1.3em; border-radius: 9em; background: var(--cta); color: var(--cta-ink); font-size: 0.9em; font-weight: 600; width: fit-content; margin-top: auto; }
+  .m-knopf.hell { background: var(--card); color: var(--ink); border: 1px solid var(--line-strong); }
+  .m-aktionen { display: flex; gap: 0.6em; margin-top: 0.4em; }
+  .m-ki { background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 0.7em; padding: 0.8em 1em; margin-top: 0.6em; display: grid; gap: 0.2em; font-size: 0.92em; }
+  .m-ki b { color: var(--accent-ink); font-size: 0.85em; }
+  .m-text { margin-top: 0.8em; font-size: 0.88em; color: var(--muted); }
+  .m-antwort { background: var(--soft); border: 1px solid var(--line); border-radius: 0.7em; padding: 0.9em 1em; margin: 0.8em 0; min-height: 9em; font-size: 0.92em; color: var(--muted); }
+  .m-ring { width: 7em; height: 7em; border-radius: 50%; display: grid; place-content: center; text-align: center; margin: 0.8em auto; background: conic-gradient(var(--accent) 78%, var(--line) 0); position: relative; }
+  .m-ring::before { content: ""; position: absolute; inset: 0.7em; border-radius: 50%; background: var(--card); }
+  .m-ring b, .m-ring small { position: relative; }
+  .m-ring b { font-size: 2em; letter-spacing: -0.03em; }
+  .m-papier { background: #fff; color: #1f2937; border: 1px solid var(--line); border-radius: 0.5em; padding: 1.6em 2em; box-shadow: var(--shadow-2); display: grid; align-content: start; gap: 0.25em; font-size: 0.95em; }
+  .m-papier small { color: #6b7280; }
+  .m-papier h4 { font-size: 1.6em; }
+  .m-papier h5 { color: #4f46e5; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.2em; }
+  .m-papier i { font-style: normal; float: right; color: #6b7280; font-size: 0.85em; }
+  .m-papier .m-chip { background: #eef2ff; color: #4338ca; border: 0; }
+  .m-vorlagen { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; margin: 0.6em 0; }
+  .m-vorlagen span { padding: 0.7em; border: 1px solid var(--line); border-radius: 0.6em; text-align: center; font-size: 0.88em; color: var(--muted); }
+  .m-vorlagen .an { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+</style>

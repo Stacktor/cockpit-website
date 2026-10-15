@@ -179,6 +179,46 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   r = await post({ aktion: "loeschen", mail: "x@example.org" });
   assert.equal(r.status, 200);
   assert.equal(env.ALPHA.m.get("alpha:x@example.org"), undefined);
+
+  // Polar: schlägt der Mailversand fehl, zeigt der Fehler den Grund von Resend und der Rabattcode bleibt erhalten
+  await env.ALPHA.put("alpha:p@example.org", JSON.stringify({ name: "Pia", mail: "p@example.org", status: "angenommen" }));
+  const polarEnv = { ...env, ALPHA: env.ALPHA, POLAR_ACCESS_TOKEN: "pat", POLAR_ALPHA_CHECKOUT_URL: "https://buy.polar.sh/x", POLAR_ALPHA_PRODUCT_ID: "prod", POLAR_ORG_ID: "org", RESEND_API_KEY: "re" };
+  const polarData = { env: polarEnv, benutzer: "admin@x" };
+  const polarPost = (body) => onRequestPost({ request: anfrage("/api/admin/alpha", { methode: "POST", body }), data: polarData });
+  const alteFetch = globalThis.fetch;
+  let mailOk = false;
+  let rabattAnlagen = 0;
+  globalThis.fetch = async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes("api.polar.sh") && u.includes("discounts")) {
+      rabattAnlagen += 1;
+      return new Response(JSON.stringify({ id: "d1" }), { status: 201 });
+    }
+    if (u.includes("api.resend.com")) {
+      return mailOk
+        ? new Response(JSON.stringify({ id: "m" }), { status: 200 })
+        : new Response(JSON.stringify({ statusCode: 403, name: "validation_error", message: "You can only send testing emails to your own email address" }), { status: 403 });
+    }
+    return alteFetch(url, init);
+  };
+  r = await polarPost({ aktion: "einladen", mail: "p@example.org" });
+  d = await r.json();
+  assert.equal(r.status, 502);
+  assert.match(d.fehler, /testing emails/);
+  assert.match(d.fehler, /MAIL_VON/, "Hinweis auf den Absender");
+  assert.match(d.fehler, /wiederverwendet/);
+  assert.ok(JSON.parse(env.ALPHA.m.get("alpha:p@example.org")).rabattcode, "Code gemerkt");
+  mailOk = true;
+  r = await polarPost({ aktion: "einladen", mail: "p@example.org" });
+  assert.equal(r.status, 200);
+  assert.equal(rabattAnlagen, 1, "der Code wird nicht doppelt angelegt");
+  // Ohne Organisations-ID meldet die Einladung, was fehlt, statt bei Polar zu scheitern
+  delete polarEnv.POLAR_ORG_ID;
+  await env.ALPHA.put("alpha:q@example.org", JSON.stringify({ name: "Q", mail: "q@example.org", status: "angenommen" }));
+  r = await polarPost({ aktion: "einladen", mail: "q@example.org" });
+  assert.equal(r.status, 412);
+  assert.match((await r.json()).fehler, /POLAR_ORG_ID/);
+  globalThis.fetch = alteFetch;
   console.log("Alpha-Verwaltung: ok");
 }
 
@@ -600,6 +640,37 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   assert.equal(f[0].von, "2026-10-01T03:30:00.000Z");
   assert.equal(f[2].bis, jetzt.toISOString());
   console.log("Analytics nur für cockpit.mesco.cc: ok");
+
+  // Eigener Seitenzähler: zählt Seiten, keine Bots, keine API, keine Vorabrufe; wertet Unterseiten und Herkunft aus
+  const Z = await imp("../lib/seitenzaehler.js");
+  const env2 = { ALPHA: new KV() };
+  const seite = (pfad, kopf = {}) =>
+    new Request(`https://cockpit.mesco.cc${pfad}`, { headers: { "user-agent": "Mozilla/5.0 (Macintosh) Safari/605", "sec-fetch-dest": "document", ...kopf } });
+  const html = new Response("<html>", { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+  assert.equal(await Z.erfasse(env2, seite("/preise/?utm_source=tiktok&utm_campaign=alpha", { referer: "https://www.google.com/x" }), html), true);
+  assert.equal(await Z.erfasse(env2, seite("/hilfe/alpha-schluessel", { referer: "https://cockpit.mesco.cc/" }), html), true);
+  assert.equal(await Z.erfasse(env2, seite("/preise/", { "user-agent": "Googlebot/2.1" }), html), false, "Bots zählen nicht");
+  assert.equal(await Z.erfasse(env2, seite("/api/version"), html), false, "API zählt nicht");
+  assert.equal(await Z.erfasse(env2, seite("/admin/"), html), false);
+  assert.equal(await Z.erfasse(env2, seite("/preise/", { "sec-purpose": "prefetch" }), html), false);
+  assert.equal(await Z.erfasse(env2, seite("/nichtda/"), new Response("x", { status: 404, headers: { "content-type": "text/html" } })), false);
+  assert.equal(await Z.erfasse(env2, seite("/logo.png"), new Response("x", { status: 200, headers: { "content-type": "image/png" } })), false);
+  const tag = new Date().toISOString().slice(0, 10);
+  const stand = JSON.parse(env2.ALPHA.m.get(`seiten:${tag}`));
+  assert.equal(stand.aufrufe, 2);
+  assert.equal(stand.pfade["/preise/"], 1);
+  assert.equal(stand.pfade["/hilfe/alpha-schluessel/"], 1, "Unterseiten mit Schrägstrich");
+  assert.equal(stand.herkunft["www.google.com"], undefined, "www wird entfernt");
+  assert.equal(stand.herkunft["google.com"], 1);
+  assert.equal(stand.herkunft.intern, 1);
+  assert.equal(stand.kampagnen["tiktok · alpha"], 1);
+  const aus = Z.auswerten([[tag, stand]]);
+  assert.equal(aus.aufrufe, 2);
+  assert.equal(aus.pfade[0].herkunft.length > 0, true);
+  const d2 = await (await An.onRequestGet({ data: { env: { ALPHA: env2.ALPHA } } })).json();
+  assert.equal(d2.seiten.ok, true);
+  assert.equal(d2.seiten.aufrufe, 2);
+  console.log("Seitenzähler: ok");
 }
 
 // ───────────── Inhalte (Editor) ─────────────
@@ -689,4 +760,46 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
 
   globalThis.fetch = vorher;
   console.log("Inhalte-Editor: ok");
+}
+
+// ───────────── Umfragen: Quote, Kernaussagen, Freitext-Themen, CSV-Köpfe ─────────────
+{
+  const { werteAus, csv, stichworte } = await imp("../lib/admin/auswertung.js");
+  const u = {
+    id: "t",
+    titel: "Test",
+    fragen: [
+      { id: "wie", typ: "nps", text: "Weiterempfehlen?" },
+      { id: "ui", typ: "skala", text: "Wie gefällt die Oberfläche?" },
+      { id: "frei", typ: "text", text: "Was fehlt?" },
+    ],
+  };
+  const a = (n, v, nps, ui, frei) => ({ umfrage: "t", zeit: `2026-10-1${n}T10:00:00Z`, email: `t${n}@x.de`, version: v, system: "macos", antworten: { wie: nps, ui, frei } });
+  const alle = [a(1, "0.1.0", 10, 4, "Die Suche ist langsam"), a(2, "0.1.0", 9, 5, "Suche langsam und Absturz"), a(3, "0.1.1", 3, 2, "")];
+  const e = werteAus(u, alle, { eingeladen: 6 });
+  assert.equal(e.antworten, 3);
+  assert.equal(e.quote.anteil, 50);
+  assert.equal(e.vollstaendig, 89, "2 volle Antworten und eine ohne Freitext");
+  assert.equal(e.verlauf.length, 3);
+  assert.ok(e.kernaussagen.some((t) => t.includes("NPS")));
+  assert.ok(e.kernaussagen.some((t) => t.includes("schlechtesten")));
+  assert.ok(e.fragen[2].stichworte.some((s) => s.name === "suche"), "häufiges Wort erkannt");
+  assert.equal(werteAus(u, alle, { version: "0.1.0" }).antworten, 2, "Filter nach Version");
+  assert.equal(werteAus(u, alle, { version: "0.1.0" }).gesamt, 3);
+  assert.ok(csv(u, alle).split("\n")[0].includes("Weiterempfehlen?"), "Fragetexte als Spaltenköpfe");
+  assert.deepEqual(stichworte(["Test eins", "nur ein"]), []);
+  console.log("Umfragen-Auswertung: ok");
+}
+
+// ───────────── Patchnotes aus den Releases ─────────────
+{
+  const { versionAus, kanalAus, notizenAus } = await imp("../functions/api/admin/patchnotes.js");
+  assert.equal(versionAus({ tag_name: "dev-mac-0.1.0-43" }), "0.1.0-43");
+  assert.equal(versionAus({ tag_name: "v0.1.0", name: "cockpit v0.1.0 (Alpha)" }), "0.1.0");
+  assert.equal(kanalAus({ tag_name: "dev-mac-0.1.0-43", prerelease: true }), "Dev Mac");
+  assert.equal(kanalAus({ tag_name: "dev-0.1.0-41", prerelease: true }), "Dev Windows");
+  assert.equal(kanalAus({ tag_name: "v0.1.0", prerelease: false }), "Release");
+  assert.deepEqual(notizenAus("## Neu\n- Stellen schneller\n* Mock-KI\n\nText"), ["Stellen schneller", "Mock-KI"]);
+  assert.deepEqual(notizenAus("Nur ein Satz."), ["Nur ein Satz."]);
+  console.log("Patchnotes: ok");
 }

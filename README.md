@@ -28,6 +28,12 @@ tests/          Tests der Functions ohne Cloudflare
 scripts/        Sichtprüfung aller Seiten
 ```
 
+Seitenaufrufe zählt `functions/_middleware.js` auf dem Server (`lib/seitenzaehler.js`): ohne Cookie, ohne Skript im Browser,
+ohne IP-Adresse, nur Tagessummen je Seite, Herkunft, Land, Gerät und Kampagne in KV (`seiten:<tag>`). Das Admin zeigt sie unter
+Analytics. `public/_routes.json` nimmt Dateien unter `/_astro` und die Bilder aus, damit nur Seiten die Function aufrufen.
+Die Oberfläche der App auf der Startseite ist gebaut (`src/components/MockApp.astro`, Ansichten start, pipeline, stellen, inbox,
+interview, lebenslauf), nicht als Screenshot; zurück auf Bilder mit `MOCK_AN = false` in `Screen.astro`.
+
 Gestaltung: weiße Flächen, Indigo `#4F46E5` mit Cyan `#06B6D4`, Geist als Schrift, 8-px-Radien
 und Pillen-Knöpfe. Hinter dem Hero liegt ein WebGL-Verlauf, der nur läuft, solange er sichtbar
 ist, und bei „Bewegung reduzieren“ stillsteht. Hell und Dunkel folgen der Systemeinstellung.

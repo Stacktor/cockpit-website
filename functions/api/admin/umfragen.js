@@ -1,6 +1,6 @@
 /**
  * /api/admin/umfragen — Fragebögen bearbeiten und auswerten.
- *   GET                 Definitionen + Auswertung je Umfrage + beendete Web-Umfrage
+ *   GET [?version=x]    Definitionen + Auswertung je Umfrage (auf eine App-Version einschränkbar) + beendete Web-Umfrage
  *   GET ?export=<id>    alle Antworten als CSV
  *   POST { aktion: "speichern", umfrage } | { aktion: "aktiv", id, aktiv } | { aktion: "loeschen", id }
  *
@@ -8,7 +8,7 @@
  * Beim ersten Speichern werden sie mit ins KV übernommen, damit keiner verschwindet.
  */
 import { json } from "../../../lib/admin/zugang.js";
-import { alleSchluessel, antworten } from "../../../lib/admin/daten.js";
+import { alleSchluessel, anmeldungen, antworten } from "../../../lib/admin/daten.js";
 import { csv, webUmfrage, werteAus } from "../../../lib/admin/auswertung.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
 import { STANDARD_UMFRAGEN, ladeUmfragen, pruefeDefinition } from "../../../lib/umfragen.js";
@@ -20,6 +20,9 @@ export async function onRequestGet({ request, data }) {
   const umfragen = await ladeUmfragen(env, { nurAktive: false });
   const alle = await antworten(env);
 
+  // Zahl der Tester, die antworten können: Alpha-Anmeldungen mit Status „eingeladen“ (für die Quote).
+  const eingeladen = (await anmeldungen(env)).filter((e) => e.status === "eingeladen").length;
+  const version = new URL(request.url).searchParams.get("version") || "";
   const exportId = new URL(request.url).searchParams.get("export");
   if (exportId) {
     const u = umfragen.find((x) => x.id === exportId);
@@ -35,7 +38,7 @@ export async function onRequestGet({ request, data }) {
 
   return json(200, {
     standard: !eigene,
-    umfragen: umfragen.map((u) => ({ definition: u, auswertung: werteAus(u, alle) })),
+    umfragen: umfragen.map((u) => ({ definition: u, auswertung: werteAus(u, alle, { eingeladen, version }) })),
     web: await webUmfrage(env).catch(() => null),
   });
 }

@@ -13,25 +13,21 @@ Unter **Stellen** sammelt cockpit Anzeigen aus mehreren Quellen in einer Liste. 
 
 | Quelle | Voraussetzung | Hinweis |
 |---|---|---|
-| **Bundesagentur für Arbeit** | keine | Größte Quelle für Deutschland, mit Umkreissuche |
-| **Arbeitnow** | keine | Viele Stellen in Deutschland, oft englischsprachig |
-| **Remotive** | keine | Remote-Stellen weltweit |
-| **Adzuna** | kostenloser Entwickler-Schlüssel | Bündelt große Jobbörsen |
-| **Jooble** | kostenloser Schlüssel | Bündelt viele Jobbörsen, auch StepStone und Indeed |
-| **RSS-Feeds** | Feed-Adresse | Karriereseiten einzelner Firmen |
-| **LinkedIn, StepStone, Indeed** | keine | Experimentell, siehe unten |
+| **Bundesagentur für Arbeit** | keine | Größte Quelle für Deutschland, mit Umkreissuche und Filtern |
+| **AMS Österreich / EURES** | keine | Stellen aus Österreich und weiteren Ländern (Schweiz, Südtirol, Luxemburg, Niederlande, Belgien, Frankreich, Spanien, Polen, Tschechien) über das EU-Portal EURES |
+| **Karriereseiten** | Adresse der Stellenseite | Große Firmen; cockpit erkennt Greenhouse, Lever, Personio, Recruitee, SmartRecruiters, Workable und Workday |
+| **RSS-Feeds** | Feed-Adresse | Eigene Job-Feeds |
+| **Stelle per Link** | Link der Anzeige | Auch von LinkedIn, StepStone und Indeed, eine Anzeige nach der anderen |
 
-Schlüssel für Adzuna und Jooble liegen im Schlüsselbund deines Betriebssystems, nicht in der Datenbank.
+Ältere Quellen (Arbeitnow, Adzuna, Jooble, Remotive und die Portal-Suche) lassen sich nicht mehr neu anlegen; bestehende laufen weiter, bis du sie entfernst.
 
 ### Jobportale ohne Schnittstelle
 
-LinkedIn, StepStone und Indeed bieten keine offene Schnittstelle an. cockpit kann ihre öffentliche Suchseite lesen, eine Seite je Abruf, ohne Anmeldung. Das widerspricht den Nutzungsbedingungen der Portale, kann jederzeit aufhören zu funktionieren und zu einer vorübergehenden Sperre führen. Deshalb ist es als experimentell markiert und standardmäßig aus.
-
-Verlässlicher sind zwei andere Wege: eine Anzeige beim Ansehen mit der [Browser-Erweiterung](/hilfe/browser-erweiterung/) übernehmen oder den Link unter **Stellen → Suchen & Quellen → Stelle per Link** einfügen.
+LinkedIn, StepStone und Indeed bieten keine offene Schnittstelle an. cockpit liest ihre Suchseiten nicht mehr. Verlässlich geht es so: den Link der Anzeige unter **Stellen → Suchen → Stelle per Link** einfügen oder die Anzeige beim Ansehen mit der [Browser-Erweiterung](/hilfe/browser-erweiterung/) übernehmen.
 
 ### Zustand einer Quelle
 
-Unter **Suchen & Quellen → Deine Quellen** steht je Quelle, wann sie zuletzt abgerufen wurde und wie viele Treffer sie dabei lieferte. Schlägt ein Abruf fehl, zeigt cockpit den Fehler und zählt mit. Nach fünf Fehlern in Folge pausiert cockpit die Quelle, meldet das in den Benachrichtigungen und bietet **Wieder aktivieren** an; der Zähler beginnt dann von vorn. Liefert eine Quelle keine Treffer, ist das kein Fehler: Sie antwortet, es passt nur gerade nichts.
+Unter **Stellen → Quellen → Deine Quellen** steht je Quelle, wann sie zuletzt abgerufen wurde und wie viele Treffer sie dabei lieferte. Schlägt ein Abruf fehl, zeigt cockpit den Fehler und zählt mit. Nach fünf Fehlern in Folge pausiert cockpit die Quelle, meldet das in den Benachrichtigungen und bietet **Wieder aktivieren** an; der Zähler beginnt dann von vorn. Liefert eine Quelle keine Treffer, ist das kein Fehler: Sie antwortet, es passt nur gerade nichts.
 
 ## Suchen
 

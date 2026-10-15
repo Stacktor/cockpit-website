@@ -13,6 +13,7 @@
  */
 import { json } from "../../../lib/admin/zugang.js";
 import { anmeldungen, antworten, cloudflareGraphql, hinweis, proTag, sicher, zaehle } from "../../../lib/admin/daten.js";
+import { auswerten as seitenAuswerten, schluessel as seitenSchluessel } from "../../../lib/seitenzaehler.js";
 
 export const HOST = "cockpit.mesco.cc";
 const TAG = 86400;
@@ -115,12 +116,30 @@ async function details(env, jetzt) {
   };
 }
 
+/** Eigener Seitenzähler: die letzten 30 Tage aus KV (`seiten:<tag>`), ohne Cloudflare-Token. */
+async function eigeneSeiten(env, jetzt) {
+  if (!env.ALPHA) return hinweis("KV-Namespace ALPHA ist nicht verbunden.");
+  const tage = [];
+  for (let i = 29; i >= 0; i--) {
+    const tag = new Date(jetzt.getTime() - i * TAG * 1000).toISOString().slice(0, 10);
+    const roh = await env.ALPHA.get(seitenSchluessel(tag));
+    let stand = null;
+    try {
+      stand = roh ? JSON.parse(roh) : null;
+    } catch {
+      stand = null;
+    }
+    tage.push([tag, stand]);
+  }
+  return { ok: true, host: HOST, ...seitenAuswerten(tage) };
+}
+
 export async function onRequestGet({ data }) {
   const env = data.env;
   const jetzt = new Date();
   const ohneCf = !env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID;
 
-  const [b, d, eigene] = await Promise.all([
+  const [b, d, eigene, seiten] = await Promise.all([
     ohneCf ? hinweis("Für Besucherzahlen: Cloudflare-Token und Zonen-ID unter Einstellungen eintragen.") : sicher(() => besuche(env, jetzt)),
     ohneCf ? hinweis("Nicht eingerichtet.") : sicher(() => details(env, jetzt)),
     sicher(async () => {
@@ -146,7 +165,8 @@ export async function onRequestGet({ data }) {
         },
       };
     }),
+    sicher(() => eigeneSeiten(env, jetzt)),
   ]);
 
-  return json(200, { besuche: b, details: d, eigene });
+  return json(200, { besuche: b, details: d, eigene, seiten });
 }
