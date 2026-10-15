@@ -70,36 +70,47 @@ const kapitel = [
     const knopf = huelle.querySelector(".film-play") as HTMLButtonElement;
     const abschnitt = huelle.closest("section")!;
     const spruenge = [...abschnitt.querySelectorAll<HTMLButtonElement>("[data-sprung]")];
-    const start = () => {
+    const quelle = film.querySelector("source")!.getAttribute("src")!;
+
+    // Cloudflare Pages liefert keine Teilabrufe (Range): Ein Browser kann dann weder vorspringen noch
+    // weiterladen. Deshalb wird der Film beim ersten Abspielen einmal ganz geladen (19 MB) und als
+    // Blob abgespielt; danach geht Springen sofort.
+    let geladen: Promise<void> | null = null;
+    const laden = () =>
+      (geladen ??= (async () => {
+        huelle.classList.add("laedt");
+        try {
+          const antwort = await fetch(quelle);
+          if (!antwort.ok) throw new Error(String(antwort.status));
+          const url = URL.createObjectURL(await antwort.blob());
+          const bereit = new Promise<void>((ok) => film.addEventListener("loadedmetadata", () => ok(), { once: true }));
+          film.src = url;
+          await bereit;
+        } catch {
+          /* Ohne Blob spielt der Film direkt ab, nur ohne Vorspringen. */
+        } finally {
+          huelle.classList.remove("laedt");
+        }
+      })());
+
+    const abspielen = async (ziel?: number) => {
+      await laden();
+      if (ziel !== undefined) film.currentTime = ziel;
       film.play().catch(() => {});
     };
-    knopf.addEventListener("click", start);
-    film.addEventListener("play", () => huelle.classList.add("laeuft"));
+
+    knopf.addEventListener("click", () => abspielen());
+    // Auch über die Bedienelemente des Browsers starten (Tastatur): erst laden, dann spielen.
+    film.addEventListener("play", () => {
+      if (geladen) return;
+      film.pause();
+      abspielen();
+    });
+    film.addEventListener("playing", () => huelle.classList.add("laeuft"));
     film.addEventListener("ended", () => huelle.classList.remove("laeuft"));
-    // Cloudflare Pages liefert keine Teilabrufe (Range): Springen geht erst, wenn die Stelle geladen ist.
-    const gehe = (ziel: number) => {
-      const bereit = () => film.seekable.length > 0 && film.seekable.end(film.seekable.length - 1) >= ziel;
-      const los = () => {
-        film.currentTime = ziel;
-        start();
-      };
-      if (bereit()) return los();
-      huelle.classList.add("laedt");
-      const pruefe = () => {
-        if (!bereit()) return;
-        film.removeEventListener("progress", pruefe);
-        film.removeEventListener("loadedmetadata", pruefe);
-        huelle.classList.remove("laedt");
-        los();
-      };
-      film.addEventListener("progress", pruefe);
-      film.addEventListener("loadedmetadata", pruefe);
-      film.preload = "auto";
-      if (film.readyState === 0) film.load();
-    };
     spruenge.forEach((b) =>
       b.addEventListener("click", () => {
-        gehe(Number(b.dataset.sprung));
+        abspielen(Number(b.dataset.sprung));
         huelle.scrollIntoView({ block: "center", behavior: "smooth" });
       }),
     );
