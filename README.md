@@ -38,7 +38,7 @@ Gestaltung wie der Produktfilm (Motion Design): warmes Papierweiß, drei sehr za
 (Indigo, Cyan, Violett), die langsam hinter der ganzen Seite wandern (`.hintergrund` in `Base.astro`),
 kräftige Geist-Überschriften mit Verlaufswort (`.grad`), Glas-Karten (`.glas`), App-Fenster in
 leichter 3D-Neigung (`.fenster3d`) und Pillen-Knöpfe. Bei „Bewegung reduzieren“ steht alles still.
-Hell und Dunkel folgen der Systemeinstellung. Der Film (`public/film/cockpit-film.mp4`, 1080p, 19 MB,
+Hell und Dunkel folgen der Systemeinstellung. Der Film (`public/film/cockpit-film.mp4`, 1080p ohne Ton, 19 MB,
 unter dem Limit von 25 MB je Datei bei Cloudflare Pages) liegt selbst gehostet im Abschnitt
 `FilmSektion.astro`; neu erzeugen aus dem 4K-Film mit `ffmpeg … -crf 23 -maxrate 1900k`
 (siehe Wiki „Produktfilm 4K“).
