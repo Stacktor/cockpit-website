@@ -84,7 +84,9 @@ const kapitel = [
           if (!antwort.ok) throw new Error(String(antwort.status));
           const url = URL.createObjectURL(await antwort.blob());
           const bereit = new Promise<void>((ok) => film.addEventListener("loadedmetadata", () => ok(), { once: true }));
+          film.preload = "auto"; // bei preload="none" käme nie loadedmetadata
           film.src = url;
+          film.load();
           await bereit;
         } catch {
           /* Ohne Blob spielt der Film direkt ab, nur ohne Vorspringen. */
