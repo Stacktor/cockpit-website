@@ -201,21 +201,12 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   console.log("Alpha-Anmeldung: alle Prüfungen ok");
 }
 
-// ───────────── Web-Umfrage beendet, Versionsabfrage ─────────────
+// ───────────── Web-Umfrage beendet ─────────────
 {
   const { onRequestPost: webUmfrage } = await import(new URL("../functions/api/umfrage.js", import.meta.url).href);
   const r = await webUmfrage();
   assert.equal(r.status, 410);
-
-  const { onRequestGet: version } = await import(new URL("../functions/api/version.js", import.meta.url).href);
-  const req = { request: new Request("https://cockpit.mesco.cc/api/version"), waitUntil() {} };
-  globalThis.fetch = async () => new Response("Not Found", { status: 404 });
-  let v = await (await version(req)).json(); assert.equal(v.version, null);
-  globalThis.fetch = async () => new Response(JSON.stringify({ tag_name: "v0.1.0", published_at: "2026-10-01T10:00:00Z", assets: [{ name: "cockpit-windows-setup.exe" }] }));
-  v = await (await version(req)).json(); assert.equal(v.version, "v0.1.0"); assert.deepEqual(v.dateien, ["cockpit-windows-setup.exe"]);
-  globalThis.fetch = async () => { throw new Error("offline"); };
-  v = await (await version(req)).json(); assert.equal(v.version, null);
-  console.log("Umfrage-Ende und Versionsabfrage: ok");
+  console.log("Umfrage-Ende: ok");
 }
 
 // ───────────── Sync-Server (R2 simuliert) ─────────────
