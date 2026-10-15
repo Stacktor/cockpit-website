@@ -1,0 +1,258 @@
+---
+/**
+ * Der Produktfilm (2:17, Bild und Text, ohne Sprecher) als eigener Abschnitt:
+ * selbst gehostet (kein YouTube, keine fremden Skripte), lädt erst beim Abspielen,
+ * mit Kapiteln zum Anspringen.
+ */
+import Icon from "./Icon.astro";
+
+const kapitel = [
+  { t: 0, zeit: "0:00", titel: "Das Problem", text: "Vierzig Bewerbungen, und keiner weiß mehr, wer geantwortet hat." },
+  { t: 22, zeit: "0:22", titel: "Überblick", text: "Alle Bewerbungen an einem Ort, mit Nachfassen." },
+  { t: 36, zeit: "0:36", titel: "Stellen", text: "Alle Quellen in einer Liste, bewertet nach Passung und Rahmen." },
+  { t: 50, zeit: "0:50", titel: "Lebenslauf und Anschreiben", text: "Vorlagen, Vorschau gleich PDF, Anschreiben im eigenen Stil." },
+  { t: 67, zeit: "1:07", titel: "Postfach", text: "Antworten einordnen, Einladungen als Termin eintragen." },
+  { t: 77, zeit: "1:17", titel: "Analyse", text: "Quoten und Weg der Bewerbungen; cockpit lernt aus deinen Entscheidungen." },
+  { t: 94, zeit: "1:34", titel: "KI und Datenschutz", text: "Eigene oder lokale KI, alles lokal gespeichert." },
+  { t: 113, zeit: "1:53", titel: "Im Vergleich", text: "Acht Merkmale: cockpit, Cloud-Tracker, Tabelle." },
+];
+---
+
+<section class="abschnitt film" id="film">
+  <div class="wrap">
+    <div class="abschnitt-kopf center">
+      <div class="eyebrow rv">Der Film</div>
+      <h2 class="rv" style="--d:1">Zwei Minuten, <span class="grad">alles gesehen.</span></h2>
+      <p class="lead rv" style="--d:2">Von der Pipeline bis zum Vergleich. Ohne Ton verständlich, mit Musik schöner.</p>
+    </div>
+
+    <div class="film-gitter">
+      <div class="film-rahmen rv" style="--d:2" data-film>
+        <video
+          controls
+          preload="none"
+          playsinline
+          poster="/film/cockpit-film-poster.jpg"
+          width="1920"
+          height="1080"
+          aria-label="Produktfilm von Bewerbungs-Cockpit, 2 Minuten 17 Sekunden"
+        >
+          <source src="/film/cockpit-film.mp4" type="video/mp4" />
+          <p>Dein Browser spielt den Film nicht ab. <a href="/film/cockpit-film.mp4">Film als MP4 laden</a>.</p>
+        </video>
+        <button type="button" class="film-play" aria-label="Film abspielen">
+          <span><Icon name="play" size={28} /></span>
+        </button>
+      </div>
+
+      <ol class="kapitel rv" style="--d:3" aria-label="Kapitel">
+        {
+          kapitel.map((k) => (
+            <li>
+              <button type="button" data-sprung={k.t}>
+                <span class="zeit">{k.zeit}</span>
+                <span class="txt"><b>{k.titel}</b><small>{k.text}</small></span>
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <p class="micro center" style="margin-top:18px">
+      Echte Oberfläche mit Beispieldaten. Der Vergleich nennt keine Marken und beschreibt typische Merkmale von Cloud-Tools, Stand Oktober 2026.
+    </p>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-film]").forEach((huelle) => {
+    const film = huelle.querySelector("video") as HTMLVideoElement;
+    const knopf = huelle.querySelector(".film-play") as HTMLButtonElement;
+    const abschnitt = huelle.closest("section")!;
+    const spruenge = [...abschnitt.querySelectorAll<HTMLButtonElement>("[data-sprung]")];
+    const quelle = film.querySelector("source")!.getAttribute("src")!;
+
+    // Cloudflare Pages liefert keine Teilabrufe (Range): Ein Browser kann dann weder vorspringen noch
+    // weiterladen. Deshalb wird der Film beim ersten Abspielen einmal ganz geladen (19 MB) und als
+    // Blob abgespielt; danach geht Springen sofort.
+    let geladen: Promise<void> | null = null;
+    const laden = () =>
+      (geladen ??= (async () => {
+        huelle.classList.add("laedt");
+        try {
+          const antwort = await fetch(quelle);
+          if (!antwort.ok) throw new Error(String(antwort.status));
+          const url = URL.createObjectURL(await antwort.blob());
+          const bereit = new Promise<void>((ok) => film.addEventListener("loadedmetadata", () => ok(), { once: true }));
+          film.preload = "auto"; // bei preload="none" käme nie loadedmetadata
+          film.src = url;
+          film.load();
+          await bereit;
+        } catch {
+          /* Ohne Blob spielt der Film direkt ab, nur ohne Vorspringen. */
+        } finally {
+          huelle.classList.remove("laedt");
+        }
+      })());
+
+    const abspielen = async (ziel?: number) => {
+      await laden();
+      if (ziel !== undefined) film.currentTime = ziel;
+      film.play().catch(() => {});
+    };
+
+    knopf.addEventListener("click", () => abspielen());
+    // Auch über die Bedienelemente des Browsers starten (Tastatur): erst laden, dann spielen.
+    film.addEventListener("play", () => {
+      if (geladen) return;
+      film.pause();
+      abspielen();
+    });
+    film.addEventListener("playing", () => huelle.classList.add("laeuft"));
+    film.addEventListener("ended", () => huelle.classList.remove("laeuft"));
+    spruenge.forEach((b) =>
+      b.addEventListener("click", () => {
+        abspielen(Number(b.dataset.sprung));
+        huelle.scrollIntoView({ block: "center", behavior: "smooth" });
+      }),
+    );
+    film.addEventListener("timeupdate", () => {
+      let aktiv = 0;
+      spruenge.forEach((b, i) => {
+        if (film.currentTime >= Number(b.dataset.sprung) - 0.3) aktiv = i;
+      });
+      spruenge.forEach((b, i) => b.classList.toggle("jetzt", i === aktiv));
+    });
+  });
+</script>
+
+<style>
+  .film-gitter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
+    align-items: start;
+  }
+  .film-rahmen {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: #0b0d14;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-3);
+    aspect-ratio: 16 / 9;
+  }
+  .film-rahmen video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    background: #0b0d14;
+  }
+  .film-play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0) 40%, rgba(17, 24, 39, 0.28));
+    border: 0;
+    cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  .film-play span {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--glas);
+    border: 1px solid var(--glas-linie);
+    color: var(--ink);
+    box-shadow: var(--shadow-3);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 0.35s var(--spring);
+  }
+  .film-play:hover span {
+    transform: scale(1.08);
+  }
+  .film-play span :global(svg) {
+    margin-left: 4px;
+  }
+  .film-rahmen.laedt::after {
+    content: "Film lädt …";
+    position: absolute;
+    left: 50%;
+    bottom: 64px;
+    translate: -50% 0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--glas);
+    border: 1px solid var(--glas-linie);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    box-shadow: var(--shadow-2);
+  }
+  .film-rahmen.laeuft .film-play {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .kapitel {
+    list-style: none;
+    display: grid;
+    gap: 4px;
+    margin: 0;
+  }
+  .kapitel button {
+    width: 100%;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
+  }
+  .kapitel button:hover {
+    background: var(--glas);
+    border-color: var(--glas-linie);
+  }
+  .kapitel button.jetzt {
+    background: var(--glas);
+    border-color: var(--accent-line);
+    box-shadow: var(--shadow-1);
+  }
+  .zeit {
+    font: 600 12px/1.9 var(--mono);
+    color: var(--accent-ink);
+    flex: none;
+    width: 34px;
+  }
+  .txt b {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .txt small {
+    display: block;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  @media (max-width: 960px) {
+    .film-gitter {
+      grid-template-columns: 1fr;
+    }
+    .kapitel {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    }
+  }
+</style>

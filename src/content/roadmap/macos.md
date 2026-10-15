@@ -1,7 +1,7 @@
 ---
 titel: cockpit für den Mac
-status: naechstes
-reihenfolge: 4
+status: erledigt
+reihenfolge: 3
 ---
 
-Sobald die Mac-Version wieder auf echter Hardware getestet werden kann.
+Native Mac-App (SwiftUI, macOS 26 oder neuer) mit demselben Kern, denselben Daten und allen Modulen. Dazu Apple Intelligence, Apple Kalender und Systemmitteilungen.

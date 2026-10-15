@@ -20,14 +20,15 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   ).toString("base64")}) format("woff2"); font-weight: 100 900; }
   * { box-sizing: border-box; margin: 0; }
   body { width: 1200px; height: 630px; overflow: hidden; font-family: Geist, sans-serif;
-    background: radial-gradient(900px 500px at -10% -20%, #c7d2fe 0%, transparent 60%),
-                radial-gradient(700px 500px at 110% 120%, #a5f3fc 0%, transparent 60%), #fff; color: #0f172a; }
+    background: radial-gradient(800px 520px at -8% -18%, rgba(129,140,248,.55) 0%, transparent 62%),
+                radial-gradient(700px 520px at 108% 118%, rgba(103,232,249,.5) 0%, transparent 62%),
+                radial-gradient(520px 380px at 70% -10%, rgba(196,181,253,.4) 0%, transparent 62%), #f8f7f3; color: #0f172a; }
   .marke { position: absolute; left: 72px; top: 76px; display: flex; align-items: center; gap: 16px;
     font-size: 30px; font-weight: 650; letter-spacing: -0.02em; }
   .marke img { width: 52px; height: 52px; }
   .marke b { background: linear-gradient(90deg, #4f46e5, #06b6d4); -webkit-background-clip: text; color: transparent; }
   h1 { position: absolute; left: 72px; top: 168px; width: 560px; font-size: 58px; line-height: 1.06;
-    letter-spacing: -0.035em; font-weight: 700; }
+    letter-spacing: -0.045em; font-weight: 780; }
   h1 span { background: linear-gradient(90deg, #4f46e5, #06b6d4); -webkit-background-clip: text; color: transparent; }
   p { position: absolute; left: 72px; top: 380px; width: 540px; font-size: 23px; line-height: 1.4; color: #475569; }
   .pille { position: absolute; left: 72px; top: 530px; padding: 10px 18px; border-radius: 999px;
@@ -40,7 +41,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   <div class="marke"><img src="data:image/svg+xml;base64,${logo}"><span>Bewerbungs-<b>Cockpit</b></span></div>
   <h1>Bewerbungen organisieren. <span>Ohne Cloud, ohne Konto.</span></h1>
   <p>Pipeline, Stellensuche, KI-Anschreiben und Browser-Erweiterung. Deine Daten bleiben auf deinem Rechner.</p>
-  <div class="pille">0.1 Alpha · Windows &amp; Linux</div>
+  <div class="pille">0.1 Alpha · Windows, Linux &amp; macOS</div>
   <div class="schirm"><img src="data:image/png;base64,${bild}"></div>
 </body></html>`;
 

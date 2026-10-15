@@ -168,7 +168,7 @@ for (let i = 0; i < 60; i++) {
   await new Promise((r) => setTimeout(r, 500));
 }
 // fetch ist gemockt — Server-Erreichbarkeit direkt über Playwright prüfen.
-const browser = await chromium.launch({ executablePath: globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome").sort().reverse()[0] });
+const browser = await chromium.launch({ executablePath: process.env.CHROME || globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome").sort().reverse()[0] });
 const funde = [];
 try {
   for (const [geraet, viewport] of [["breit", { width: 1920, height: 1080 }], ["desktop", { width: 1440, height: 900 }], ["handy", { width: 390, height: 844 }]]) {

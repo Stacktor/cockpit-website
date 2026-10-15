@@ -185,13 +185,12 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   // Honigtopf: freundlich, aber nichts gespeichert
   [st, d] = await post({ ...basis, mail: "bot@example.org", website: "spam" }); assert.equal(st, 200);
   assert.equal(await env2.ALPHA.get("alpha:bot@example.org"), null);
-  // macOS → Warteliste, belegt keinen Platz
+  // macOS ist ein normaler Platz, keine Warteliste mehr
   [st, d] = await post({ ...basis, mail: "mac@example.org", os: "macos" });
-  assert.equal(d.warteliste, true);
-  assert.equal(JSON.parse(await env2.ALPHA.get("alpha:mac@example.org")).status, "warteliste");
-  assert.ok(mails2.some((m) => m.subject.includes("Warteliste") && /macOS/.test(m.html)));
-  // Zweiter Platz, dann voll → Warteliste
-  [st, d] = await post({ ...basis, mail: "zwei@example.org" }); assert.equal(d.warteliste, false);
+  assert.equal(d.warteliste, false);
+  assert.equal(JSON.parse(await env2.ALPHA.get("alpha:mac@example.org")).status, "neu");
+  // Platzgrenze erreicht → Warteliste
+  [st, d] = await post({ ...basis, mail: "zwei@example.org" }); assert.equal(d.warteliste, true);
   [st, d] = await post({ ...basis, mail: "drei@example.org" }); assert.equal(d.warteliste, true);
   // Status: Plätze aus Env, Admin-Einstellung hat Vorrang
   let r = await status({ env: env2 }); let s = await r.json();

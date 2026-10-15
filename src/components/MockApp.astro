@@ -47,6 +47,7 @@ const mails = [
 ];
 ---
 
+<div class="mock-huelle">
 <div class="mock" data-ansicht={ansicht} role="img" aria-label={`cockpit: ${label || ansicht}`}>
   <aside class="m-nav" aria-hidden="true">
     <div class="m-logo"><i></i><b>cockpit</b></div>
@@ -211,10 +212,15 @@ const mails = [
     )}
   </main>
 </div>
+</div>
 
 <style>
-  .mock {
+  /* Der Maßstab (1em = 1/80 der Breite) kommt von dieser Hülle, nicht vom Fenster der Seite. */
+  .mock-huelle {
     container-type: inline-size;
+    width: 100%;
+  }
+  .mock {
     display: grid;
     grid-template-columns: 11em 1fr;
     width: 100%;
