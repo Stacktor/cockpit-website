@@ -2,7 +2,7 @@
 
 Quellcode der Website von **Bewerbungs-Cockpit**: **[cockpit.mesco.cc](https://cockpit.mesco.cc)**
 
-cockpit ist ein Bewerbungsmanager für Windows und Linux, der die Daten auf dem Gerät lässt:
+cockpit ist ein Bewerbungsmanager für Windows, Linux und macOS, der die Daten auf dem Gerät lässt:
 Pipeline, Stellensuche, KI-Anschreiben mit eigenem Schlüssel oder lokalem Modell, Inbox, Kalender
 und Interview-Training. Er ist in der geschlossenen **0.1 Alpha**.
 [Alpha-Zugang anfragen](https://cockpit.mesco.cc/alpha/) · [Downloads](https://github.com/Stacktor/cockpit-releases) · [Hilfe-Center](https://cockpit.mesco.cc/hilfe/)
@@ -21,7 +21,7 @@ src/            Seiten, Komponenten, Inhalte (Astro)
   legal/        Rechtstexte
   assets/       App-Screenshots (hell/dunkel), Astro erzeugt WebP daraus
   styles/       Design-Tokens und Grundbausteine (global.css)
-public/         Dateien 1:1 (Favicon, og.png, _headers, _redirects)
+public/         Dateien 1:1 (Favicon, og.png, _headers, _redirects, film/ mit dem Produktfilm)
 functions/      Cloudflare Pages Functions (/api/…, /api/admin/…)
 lib/            Gemeinsamer Code der Functions
 tests/          Tests der Functions ohne Cloudflare
@@ -34,9 +34,14 @@ Analytics. `public/_routes.json` nimmt Dateien unter `/_astro` und die Bilder au
 Die Oberfläche der App auf der Startseite ist gebaut (`src/components/MockApp.astro`, Ansichten start, pipeline, stellen, inbox,
 interview, lebenslauf), nicht als Screenshot; zurück auf Bilder mit `MOCK_AN = false` in `Screen.astro`.
 
-Gestaltung: weiße Flächen, Indigo `#4F46E5` mit Cyan `#06B6D4`, Geist als Schrift, 8-px-Radien
-und Pillen-Knöpfe. Hinter dem Hero liegt ein WebGL-Verlauf, der nur läuft, solange er sichtbar
-ist, und bei „Bewegung reduzieren“ stillsteht. Hell und Dunkel folgen der Systemeinstellung.
+Gestaltung wie der Produktfilm (Motion Design): warmes Papierweiß, drei sehr zarte Farbflächen
+(Indigo, Cyan, Violett), die langsam hinter der ganzen Seite wandern (`.hintergrund` in `Base.astro`),
+kräftige Geist-Überschriften mit Verlaufswort (`.grad`), Glas-Karten (`.glas`), App-Fenster in
+leichter 3D-Neigung (`.fenster3d`) und Pillen-Knöpfe. Bei „Bewegung reduzieren“ steht alles still.
+Hell und Dunkel folgen der Systemeinstellung. Der Film (`public/film/cockpit-film.mp4`, 1080p, 19 MB,
+unter dem Limit von 25 MB je Datei bei Cloudflare Pages) liegt selbst gehostet im Abschnitt
+`FilmSektion.astro`; neu erzeugen aus dem 4K-Film mit `ffmpeg … -crf 23 -maxrate 1900k`
+(siehe Wiki „Produktfilm 4K“).
 
 ## Lokal starten
 

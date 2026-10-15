@@ -19,8 +19,7 @@
  *                                        Einstellungen änderbar (KV „config:alpha“).
  *   DISCORD_URL      Variable   optional  Einladungslink für die Bestätigungsmail
  *
- * Sind alle Plätze vergeben — oder wählt jemand macOS (noch in Arbeit) —,
- * landet die Anmeldung auf der Warteliste (Status „warteliste“).
+ * Sind alle Plätze vergeben, landet die Anmeldung auf der Warteliste (Status „warteliste“).
  * Jeder Baustein ist einzeln abschaltbar. Fehlt etwas, läuft der Rest weiter —
  * eine fehlende Konfiguration darf niemals eine Anmeldung verschlucken.
  *
@@ -105,7 +104,7 @@ export async function onRequestPost({ request, env: roh, waitUntil }) {
     // ── Platz oder Warteliste? ────────────────────────────────────────
     const maxPlaetze = await plaetze(env);
     const belegt = env.ALPHA ? Number((await env.ALPHA.get("alpha:anzahl")) || "0") : 0;
-    const warteliste = os === "macos" || (env.ALPHA ? belegt >= maxPlaetze : false);
+    const warteliste = env.ALPHA ? belegt >= maxPlaetze : false;
 
     // ── Speichern ─────────────────────────────────────────────────────
     const eintrag = {
@@ -165,7 +164,7 @@ export async function onRequestPost({ request, env: roh, waitUntil }) {
           subject: warteliste
             ? "Du stehst auf der Warteliste für Bewerbungs-Cockpit"
             : "Deine Anmeldung zur Alpha von Bewerbungs-Cockpit",
-          html: mailAnBewerber(name, platz, { warteliste, mac: os === "macos", discord: env.DISCORD_URL }),
+          html: mailAnBewerber(name, platz, { warteliste, discord: env.DISCORD_URL }),
         }),
         senden(env.RESEND_API_KEY, {
           from: von,
@@ -238,17 +237,13 @@ async function senden(schluessel, nachricht) {
   return r.json();
 }
 
-const mailAnBewerber = (name, platz, { warteliste, mac, discord }) =>
+const mailAnBewerber = (name, platz, { warteliste, discord }) =>
   mailHtml(
     `${titel(`Danke, ${name}.`)}
   ${
     warteliste
       ? `<p style="margin:0 0 14px;">Deine Anmeldung ist angekommen. Du stehst auf der
-  <b>Warteliste</b>${platz ? ` (Platz ${platz})` : ""}. ${
-          mac
-            ? "cockpit gibt es noch nicht für macOS, weil ich es gerade nicht testen kann. Sobald es eine getestete Mac-Version gibt, melde ich mich."
-            : "Gerade sind alle Alpha-Plätze vergeben. Wird einer frei oder startet die nächste Runde, melde ich mich, nach Reihenfolge der Anmeldung."
-        }</p>`
+  <b>Warteliste</b>${platz ? ` (Platz ${platz})` : ""}. Gerade sind alle Alpha-Plätze vergeben. Wird einer frei oder startet die nächste Runde, melde ich mich, nach Reihenfolge der Anmeldung.</p>`
       : `<p style="margin:0 0 14px;">Deine Anmeldung für die geschlossene Alpha ist angekommen${
           platz ? `, du bist Nummer <b>${platz}</b>` : ""
         }.</p>

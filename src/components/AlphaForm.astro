@@ -48,14 +48,11 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
               Object.entries(O.os).map(([wert, name]) => (
                 <label>
                   <input type="radio" name="os" value={wert} required />
-                  <span>
-                    {name} {wert === "macos" && <b class="wip">WIP</b>}
-                  </span>
+                  <span>{name}</span>
                 </label>
               ))
             }
           </div>
-          <p class="hilfe" data-mac-hinweis hidden>macOS ist noch in Arbeit. Du kommst auf die Mac-Warteliste und bekommst eine Nachricht, sobald es eine getestete Version gibt.</p>
         </div>
       </fieldset>
 
@@ -159,7 +156,6 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
     const zurueck = wurzel.querySelector<HTMLButtonElement>("[data-zurueck]")!;
     const schrittText = wurzel.querySelector<HTMLElement>("[data-schritt-text]")!;
     const balken = wurzel.querySelector<HTMLElement>(".balken span")!;
-    const macHinweis = wurzel.querySelector<HTMLElement>("[data-mac-hinweis]")!;
     let schritt = 0;
 
     const wert = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.value?.trim() ?? "";
@@ -219,10 +215,6 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
       }
     };
 
-    form.addEventListener("change", (e) => {
-      const t = e.target as HTMLInputElement;
-      if (t.name === "os") macHinweis.hidden = t.value !== "macos";
-    });
     zurueck.addEventListener("click", () => gehe(Math.max(0, schritt - 1)));
 
     const herkunft = () => {
@@ -279,9 +271,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         } else if (d.warteliste) {
           titel.textContent = "Du stehst auf der Warteliste.";
           text.textContent =
-            daten.os === "macos"
-              ? "Danke. Sobald es eine getestete Mac-Version gibt, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs."
-              : "Danke. Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
+            "Danke. Gerade sind alle Plätze vergeben. Sobald einer frei wird oder die nächste Runde startet, bekommst du Bescheid. Eine Bestätigung ist per Mail unterwegs.";
         }
         wurzel.querySelector<HTMLElement>("[data-formular]")!.hidden = true;
         const fertig = wurzel.querySelector<HTMLElement>("[data-fertig]")!;

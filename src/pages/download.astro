@@ -5,11 +5,11 @@ import Icon from "../components/Icon.astro";
 import { DOWNLOADS, SITE } from "../config";
 ---
 
-<Base title="Download" description="cockpit für Windows und Linux herunterladen, dazu die Browser-Erweiterung für Chrome und Edge. macOS ist in Arbeit. Kostenlos, ohne Konto.">
+<Base title="Download" description="cockpit für Windows, Linux und macOS herunterladen, dazu die Browser-Erweiterung für Chrome und Edge. Kostenlos, ohne Konto.">
   <Seitenkopf
     eyebrow="Download"
     titel="cockpit herunterladen"
-    lead="Für Windows und Linux. Kostenlos und ohne Konto. Mit Alpha-Schlüssel sind alle Funktionen frei."
+    lead="Für Windows, Linux und macOS. Kostenlos und ohne Konto. Mit Alpha-Schlüssel sind alle Funktionen frei."
     krumen={[["Download", "/download/"]]}
     zentriert
   >
@@ -23,22 +23,23 @@ import { DOWNLOADS, SITE } from "../config";
         Melde dich für die <a href="/alpha/">Alpha</a> an. Sobald es losgeht, bekommst du eine Mail.
       </div>
       <div class="systeme">
-        <div class="system karte rv" data-system="windows">
+        <div class="system karte rv" id="windows" data-system="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
           <a href={DOWNLOADS.windows} class="btn btn-p" data-dl>Installer (.exe) <Icon name="download" size={16} /></a>
           <a href={DOWNLOADS.windowsMsi} class="klein" data-dl>oder als .msi-Paket für Firmenrechner und Softwareverteilung</a>
           <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
         </div>
-        <div class="system karte rv" style="--d:1" data-system="linux">
+        <div class="system karte rv" style="--d:1" id="linux" data-system="linux">
           <div class="kopf"><span class="ic"><Icon name="terminal" /></span><div><h2>Linux</h2><p class="micro">x86_64 · Ubuntu, Debian, Fedora, Arch …</p></div></div>
           <a href={DOWNLOADS.appimage} class="btn btn-p" data-dl>AppImage <Icon name="download" size={16} /></a>
           <a href={DOWNLOADS.deb} class="klein" data-dl>oder als .deb-Paket (Debian, Ubuntu, Mint)</a>
           <p class="micro"><code>chmod +x cockpit-linux-x86_64.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
         </div>
-        <div class="system karte rv aus" style="--d:2">
-          <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS <span class="wip">in Arbeit</span></h2><p class="micro">Apple Silicon und Intel</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Noch nicht verfügbar</span>
-          <p class="micro">Für macOS fehlt noch ein getesteter Installer; ungetestete Versionen werden nicht veröffentlicht. Wenn du dich <a href="/alpha/">anmeldest</a>, kommst du auf die Mac-Warteliste.</p>
+        <div class="system karte rv" style="--d:2" id="macos" data-system="macos">
+          <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26 oder neuer</p></div></div>
+          <a href={SITE.releases} class="btn btn-p" data-dl data-dl-mac>Mac-App (.zip) <Icon name="download" size={16} /></a>
+          <a href="/hilfe/erste-schritte/#macos" class="klein">Installieren in drei Schritten</a>
+          <p class="micro">ZIP entpacken, <b>cockpit</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
         </div>
       </div>
 
@@ -71,6 +72,7 @@ import { DOWNLOADS, SITE } from "../config";
         <h2>Systemvoraussetzungen</h2>
         <ul>
           <li><b>Windows:</b> 10 oder 11 (64 Bit). Der Installer richtet bei Bedarf Microsoft WebView2 ein.</li>
+          <li><b>macOS:</b> 26 oder neuer. Die Mac-App ist nativ (SwiftUI) und nutzt denselben Kern wie die anderen Systeme. Dazu kommen Apple Intelligence als KI-Anbieter (wo verfügbar), Termine im Apple Kalender und Systemmitteilungen mit Aktionen. Passwörter und Schlüssel liegen im Schlüsselbund.</li>
           <li><b>Linux:</b> x86_64 mit WebKitGTK 4.1 (bei aktuellen Distributionen vorhanden) und einem Secret-Service (GNOME-Schlüsselbund oder KWallet) für Passwörter und Schlüssel.</li>
           <li><b>Speicher:</b> cockpit selbst braucht wenig Platz. Lokale KI-Modelle brauchen zusätzlich mehrere GB und am besten 16 GB Arbeitsspeicher.</li>
           <li><b>Updates:</b> cockpit meldet neue Versionen selbst und installiert sie auf Klick.</li>
@@ -88,6 +90,15 @@ import { DOWNLOADS, SITE } from "../config";
       const r = await fetch("/api/version", { cache: "no-store" });
       const d = (await r.json()) as { version?: string | null; datum?: string | null };
       if (d.version) {
+        const mac = (d as { dateien?: string[] }).dateien?.find((n) => /^cockpit-mac-.*\.zip$/.test(n));
+        const macKnopf = document.querySelector<HTMLAnchorElement>("[data-dl-mac]");
+        if (macKnopf) {
+          if (mac) macKnopf.href = `https://github.com/Stacktor/cockpit-releases/releases/download/${d.version}/${mac}`;
+          else {
+            macKnopf.setAttribute("aria-disabled", "true");
+            macKnopf.removeAttribute("href");
+          }
+        }
         const datum = d.datum ? new Date(d.datum).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }) : "";
         if (ziel) ziel.innerHTML = `Neueste Version: <b>${d.version.replace(/^v/, "")}</b>${datum ? ` · ${datum}` : ""} · <a href="/changelog/">Was ist neu?</a>`;
         return;

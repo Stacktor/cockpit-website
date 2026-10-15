@@ -1,6 +1,6 @@
 ---
 titel: Erste Schritte
-beschreibung: cockpit unter Windows oder Linux installieren, beim ersten Start einrichten und die erste Bewerbung anlegen.
+beschreibung: cockpit unter Windows, Linux oder macOS installieren, beim ersten Start einrichten und die erste Bewerbung anlegen.
 reihenfolge: 1
 kategorie: Einstieg
 stand: Oktober 2026
@@ -15,9 +15,9 @@ Auf der [Download-Seite](/download/) findest du die Datei für dein System:
 |---|---|
 | Windows 10/11 | `cockpit-windows-setup.exe` (oder `cockpit-windows.msi` für Firmenrechner) |
 | Linux (fast alle Distributionen) | `cockpit-linux-x86_64.AppImage` |
+| macOS 26 oder neuer | `cockpit-mac-<Version>.zip` |
 | Debian, Ubuntu, Mint | `cockpit-linux-amd64.deb` |
 
-macOS ist in Arbeit. Ungetestete Installer werden nicht veröffentlicht, deshalb folgt die Mac-Version erst nach einer Testphase auf echter Hardware.
 
 ## 2. Installieren
 
@@ -39,6 +39,10 @@ Startet das AppImage nicht, fehlt meist `libfuse2`. Unter Ubuntu hilft `sudo apt
 ```
 sudo apt install ./cockpit-linux-amd64.deb
 ```
+
+### macOS
+
+ZIP per Doppelklick entpacken, **cockpit** in den Ordner *Programme* ziehen und öffnen. Beim ersten Start fragt macOS einmal, ob du die aus dem Internet geladene App öffnen willst: **Öffnen**. Die Mac-App braucht macOS 26 oder neuer und nutzt denselben Datenordner wie die Desktop-Fassung, falls du beide auf einem Mac laufen lässt. Passwörter und Schlüssel liegen im Schlüsselbund von macOS; fragt es beim ersten Zugriff nach, wähle **Immer erlauben**.
 
 ## 3. Erster Start
 

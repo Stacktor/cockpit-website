@@ -16,7 +16,7 @@ for (let i = 0; i < 60; i++) {
   try { if ((await fetch(`http://localhost:${PORT}/`)).ok) break; } catch {}
   await new Promise((r) => setTimeout(r, 500));
 }
-const browser = await chromium.launch({ executablePath: globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome").sort().reverse()[0] });
+const browser = await chromium.launch({ executablePath: process.env.CHROME || globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome").sort().reverse()[0] });
 const funde = [];
 try {
   for (const [geraet, viewport] of Object.entries(GERAETE)) {

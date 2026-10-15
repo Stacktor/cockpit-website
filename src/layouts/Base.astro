@@ -34,7 +34,7 @@ const vollerTitel = title.includes("Cockpit") ? title : `${title} · ${SITE.name
     <meta property="og:image" content={new URL(bild, SITE.url).href} />
     <meta property="og:locale" content="de_DE" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f8f7f3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b0b0f" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -55,6 +55,7 @@ const vollerTitel = title.includes("Cockpit") ? title : `${title} · ${SITE.name
   </head>
   <body>
     <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+    <div class="hintergrund" aria-hidden="true"><i></i><i></i><i></i></div>
     <Header />
     <main id="inhalt">
       <slot />

@@ -1,6 +1,6 @@
 ---
 titel: "Die 0.1 Alpha startet: was drin ist und was noch fehlt"
-beschreibung: cockpit geht in die geschlossene Alpha. 50 Plätze, Windows und Linux, alle Funktionen frei. Was dich erwartet, was noch nicht fertig ist und wie du mitmachst.
+beschreibung: cockpit geht in die geschlossene Alpha. 50 Plätze, Windows, Linux und macOS, alle Funktionen frei. Was dich erwartet, was noch nicht fertig ist und wie du mitmachst.
 datum: 2026-09-28
 tags: [Alpha, Neuigkeiten]
 ---
@@ -32,7 +32,7 @@ Monatelang lief cockpit nur intern. Jetzt startet die **0.1 Alpha**. 50 Leute, d
 
 ## Was noch fehlt
 
-- **macOS** ist in Arbeit. Ein Installer erscheint erst, wenn er auf echter Hardware getestet ist.
+- Die **Mac-App** ist neu und die jüngste der drei Plattformen. Sie läuft mit macOS 26 oder neuer; rechne dort mit mehr Ecken und Kanten als unter Windows.
 - Die Anmeldung per **Google- oder Microsoft-Konto** im Postfach und der **eingebettete Browser** sind eingebaut. In der Alpha stecken sie aber unter *Experimentell*, bis sie auf vielen Rechnern gelaufen sind.
 - Die Browser-Erweiterung gibt es noch nicht im Chrome Web Store. Du lädst sie als ZIP und installierst sie von Hand, die [Download-Seite](/download/) zeigt, wie.
 - Die Installer sind **noch nicht signiert**. Windows warnt deshalb beim ersten Start einmal.

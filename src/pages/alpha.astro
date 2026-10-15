@@ -16,20 +16,20 @@ const fragen = [
   { frage: "Was kostet die Alpha?", antwort: "<p>Nichts. Wer bis zum Ende dabei ist und ehrlich Rückmeldung gibt, behält die Vollversion dauerhaft, auch mit allen späteren Updates.</p>" },
   { frage: "Wie viel Zeit muss ich investieren?", antwort: "<p>Nutz cockpit einfach für deine echte Jobsuche. Dazu kommen zwei Umfragen in der App. Die erste dauert eine Minute, die zweite etwa fünf. Alles andere ist freiwillig.</p>" },
   { frage: "Nach welchen Kriterien werden die Plätze vergeben?", antwort: "<p>Gesucht ist eine gute Mischung: verschiedene Situationen, Branchen und Erfahrung mit Technik. Vor allem Menschen, die gerade wirklich auf Jobsuche sind und das Werkzeug brauchen.</p>" },
-  { frage: "Ich nutze einen Mac. Kann ich trotzdem mitmachen?", antwort: "<p>Noch nicht. macOS ist in Arbeit, und ein Installer erscheint erst, wenn er auf echter Hardware getestet ist. Melde dich trotzdem an: Du kommst auf die Mac-Warteliste und bekommst Bescheid, sobald es eine getestete Version gibt.</p>" },
+  { frage: "Ich nutze einen Mac. Kann ich mitmachen?", antwort: "<p>Ja. Die Mac-App ist eine native App für macOS 26 oder neuer, mit denselben Daten und Funktionen wie unter Windows und Linux. Wähle im Formular einfach „macOS“.</p>" },
   { frage: "Was passiert mit meinen Angaben?", antwort: '<p>Sie dienen der Auswahl und der Weiterentwicklung. Wir geben sie nicht weiter und schicken keinen Newsletter. Spätestens drei Monate nach Ende der Alpha werden sie gelöscht, auf Wunsch jederzeit früher. Details in der <a href="/datenschutz/#alphateilnahme">Datenschutzerklärung</a>.</p>' },
   { frage: "Alle Plätze sind weg. Und jetzt?", antwort: "<p>Melde dich trotzdem an. Du kommst auf die Warteliste. Wenn jemand aussteigt oder die nächste Runde startet, geht es nach Reihenfolge.</p>" },
 ];
 ---
 
-<Base title="Alpha-Zugang" description={`Teste cockpit vor allen anderen: ${SITE.alphaPlaetze} Plätze in der geschlossenen 0.1 Alpha für Windows und Linux. Kostenlos, alle Funktionen frei.`}>
+<Base title="Alpha-Zugang" description={`Teste cockpit vor allen anderen: ${SITE.alphaPlaetze} Plätze in der geschlossenen 0.1 Alpha für Windows, Linux und macOS. Kostenlos, alle Funktionen frei.`}>
   <section class="alpha-held">
     <div class="wrap zwei">
       <div>
         <a href="#anmeldung" class="badge rv an"><span class="punkt"></span><span data-alpha-plaetze>{SITE.alphaPlaetze} Plätze</span></a>
         <h1 class="rv an" style="--d:1">Teste cockpit, bevor es alle anderen tun.</h1>
         <p class="lead rv an" style="--d:2">
-          Die geschlossene {SITE.version} für Windows und Linux: kostenlos und mit allen Funktionen. Dein Feedback entscheidet, was als Nächstes kommt und was cockpit kostet.
+          Die geschlossene {SITE.version} für Windows, Linux und macOS: kostenlos und mit allen Funktionen. Dein Feedback entscheidet, was als Nächstes kommt und was cockpit kostet.
         </p>
         <ul class="vorteile rv an" style="--d:3">
           <li><Icon name="check" size={18} /> Vollzugang zu allen Funktionen, ohne Grenzen</li>
@@ -37,7 +37,7 @@ const fragen = [
           <li><Icon name="check" size={18} /> Direkter Kontakt zur Entwicklung</li>
         </ul>
         <div class="hinweis warn rv an" style="--d:4">
-          <b>Es ist eine Alpha.</b> Es wird Fehler geben. cockpit sichert deine Daten täglich und vor jedem Update selbst, unter <i>Einstellungen → Sicherungen</i> kommst du an jeden Stand. macOS ist noch <span class="wip">in Arbeit</span>.
+          <b>Es ist eine Alpha.</b> Es wird Fehler geben. cockpit sichert deine Daten täglich und vor jedem Update selbst, unter <i>Einstellungen → Sicherungen</i> kommst du an jeden Stand.
         </div>
       </div>
       <div class="rv an" style="--d:2">

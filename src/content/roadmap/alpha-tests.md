@@ -1,5 +1,5 @@
 ---
-titel: Alpha-Tests auf Windows und Linux
+titel: Alpha-Tests auf Windows, Linux und macOS
 status: jetzt
 reihenfolge: 1
 ---

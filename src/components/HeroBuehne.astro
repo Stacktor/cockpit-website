@@ -1,0 +1,208 @@
+---
+/**
+ * Bühne rechts im Hero: die Pipeline als App-Fenster in leichter 3D-Neigung,
+ * davor drei Glas-Karten wie in den Beschriftungen des Films (Passung, Termin,
+ * Daten bleiben lokal). Die Karten schweben leise; mit „Bewegung reduzieren"
+ * steht alles still.
+ */
+import Screen from "./Screen.astro";
+import Icon from "./Icon.astro";
+---
+
+<div class="hb">
+  <div class="fenster3d">
+    <div class="rahmen">
+      <div class="leiste" aria-hidden="true"><i></i><i></i><i></i><span>cockpit</span></div>
+      <Screen id="pipeline" alt="cockpit: Pipeline mit Bewerbungen in den Spalten Entwurf, Beworben, Gespräch und Abgeschlossen." eager sizes="(min-width: 1000px) 640px, 100vw" />
+    </div>
+  </div>
+
+  <div class="karte-a glas rv an" style="--d:5">
+    <span class="k-kopf">Passung</span>
+    <b class="k-zahl grad">92 %</b>
+    <span class="k-spur"><i></i></span>
+    <span class="k-text">React, TypeScript, Hamburg</span>
+  </div>
+  <div class="karte-b glas rv an" style="--d:6">
+    <span class="k-haken"><Icon name="check" size={16} /></span>
+    <div><b>Termin steht</b><span>Donnerstag, 10 Uhr</span></div>
+  </div>
+  <div class="karte-c glas rv an" style="--d:7">
+    <span class="k-schloss"><Icon name="lock" size={16} /></span>
+    <div><b>Bleibt auf deinem Rechner</b><span>SQLite, kein Konto</span></div>
+  </div>
+</div>
+
+<style>
+  .hb {
+    position: relative;
+    isolation: isolate;
+    padding: 0 0 40px;
+  }
+  .fenster3d {
+    --neig-x: 4deg;
+    --neig-y: -11deg;
+  }
+  .rahmen {
+    box-shadow:
+      0 50px 100px -40px rgba(30, 27, 75, 0.55),
+      0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+  }
+  .leiste {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--faint);
+  }
+  .leiste i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .leiste span {
+    margin-left: 10px;
+  }
+  /* Näher heran: die Spalten füllen das Fenster, Navigation und Leerraum rutschen an den Rand. */
+  .rahmen :global(.mock) {
+    transform: scale(1.32);
+    transform-origin: 66% 30%;
+  }
+  .glas {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px;
+    border-radius: 18px;
+    font-size: 13px;
+    line-height: 1.3;
+    z-index: 2;
+  }
+  .glas b {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .glas span:not([class^="k-"]) {
+    color: var(--muted);
+  }
+  .karte-a {
+    top: -22px;
+    right: -14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 168px;
+  }
+  .k-kopf {
+    font: 600 11px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .k-zahl {
+    font-size: 38px;
+    line-height: 1.05;
+    letter-spacing: -0.05em;
+    font-weight: 780;
+  }
+  .k-spur {
+    width: 100%;
+    height: 6px;
+    border-radius: 9em;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .k-spur i {
+    display: block;
+    height: 100%;
+    width: 92%;
+    border-radius: 9em;
+    background: var(--grad);
+  }
+  .k-text {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .karte-b {
+    left: -26px;
+    bottom: 6px;
+  }
+  .karte-c {
+    right: 22px;
+    bottom: -6px;
+  }
+  .k-haken,
+  .k-schloss {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  .k-haken {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .k-schloss {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .karte-a {
+      animation: schweben 7s ease-in-out infinite alternate;
+    }
+    .karte-b {
+      animation: schweben 8s ease-in-out -2s infinite alternate;
+    }
+    .karte-c {
+      animation: schweben 9s ease-in-out -4s infinite alternate;
+    }
+    .k-spur i {
+      animation: fuellen 1.6s var(--ease) 0.5s both;
+    }
+    @keyframes schweben {
+      to {
+        translate: 0 -9px;
+      }
+    }
+    @keyframes fuellen {
+      from {
+        width: 0;
+      }
+    }
+  }
+  @media (max-width: 999px) {
+    .fenster3d {
+      --neig-x: 2deg;
+      --neig-y: -4deg;
+    }
+    .karte-a {
+      right: 6px;
+    }
+    .karte-b {
+      left: 6px;
+    }
+  }
+  @media (max-width: 560px) {
+    .rahmen :global(.mock) {
+      transform: scale(1.12);
+      transform-origin: 60% 30%;
+    }
+    .karte-c {
+      display: none;
+    }
+    .karte-a {
+      top: -30px;
+      transform: scale(0.88);
+      transform-origin: top right;
+    }
+  }
+</style>
