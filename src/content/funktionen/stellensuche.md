@@ -1,14 +1,15 @@
 ---
 titel: Stellensuche
-kurz: Arbeitsagentur, Jobbörsen und Karriereseiten in einer Liste
-beschreibung: "Stellen aus der Bundesagentur für Arbeit, Arbeitnow, Remotive, Adzuna, Jooble und RSS-Feeds, mit Match-Score, Gehalt, Ansprechpartner und Entfernung zum Wohnort."
+kurz: Deutschland, Österreich und Karriereseiten in einer Liste
+beschreibung: "Stellen aus der Bundesagentur für Arbeit, dem AMS Österreich (über EURES), Karriereseiten großer Firmen und RSS-Feeds, mit Match-Score, Sprachen, Gehalt, Ansprechpartner und Entfernung zum Wohnort."
 icon: search
 reihenfolge: 2
 screen: stellen
 punkte:
   - Offizielle Jobsuche der Bundesagentur für Arbeit (Beruf, Ort, Umkreis)
-  - Arbeitnow, Remotive, Adzuna und Jooble als weitere Quellen, dazu RSS-Feeds von Karriereseiten
+  - Österreich (AMS über EURES) und weitere europäische Länder, dazu Karriereseiten großer Firmen und RSS-Feeds
   - Suche aus deinem Profil heraus, ohne Stichworte zu tippen
+  - Anzeige gegliedert in Aufgaben, Anforderungen, Von Vorteil und Angebot, mit Sprachen und Niveau gegen dein Profil
   - Match-Score, Gehalt, Ansprechpartner und Entfernung je Stelle
 ---
 
@@ -18,14 +19,13 @@ Jedes Portal hat seine eigene Suchmaske und Merkliste. cockpit holt die Stellen 
 
 | Quelle | Was du brauchst |
 |---|---|
-| **Bundesagentur für Arbeit** | nichts, funktioniert sofort |
-| **Arbeitnow** | nichts, funktioniert sofort |
-| **Remotive** | nichts, funktioniert sofort |
-| **Adzuna** | einen kostenlosen Entwickler-Schlüssel |
-| **Jooble** | einen kostenlosen Schlüssel |
+| **Bundesagentur für Arbeit** (Deutschland) | nichts, funktioniert sofort |
+| **AMS Österreich und Europa** (über das EU-Portal EURES) | nichts, funktioniert sofort |
+| **Karriereseiten** (Greenhouse, Lever, Personio, Recruitee, SmartRecruiters, Workable, Workday und andere) | die Adresse der Stellenseite |
 | **RSS-Feeds** | die Feed-Adresse einer Karriereseite |
+| **Stelle per Link** | der Link einer Anzeige, auch von LinkedIn, StepStone oder Indeed |
 
-Diese Quellen sind offizielle Schnittstellen oder veröffentlichte Feeds.
+Diese Quellen sind offizielle Schnittstellen oder veröffentlichte Listen. Wer die Stellenseite einer Firma einfügt, bekommt deren Anzeigen, ohne dass cockpit Seiten abgreift.
 
 LinkedIn, StepStone und Indeed bieten keine offene Schnittstelle an. cockpit kann ihre öffentlichen Suchseiten auf Wunsch lesen. Das ist experimentell, standardmäßig aus und widerspricht den Nutzungsbedingungen dieser Portale. Die Oberfläche weist darauf hin, bevor du es einschaltest. Verlässlicher ist die [Browser-Erweiterung](/funktionen/browser-erweiterung/), die eine Anzeige beim Ansehen übernimmt.
 

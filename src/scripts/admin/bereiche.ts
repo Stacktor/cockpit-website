@@ -497,9 +497,18 @@ export const umfragen: Bereich = async (ziel, neu) => {
 function umfrageKarte(def: Daten, aus: Daten, neu: () => void) {
   const inhalt = h("div", { class: "a-stapel" });
   let offen = false;
+  const zeige = (a: Daten) =>
+    inhalt.replaceChildren(
+      ...auswertung(a, async (version: string) => {
+        const r = await api(`umfragen${version ? `?version=${encodeURIComponent(version)}` : ""}`);
+        const neuA = r.umfragen.find((x: Daten) => x.definition.id === def.id)?.auswertung;
+        if (neuA) zeige(neuA);
+      }),
+    );
   const umschalten = knopf("Auswertung", () => {
     offen = !offen;
-    inhalt.replaceChildren(...(offen ? auswertung(aus) : []));
+    if (offen) zeige(aus);
+    else inhalt.replaceChildren();
     umschalten.lastChild!.textContent = offen ? "Auswertung schließen" : "Auswertung";
   });
   return karteMitKopf(
@@ -529,9 +538,39 @@ function umfrageKarte(def: Daten, aus: Daten, neu: () => void) {
   );
 }
 
-function auswertung(a: Daten): HTMLElement[] {
-  if (!a.antworten) return [leer("Noch keine Antworten.")];
+function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLElement[] {
+  if (!a.gesamt && !a.antworten) return [leer("Noch keine Antworten.")];
   const teile: HTMLElement[] = [];
+  // Überblick: Wie viele, wie vollständig, wie viele der Eingeladenen, und was auffällt.
+  const wahl = h(
+    "select",
+    { class: "a-eingabe a-schmal", "aria-label": "Nach App-Version einschränken" },
+    h("option", { value: "" }, "Alle Versionen"),
+    ...((a.versionen ?? []) as Daten[]).map((v) => h("option", { value: v.name, selected: a.version === v.name }, `${v.name} (${v.anzahl})`)),
+  ) as HTMLSelectElement;
+  wahl.addEventListener("change", () => nachVersion(wahl.value));
+  const nurNodes = (...xs: (HTMLElement | null)[]) => xs.filter((x): x is HTMLElement => x !== null);
+  teile.push(
+    h("div", { class: "a-werkzeuge a-mb" }, h("span", { class: "a-klein" }, "Auswerten für"), wahl),
+    raster(
+      "a-r4",
+      kpi("Antworten", zahl(a.antworten), a.version ? `von ${zahl(a.gesamt)} insgesamt` : a.letzte ? `letzte ${relativ(a.letzte)}` : ""),
+      kpi("Antwortquote", a.quote ? `${a.quote.anteil} %` : "—", a.quote ? `von ${a.quote.eingeladen} eingeladenen Testern` : "noch niemand eingeladen"),
+      kpi("Vollständigkeit", a.vollstaendig != null ? `${a.vollstaendig} %` : "—", "beantwortete Fragen je Antwort"),
+      kpi("Zeitraum", a.erste ? `${datum(a.erste)}` : "—", a.letzte ? `bis ${datum(a.letzte)}` : ""),
+    ),
+    ...nurNodes(
+      (a.verlauf as Daten[]).length > 1 ? karte("Antworten pro Tag", verlauf(a.verlauf as { tag: string; wert: number }[], "var(--a-indigo)")) : null,
+      (a.kernaussagen as string[]).length
+        ? karte("Was auffällt", h("ul", { class: "a-kern" }, ...(a.kernaussagen as string[]).map((t) => h("li", {}, t))))
+        : null,
+    ),
+    raster(
+      "a-r2 a-innen",
+      h("div", {}, h("h3", { class: "a-zwischentitel" }, "App-Versionen"), balken((a.versionen ?? []) as Zaehlung[], 6)),
+      h("div", {}, h("h3", { class: "a-zwischentitel" }, "Betriebssysteme"), balken(((a.systeme ?? []) as Zaehlung[]).map(systemName), 6)),
+    ),
+  );
   if (a.preispunkte) {
     const p = a.preispunkte;
     teile.push(
@@ -581,11 +620,36 @@ function auswertung(a: Daten): HTMLElement[] {
           ),
         );
         break;
-      case "text":
-        koerper = f.texte.length
-          ? h("div", { class: "a-stapel a-scroll" }, f.texte.map((t: Daten) => h("div", { class: "a-zitat" }, t.text, h("small", {}, `${t.email || "?"} · ${relativ(t.zeit)}`))))
-          : leer("Keine Texte.");
+      case "text": {
+        if (!f.texte.length) {
+          koerper = leer("Keine Texte.");
+          break;
+        }
+        const liste = h("div", { class: "a-stapel a-scroll" });
+        const suche = eingabe({ type: "search", placeholder: "In den Texten suchen", "aria-label": "In den Texten suchen" }) as HTMLInputElement;
+        const zeichne = () => {
+          const q = suche.value.trim().toLowerCase();
+          const treffer = (f.texte as Daten[]).filter((t) => !q || String(t.text).toLowerCase().includes(q));
+          liste.replaceChildren(
+            ...(treffer.length
+              ? treffer.map((t) => h("div", { class: "a-zitat" }, t.text, h("small", {}, `${t.email || "?"} · ${relativ(t.zeit)}${t.version ? ` · ${t.version}` : ""}`)))
+              : [leer("Nichts gefunden.")]),
+          );
+        };
+        suche.addEventListener("input", zeichne);
+        zeichne();
+        const themen = (f.stichworte ?? []) as Daten[];
+        koerper = h(
+          "div",
+          { class: "a-stapel" },
+          themen.length
+            ? h("div", { class: "a-werkzeuge" }, h("span", { class: "a-klein" }, "Häufige Wörter"), ...themen.map((t) => badge(`${t.name} ${t.anzahl}`, "info")))
+            : null,
+          suche,
+          liste,
+        );
         break;
+      }
       default:
         koerper = leer("—");
     }
@@ -1042,9 +1106,62 @@ export const analytics: Bereich = async (ziel) => {
           ),
         )
       : null,
+    websiteSeiten(d.seiten),
     appNutzung(nutzung),
   );
 };
+
+/** Eigener Seitenzähler: Aufrufe je Seite (auch Unterseiten), Herkunft, Länder, Geräte. Ohne Cookies, ohne IP-Adresse. */
+function websiteSeiten(n: Daten | null) {
+  if (!n) return null;
+  if (!n.ok) return karte("Aufrufe der Website", hinweisKachel(n));
+  if (!n.aufrufe)
+    return karte(
+      "Aufrufe der Website",
+      leer("Noch keine Aufrufe gezählt. Der Zähler läuft, sobald die Seite mit der Middleware ausgeliefert wird (Deploy auf Cloudflare Pages)."),
+    );
+  const seiten = n.pfade as Daten[];
+  return h(
+    "div",
+    { class: "a-stapel weit" },
+    h(
+      "p",
+      { class: "a-notiz" },
+      h("b", {}, "Eigener Zähler: "),
+      "zählt Aufrufe der Seiten von cockpit.mesco.cc und ihrer Unterseiten, ohne Cookies, ohne Skript im Browser und ohne IP-Adresse. Bots und Vorabrufe zählen nicht. Gezählt werden Aufrufe, keine Personen.",
+    ),
+    raster(
+      "a-r4",
+      kpi("Aufrufe (7 Tage)", zahl(n.woche), n.vorwoche != null ? "gegenüber der Woche davor" : "noch kein Vergleich", trend(n.woche, n.vorwoche)),
+      kpi("Aufrufe (30 Tage)", zahl(n.aufrufe), `${seiten.length} Seiten, von ${(n.herkunft as Daten[])[0]?.name ?? "—"} am häufigsten`),
+      kpi("Beliebteste Seite", seiten[0]?.name ?? "—", seiten[0] ? `${zahl(seiten[0].anzahl)} Aufrufe` : ""),
+      kpi("Geräte", (n.geraete as Daten[]).map((g) => `${g.name} ${prozent(g.anzahl, n.aufrufe)}`).join(" · ") || "—", "Handy, Computer, Tablet"),
+    ),
+    karte(
+      "Aufrufe pro Tag (30 Tage)",
+      verlauf((n.proTag as Daten[]).map((x) => ({ tag: x.tag, wert: x.aufrufe })), "var(--a-indigo)"),
+    ),
+    karte(
+      "Seiten und woher die Besucher kommen",
+      tabelle(
+        [
+          { titel: "Seite", wert: (z) => h("code", {}, z.name) },
+          { titel: "Aufrufe", wert: (z) => zahl(z.anzahl) },
+          { titel: "Anteil", wert: (z) => prozent(z.anzahl, n.aufrufe) },
+          { titel: "Herkunft (häufigste)", wert: (z) => (z.herkunft as Daten[]).map((r) => `${r.name} ${r.anzahl}`).join(" · ") || "—" },
+        ],
+        seiten,
+        { leerText: "Keine Seiten." },
+      ),
+    ),
+    raster(
+      "a-r3 a-innen",
+      karte("Herkunft", balken(n.herkunft as Zaehlung[], 8)),
+      karte("Länder", balken(n.laender as Zaehlung[], 8)),
+      karte("Kampagnen (utm)", (n.kampagnen as Daten[]).length ? balken(n.kampagnen as Zaehlung[], 8) : leer("Keine Kampagnen-Links aufgerufen.")),
+    ),
+  );
+}
 
 // ═════════════ Speicher ═════════════
 // Der R2-Bucket des Sync-Servers: Belegung je Lizenz und Gerät, aufräumen.

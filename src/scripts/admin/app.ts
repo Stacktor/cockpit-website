@@ -4,7 +4,7 @@
  * Jede Ansicht holt ihre Daten selbst über /api/admin/*.
  */
 import { h, svg, ICONS } from "./dom";
-import { ApiFehler, schubladeZu, tokenAusAdresse } from "./ui";
+import { ApiFehler, api, schublade, schubladeZu, tokenAusAdresse } from "./ui";
 import { menueZu } from "./menue";
 import { glockeOeffnen } from "./uebersicht";
 import * as B from "./bereiche";
@@ -254,3 +254,41 @@ const springe = () => {
 suche.addEventListener("change", springe);
 suche.addEventListener("keydown", (e) => e.key === "Enter" && springe());
 lade();
+
+
+// ───────────── Version und Patchnotes in der Ecke ─────────────
+// Kleine Marke unten links: neueste Version der App (auch Dev-Builds). Ein Klick öffnet die Patchnotes der letzten Builds.
+(function versionsMarke() {
+  const knopf = h("button", { class: "a-version", type: "button", title: "Patchnotes der App" }, "Version …");
+  document.body.append(knopf);
+  type Rel = { tag: string; version: string; kanal: string; datum: string; url: string; notizen: string[] };
+  let daten: { ok?: boolean; neueste?: Rel | null; stabil?: Rel | null; liste?: Rel[] } | null = null;
+  const laden = api("patchnotes")
+    .then((d) => {
+      daten = d;
+      knopf.textContent = d.ok && d.neueste ? `App v${d.neueste.version}` : "Version";
+      if (d.ok && d.neueste) knopf.title = `${d.neueste.kanal} vom ${new Date(d.neueste.datum).toLocaleDateString("de-DE")}. Klick für die Patchnotes.`;
+    })
+    .catch(() => {
+      knopf.textContent = "Version";
+    });
+  knopf.addEventListener("click", async () => {
+    await laden;
+    const liste = daten?.ok ? daten.liste ?? [] : [];
+    schublade(
+      "Patchnotes",
+      h("p", { class: "a-notiz" }, daten?.stabil ? `Aktuelles Release: v${daten.stabil.version}.` : "Noch kein veröffentlichtes Release, es gibt Dev-Builds für Tester."),
+      ...(liste.length
+        ? liste.map((r) =>
+            h(
+              "section",
+              { class: "a-patch" },
+              h("h3", {}, `v${r.version} `, h("span", { class: "a-badge" }, r.kanal), h("small", {}, ` ${new Date(r.datum).toLocaleDateString("de-DE")}`)),
+              r.notizen.length ? h("ul", {}, ...r.notizen.map((n) => h("li", {}, n))) : h("p", { class: "a-klein" }, "Keine Notizen."),
+              h("a", { href: r.url, target: "_blank", rel: "noopener" }, "Auf GitHub ansehen"),
+            ),
+          )
+        : [h("p", { class: "a-leer" }, "Die Releases sind gerade nicht lesbar.")]),
+    );
+  });
+})();

@@ -253,7 +253,7 @@ const mailAnBewerber = (name, platz, { warteliste, mac, discord }) =>
           platz ? `, du bist Nummer <b>${platz}</b>` : ""
         }.</p>
   <p style="margin:0 0 14px;">Ich vergebe die Plätze selbst und melde mich in den nächsten Tagen.
-  Bist du dabei, kommt dein <b>Alpha-Schlüssel</b> per Mail (Absender: Lemon Squeezy). Klappt es
+  Bist du dabei, kommt dein <b>Alpha-Schlüssel</b> per Mail (Absender: Polar). Klappt es
   diesmal nicht, sage ich dir auch das.</p>
   ${kasten(
     "So geht es dann weiter",

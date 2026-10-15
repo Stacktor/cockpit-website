@@ -8,7 +8,7 @@
  *         { aktion: "plaetze", plaetze }
  */
 import { json } from "../../../lib/admin/zugang.js";
-import { anmeldungen, escapeHtml, lemon, lsFehler, resend, zaehleBelegt } from "../../../lib/admin/daten.js";
+import { anmeldungen, escapeHtml, lemon, lsFehler, resend, resendFehler, zaehleBelegt } from "../../../lib/admin/daten.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
 import { alsText, kasten, knopf, link as mailLink, mailHtml, titel } from "../../../lib/mail/vorlage.js";
 import { plaetze } from "../../../lib/alpha-optionen.js";
@@ -21,7 +21,7 @@ export async function onRequestGet({ data }) {
   if (!env.ALPHA) return json(503, { fehler: "KV-Namespace ALPHA ist nicht verbunden." });
   const liste = await anmeldungen(env);
   const einladenBereit = env.POLAR_ACCESS_TOKEN
-    ? Boolean(env.POLAR_ALPHA_CHECKOUT_URL && env.POLAR_ALPHA_PRODUCT_ID && env.RESEND_API_KEY)
+    ? Boolean(env.POLAR_ALPHA_CHECKOUT_URL && env.POLAR_ALPHA_PRODUCT_ID && env.POLAR_ORG_ID && env.RESEND_API_KEY)
     : Boolean(env.LEMONSQUEEZY_API_KEY && env.LS_STORE_ID && env.LS_ALPHA_VARIANT_ID && env.LS_ALPHA_CHECKOUT_URL && env.RESEND_API_KEY);
   return json(200, { plaetze: await plaetze(env), status: STATUS, einladenBereit, eintraege: liste.map(({ _key, ...e }) => e) });
 }
@@ -116,13 +116,19 @@ async function einladen(env, benutzer, key, eintrag, ohneCode) {
 
 /** Polar: 100-%-Code nur für das Alpha-Produkt, einmal einlösbar; Link mit Mail und Code vorbefüllt. */
 async function einladenPolar(env, benutzer, key, eintrag, ohneCode) {
-  const fehlt = ["POLAR_ALPHA_CHECKOUT_URL", "RESEND_API_KEY", ...(ohneCode ? [] : ["POLAR_ALPHA_PRODUCT_ID"])].filter((n) => !env[n]);
+  const fehlt = ["POLAR_ALPHA_CHECKOUT_URL", "RESEND_API_KEY", ...(ohneCode ? [] : ["POLAR_ALPHA_PRODUCT_ID", "POLAR_ORG_ID"])].filter((n) => !env[n]);
   if (fehlt.length) return json(412, { fehler: `Für Einladungen fehlt in den Einstellungen: ${fehlt.join(", ")}.` });
   let code = null;
   if (!ohneCode) {
-    code = "ALPHA" + crypto.getRandomValues(new Uint32Array(2)).reduce((s, x) => s + x.toString(36).toUpperCase(), "").slice(0, 8);
-    const r = await polarRabatt(env, { name: `Alpha ${eintrag.mail}`, code, prozent: 100, anzahl: 1, produkte: [String(env.POLAR_ALPHA_PRODUCT_ID)] });
-    if (!r.ok) return json(502, { fehler: `Rabattcode konnte nicht angelegt werden: ${polarFehler(r)}` });
+    // Ein früherer Versuch kann den Code schon angelegt haben (Mail scheiterte): wiederverwenden statt einen zweiten anlegen.
+    code = eintrag.rabattcode || null;
+    if (!code) {
+      code = "ALPHA" + crypto.getRandomValues(new Uint32Array(2)).reduce((s, x) => s + x.toString(36).toUpperCase(), "").slice(0, 8);
+      const r = await polarRabatt(env, { name: `Alpha ${eintrag.mail}`, code, prozent: 100, anzahl: 1, produkte: [String(env.POLAR_ALPHA_PRODUCT_ID)] });
+      if (!r.ok) return json(502, { fehler: `Rabattcode konnte nicht angelegt werden: ${polarFehler(r)}` });
+      eintrag.rabattcode = code;
+      await env.ALPHA.put(key, JSON.stringify(eintrag));
+    }
   }
   const link = new URL(env.POLAR_ALPHA_CHECKOUT_URL);
   link.searchParams.set("customer_email", eintrag.mail);
@@ -164,12 +170,15 @@ async function einladungSenden(env, benutzer, key, eintrag, link, code, anbieter
       text: alsText(html),
     }),
   });
-  if (!r.ok) return json(502, { fehler: `Mail konnte nicht gesendet werden (Resend ${r.status}).${code ? ` Der Code ${code} ist angelegt.` : ""}` });
+  if (!r.ok) {
+    await protokolliere(env, benutzer, "Alpha-Einladung: Mail fehlgeschlagen", `${eintrag.mail} (${resendFehler(r).slice(0, 160)})`);
+    return json(502, { fehler: `Mail konnte nicht gesendet werden. ${resendFehler(r)}${code ? " Der Rabattcode ist angelegt und wird beim nächsten Versuch wiederverwendet." : ""}` });
+  }
 
   eintrag.status = "eingeladen";
   eintrag.eingeladen = { zeit: new Date().toISOString(), code };
   await env.ALPHA.put(key, JSON.stringify(eintrag));
   await zaehleBelegt(env);
-  await protokolliere(env, benutzer, "Alpha-Einladung gesendet", `${eintrag.mail}${code ? ` (Code ${code})` : ""}`);
+  await protokolliere(env, benutzer, "Alpha-Einladung gesendet", `${eintrag.mail}${code ? ` (Code …${code.slice(-4)})` : ""}`);
   return json(200, { ok: true, meldung: `Einladung an ${eintrag.mail} gesendet.`, eintrag });
 }

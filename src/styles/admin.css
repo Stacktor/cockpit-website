@@ -14,12 +14,12 @@
  *   Schrift: Inter (Anzeige/Text), JetBrains Mono 12px/600 (Labels, Technisches)
  */
 .admin {
-  --a-rahmen: #94a3b8;
-  --a-flaeche: #f8fafc;
+  --a-rahmen: #c7d2fe;
+  --a-flaeche: #f7f7fb;
   --a-karte: #ffffff;
-  --a-primaer: #000000;
+  --a-primaer: #4f46e5;
   --a-auf-primaer: #ffffff;
-  --a-akzent: #94a3b8;
+  --a-akzent: #06b6d4;
   --a-rand: #cbd5e1;
   --a-linie: #e2e8f0;
   --a-linie-2: #f1f5f9;
@@ -39,21 +39,21 @@
   --a-bad-rand: var(--a-bad-rand);
   --a-bad-hover: #9f1239;
   --a-auf-bad: #ffffff;
-  --a-primaer-hover: #1e293b;
+  --a-primaer-hover: #4338ca;
   --a-auf-primaer-weich: rgb(255 255 255 / 0.18);
   --a-ink-3: var(--a-ink-3);
   --a-balken-2: #334155;
   --a-indigo: #6366f1;
   --a-glas: rgb(255 255 255 / 0.86);
   --a-zier: #e2e8f0;
-  --a-marke: #000000;
-  --a-r: 14px;
+  --a-marke: #4f46e5;
+  --a-r: 12px;
   --a-pille: 9999px;
   --a-schatten: 0 8px 30px rgb(0 0 0 / 0.03);
   --a-schatten-klein: 0 4px 20px rgb(0 0 0 / 0.02);
   --a-schatten-hoch: 0 14px 40px rgb(15 23 42 / 0.08);
   --a-gleiten: cubic-bezier(0.215, 0.61, 0.355, 1);
-  --a-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --a-sans: "Geist Variable", "Geist", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --a-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
   color-scheme: light;
   margin: 0;
@@ -67,12 +67,12 @@
 /* Dunkles Theme: folgt dem System, außer es ist im Kopf fest auf Hell oder Dunkel gestellt. */
 @media (prefers-color-scheme: dark) {
   .admin:not([data-theme="hell"]) {
-    --a-rahmen: #334155;
+    --a-rahmen: #312e81;
     --a-flaeche: #0b0f17;
     --a-karte: #121826;
-    --a-primaer: #f1f5f9;
+    --a-primaer: #818cf8;
     --a-auf-primaer: #0b0f17;
-    --a-akzent: #64748b;
+    --a-akzent: #22d3ee;
     --a-rand: #334155;
     --a-linie: #1e293b;
     --a-linie-2: #161e2c;
@@ -92,14 +92,14 @@
     --a-bad-rand: rgb(251 113 133 / 0.35);
     --a-bad-hover: #fda4af;
     --a-auf-bad: #1f0a10;
-    --a-primaer-hover: #cbd5e1;
+    --a-primaer-hover: #a5b4fc;
     --a-auf-primaer-weich: rgb(0 0 0 / 0.12);
     --a-ink-3: #a3b1c6;
     --a-balken-2: #94a3b8;
     --a-indigo: #818cf8;
     --a-glas: rgb(11 15 23 / 0.82);
     --a-zier: #1a2232;
-    --a-marke: #1e293b;
+    --a-marke: #4f46e5;
     --a-schatten: 0 8px 30px rgb(0 0 0 / 0.35);
     --a-schatten-klein: 0 4px 20px rgb(0 0 0 / 0.25);
     --a-schatten-hoch: 0 14px 40px rgb(0 0 0 / 0.5);
@@ -107,12 +107,12 @@
   }
 }
 .admin[data-theme="dunkel"] {
-  --a-rahmen: #334155;
+  --a-rahmen: #312e81;
   --a-flaeche: #0b0f17;
   --a-karte: #121826;
-  --a-primaer: #f1f5f9;
+  --a-primaer: #818cf8;
   --a-auf-primaer: #0b0f17;
-  --a-akzent: #64748b;
+  --a-akzent: #22d3ee;
   --a-rand: #334155;
   --a-linie: #1e293b;
   --a-linie-2: #161e2c;
@@ -132,14 +132,14 @@
   --a-bad-rand: rgb(251 113 133 / 0.35);
   --a-bad-hover: #fda4af;
   --a-auf-bad: #1f0a10;
-  --a-primaer-hover: #cbd5e1;
+  --a-primaer-hover: #a5b4fc;
   --a-auf-primaer-weich: rgb(0 0 0 / 0.12);
   --a-ink-3: #a3b1c6;
   --a-balken-2: #94a3b8;
   --a-indigo: #818cf8;
   --a-glas: rgb(11 15 23 / 0.82);
   --a-zier: #1a2232;
-  --a-marke: #1e293b;
+  --a-marke: #4f46e5;
   --a-schatten: 0 8px 30px rgb(0 0 0 / 0.35);
   --a-schatten-klein: 0 4px 20px rgb(0 0 0 / 0.25);
   --a-schatten-hoch: 0 14px 40px rgb(0 0 0 / 0.5);
@@ -3060,3 +3060,30 @@ a.a-wzeile:hover .a-wzeile-text {
 .a-ed-felder input.a-eingabe {
   height: 40px;
 }
+
+
+/* Version und Patchnotes unten links */
+.a-version {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 30;
+  padding: 5px 11px;
+  border: 1px solid var(--a-linie, rgba(0, 0, 0, 0.12));
+  border-radius: 999px;
+  background: var(--a-flaeche, #fff);
+  color: var(--a-gedaempft, #5b6675);
+  font: 500 12px/1.2 var(--a-schrift, inherit);
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.08);
+  cursor: pointer;
+}
+.a-version:hover { color: var(--a-ink, #111827); border-color: var(--a-indigo, #4f46e5); }
+.a-patch { padding: 14px 0; border-top: 1px solid var(--a-linie, rgba(0, 0, 0, 0.1)); }
+.a-patch h3 { margin: 0 0 8px; font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.a-patch small { color: var(--a-gedaempft, #5b6675); font-weight: 400; }
+.a-patch ul { margin: 0 0 8px; padding-left: 18px; }
+.a-patch li { margin: 2px 0; font-size: 13.5px; line-height: 1.45; }
+@media (max-width: 720px) { .a-version { bottom: 74px; } }
+
+.a-kern { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.a-kern li { line-height: 1.5; }

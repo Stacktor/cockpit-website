@@ -1,6 +1,6 @@
 ---
 titel: KI einrichten
-beschreibung: Eigenen API-Schlüssel hinterlegen oder ein lokales Modell über Ollama bzw. LM Studio verbinden. Und welche Variante zu dir passt.
+beschreibung: Lokales Modell, dein Claude-, ChatGPT- oder Gemini-Konto oder ein eigener API-Schlüssel. Und welche Variante zu dir passt.
 reihenfolge: 30
 kategorie: KI und Unterlagen
 stand: Oktober 2026
@@ -17,6 +17,14 @@ cockpit hat keinen eigenen KI-Server. Das Modell bringst du selbst mit. So bleib
 | **Qualität** | sehr gut | gut, je nach Modell und Rechner |
 | **Datenschutz** | Texte gehen an den Anbieter deiner Wahl | nichts verlässt deinen Rechner |
 | **Voraussetzung** | Konto beim Anbieter | ein halbwegs aktueller Rechner, am besten mit 16 GB RAM |
+
+## Mit deinem Konto (ohne Schlüssel)
+
+Hast du ein Abo bei Claude, ChatGPT oder Gemini, brauchst du keinen Schlüssel. cockpit nutzt das Programm, bei dem du schon angemeldet bist: **Claude Code**, **Codex** (von OpenAI) oder die **Gemini CLI**. Unter **Einstellungen → KI → Mit deinem Konto** siehst du, welche cockpit gefunden hat; ein Klick auf *Für alles nutzen* stellt alle Funktionen darauf um. cockpit sieht und speichert deine Zugangsdaten nie. Der Weg ist etwas langsamer als ein Schlüssel, und es gelten die Bedingungen deines Abos. Wie bei jeder Cloud-KI gehen die Texte an den Anbieter.
+
+## cockpit in Claude Desktop, Gemini CLI oder Codex nutzen
+
+Du chattest lieber dort? Unter **Einstellungen → KI → Mit Desktop-Apps verbinden** trägt cockpit sich mit einem Klick als Werkzeug ein (MCP). Danach fragst du in Claude Desktop zum Beispiel „Welche neuen Stellen passen am besten?“ oder „Erinnere mich Freitag ans Nachfassen“, und die Antworten kommen aus deinen Daten auf diesem Rechner. Die Konfigurationsdatei wird vorher gesichert, ein zweiter Klick entfernt den Eintrag wieder. Die KI-Funktionen von cockpit selbst (Anschreiben, Passung) laufen weiter über den Weg, den du oben gewählt hast.
 
 ## Eigenen Schlüssel hinterlegen
 
