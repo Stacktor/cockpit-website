@@ -28,7 +28,11 @@ globalThis.fetch=async(url,init={})=>{
   if(url.endsWith('/licenses') && init.method==='POST') {assert.equal(body.data.relationships.policy.data.id,KEYGEN_POLICY);created++;storedKey=body.data.attributes.key;return response({data:fixture()},201);}
   if(url.endsWith('/actions/suspend') || url.endsWith('/actions/reinstate')) {suspended=url.endsWith('/actions/suspend');return response({data:fixture()});}
   if(url.includes('/licenses?')) return response({data:[fixture()]});
-  if(url.includes('/licenses/')) return response({data:fixture()});
+  if(url.includes('/licenses/')) {
+    const resource=decodeURIComponent(url.split('/licenses/')[1].split('?')[0]);
+    if(resource===id || resource===storedKey) return response({data:fixture()});
+    return response({errors:[{title:'Not Found'}]},404);
+  }
   throw new Error('Unerwarteter Dienstpfad');
 };
 const key=KEYGEN_PREFIX+'test-key';
@@ -46,7 +50,7 @@ assert.equal((await pruefeLizenz(env,key,'',{instanzPflicht:true})).ok,false);
 const entry={mail:'test@example.org',name:'Test',status:'angenommen'};
 await env.ALPHA.put('alpha:'+entry.mail,JSON.stringify(entry));
 const call=()=>einladen({request:new Request('https://cockpit.mesco.cc/api/admin/alpha',{method:'POST',body:JSON.stringify({aktion:'einladen',mail:entry.mail})}),data:{env,benutzer:'test'}});
-mailsFail=true;assert.equal((await call()).status,502);assert.equal(created,1);assert.equal(JSON.parse(await env.ALPHA.get('alpha:'+entry.mail)).keygen_lizenz_id,id);
+mailsFail=true;assert.equal((await call()).status,502);assert.equal(created,1);assert.equal(storedKey.length,32,'Neue Alpha-Schlüssel nutzen 128 HMAC-Bits');assert.equal(JSON.parse(await env.ALPHA.get('alpha:'+entry.mail)).keygen_lizenz_id,id);
 mailsFail=false;assert.equal((await call()).status,200);assert.equal(created,1);assert.equal(mails,2);
 const saved=await env.ALPHA.get('alpha:'+entry.mail);assert.ok(!saved.includes(storedKey));assert.ok(!saved.includes(KEYGEN_PREFIX));
 const ready=await anmeldungen({data:{env:{...env,ALPHA_DOWNLOAD_URL:''}}});assert.equal((await ready.json()).einladenBereit,false);
@@ -54,7 +58,13 @@ const list=await lizenzen({request:new Request('https://cockpit.mesco.cc/api/adm
 const mailsBeforeManual=mails;
 const manual=await aendern({request:new Request('https://cockpit.mesco.cc/api/admin/lizenzen',{method:'POST',body:JSON.stringify({aktion:'alpha-anlegen',name:'Manueller Tester',mail:'manual@example.org'})}),data:{env,benutzer:'test'}});
 assert.equal(manual.status,200);assert.equal((await manual.json()).lizenz.id,'keygen:'+id);assert.equal(mails,mailsBeforeManual,'Manuelle Lizenzanlage darf keine Mail senden');
+assert.equal(storedKey.length,32,'Auch manuell angelegte Schlüssel bleiben kurz');
 wrongMachine=true;
 const denied=await aendern({request:new Request('https://cockpit.mesco.cc/api/admin/lizenzen',{method:'POST',body:JSON.stringify({id:'keygen:'+id,aktion:'geraet-abmelden',instanz:machine})}),data:{env,benutzer:'test'}});
 assert.equal(denied.status,404);assert.equal(deviceDeletes,0);
+const hmacKey=await crypto.subtle.importKey('raw',new TextEncoder().encode(env.KEYGEN_PRODUCT_TOKEN),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+const oldDigest=await crypto.subtle.sign('HMAC',hmacKey,new TextEncoder().encode('cockpit-alpha-v1:legacy@example.org'));
+storedKey=Array.from(new Uint8Array(oldDigest),b=>b.toString(16).padStart(2,'0')).join('');
+const priorCount=created, old=await keygenAlphaLizenz(env,{mail:'legacy@example.org',name:'Legacy'});
+assert.equal(old.ok,true);assert.equal(old.daten.data.attributes.key,storedKey);assert.equal(created,priorCount,'Vorhandene lange Lizenzschlüssel werden wiederverwendet');
 console.log('Keygen: Produkt/Policy/Gerät, Sperrung, Netzfehler, Cachetrennung, Mail-Wiederholung ohne Doppellizenz, Admin-Geräteschutz: ok');
