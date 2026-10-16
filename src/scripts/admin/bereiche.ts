@@ -69,7 +69,7 @@ export const alpha: Bereich = async (ziel, neu) => {
       ? h(
           "div",
           { class: "a-hinweis" },
-          "Zum Einladen brauchst du unter Einstellungen das Polar-Token, die Produkt-ID und den Checkout-Link der Alpha, dazu den Resend-Schlüssel. Ist die Alpha ohnehin kostenlos, reichen Checkout-Link und Resend.",
+          d.anbieter === "Keygen" ? "Keygen ist verbunden. Zum Einladen fehlen noch der Resend-Schlüssel oder der freigegebene Alpha-Downloadlink. Der Downloadlink darf erst auf einen Build mit verpflichtender Freischaltung zeigen." : "Zum Einladen Keygen-Produkttoken, Resend und den Alpha-Downloadlink unter Einstellungen verbinden. Ältere Polar-/Lemon-Einladungen brauchen ihren Checkout-Link.",
         )
       : null,
     karteMitKopf(
@@ -125,12 +125,13 @@ function alphaDetail(x: Daten, d: Daten, neu: () => void) {
     karte("Größte Hürde", h("div", { class: "a-vor" }, x.grund || "—")),
     karte(
       "Einladen",
-      h("p", { class: "a-klein a-notiz" }, "Legt einen einmaligen 100-%-Code für die Alpha-Variante an und schickt eine Mail mit Checkout-Link. Danach steht der Status auf „eingeladen“."),
-      h("label", { class: "a-werkzeuge a-mb" }, ohneCode, "Ohne Rabattcode (Alpha-Variante ist kostenlos)"),
+      h("p", { class: "a-klein a-notiz" }, d.anbieter === "Keygen" ? "Erstellt eine persönliche Alpha-Lizenz für drei Geräte und sendet den Schlüssel samt Downloadlink direkt per Mail. Eine vorhandene Lizenz wird bei Wiederholung verwendet. Name und E-Mail werden zur Lizenzzuordnung an Keygen übertragen." : "Legt einen einmaligen 100-%-Code für die Alpha-Variante an und schickt eine Mail mit Checkout-Link."),
+      d.anbieter === "Keygen" ? null : h("label", { class: "a-werkzeuge a-mb" }, ohneCode, "Ohne Rabattcode (Alpha-Variante ist kostenlos)"),
       knopf(
         x.status === "eingeladen" ? "Erneut einladen" : "Annehmen & einladen",
         async (ev) => {
-          if (!(await bestaetigen("Einladung senden?", `${x.mail} bekommt jetzt eine Mail mit dem Link zum Alpha-Schlüssel.`, "Einladen"))) return;
+          if (!d.einladenBereit) { toast("Bitte zuerst die fehlende Verbindung oder den freigegebenen Downloadlink einrichten.", true); return; }
+          if (!(await bestaetigen("Einladung senden?", `${x.mail} bekommt jetzt eine persönliche Alpha-Einladung mit Schlüssel oder Zugang und Downloadlink.`, "Einladen"))) return;
           aktion(ev.currentTarget as HTMLButtonElement, () => api("alpha", { aktion: "einladen", mail: x.mail, ohneCode: ohneCode.checked }), nachher);
         },
         "a-p",
@@ -184,7 +185,7 @@ export const lizenzen: Bereich = async (ziel, neu) => {
   const produkte = [...new Set(l.map((x) => x.produkt).filter(Boolean))] as string[];
   const sammel = (aktionName: string, frage: string, extra: Daten = {}) => async (zeilen: Daten[]) => {
     if (!zeilen.length) return;
-    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an Polar. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
+    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an den Lizenzanbieter. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
     await aktion(null, () => api("lizenzen", { ids: zeilen.map((x) => x.id), aktion: aktionName, ...extra }), neu);
   };
   fuege(

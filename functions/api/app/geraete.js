@@ -17,6 +17,8 @@ import { lemon } from "../../../lib/admin/daten.js";
 import { mitSchluesseln } from "../../../lib/admin/tresor.js";
 import { istPolarId, polar } from "../../../lib/polar.js";
 
+import { istKeygenId, keygen } from "../../../lib/keygen.js";
+
 export async function onRequestPost({ request, env }) {
   const d = await request.json().catch(() => null);
   if (!d) return json(400, { ok: false, fehler: "Anfrage konnte nicht gelesen werden." });
@@ -26,6 +28,12 @@ export async function onRequestPost({ request, env }) {
     return json(429, { ok: false, fehler: "Zu viele Abfragen. Bitte in einer Stunde erneut versuchen." });
 
   const e = await mitSchluesseln(env);
+  if (istKeygenId(p.lizenz.id)) {
+    const r=await keygen(e,"machines?limit=100",{schluessel:String(d.schluessel).trim()});
+    if (!r.ok || !Array.isArray(r.daten?.data)) return json(502,{ok:false,fehler:"Keygen ist gerade nicht erreichbar."});
+    const geraete=r.daten.data.filter(m=>`keygen:${m.relationships?.license?.data?.id}`===p.lizenz.id).map(m=>({id:m.id,name:m.attributes.name || "Gerät",seit:m.attributes.created,diesesGeraet:m.id===d.instanz}));
+    return json(200,{ok:true,geraete,genutzt:geraete.length,limit:3});
+  }
   if (istPolarId(p.lizenz.id)) return polarGeraete(e, p.lizenz.id, String(d.instanz || "").trim());
   if (!e.LEMONSQUEEZY_API_KEY) return json(503, { ok: false, fehler: "Die Geräteliste ist gerade nicht verfügbar." });
   const id = String(p.lizenz.id).replace(/\D/g, "");

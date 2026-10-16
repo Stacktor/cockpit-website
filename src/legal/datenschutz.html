@@ -209,18 +209,18 @@
 <h2>4 · Lizenzprüfung in der App</h2>
 <p>
   Gibst du einen Lizenzschlüssel in der App ein, sendet die App diesen Schlüssel
-  zusammen mit einem Gerätenamen an die Lizenz-Schnittstelle von Polar, um die
+  zusammen mit einem Gerätenamen, dem Betriebssystem und einer zufälligen Gerätekennung an die Lizenz-Schnittstelle von Keygen, um die
   Lizenz freizuschalten. Den Gerätenamen bildet die App selbst aus deinem Benutzernamen
   am Rechner, dem Betriebssystem und einer zufälligen Kennung, zum Beispiel
   „anna · Windows (a1b2c3)“. So erkennst du deine Geräte wieder, wenn du eines abmelden
   willst. Danach wird die Gültigkeit gelegentlich im Hintergrund nachgeprüft.
 </p>
 <p>
-  <b>An Polar gehen dabei ausschließlich der Lizenzschlüssel und der Gerätename.</b>
+  <b>Keygen erhält zur Alpha-Einladung deinen Namen und deine E-Mail-Adresse sowie zur Aktivierung den Lizenzschlüssel, Gerätenamen, das Betriebssystem und eine zufällige Gerätekennung.</b> Ein eigenes Keygen-Konto ist für Tester nicht nötig. Informationen des Anbieters: <a href="https://keygen.sh/privacy/">Keygen Datenschutz</a>. Ältere Schlüssel werden weiterhin beim jeweiligen Lizenzanbieter (Polar oder Lemon Squeezy) geprüft.
   Nach einer erfolgreichen Prüfung meldet die App zusätzlich App-Version, Betriebssystem
   und Lizenzstatus an cockpit.mesco.cc. Damit der Server die Meldung der richtigen Lizenz
   zuordnen kann, schickt die App den Lizenzschlüssel und die Geräte-ID mit; der Server
-  prüft beides bei Polar. So sehe ich, welche Versionen im Einsatz sind und
+  prüft beides beim zugehörigen Lizenzanbieter. So sehe ich, welche Versionen im Einsatz sind und
   wann eine Lizenz zuletzt geprüft wurde. Gespeichert wird je Lizenz nur die letzte
   Meldung (Zeitpunkt, App-Version, Betriebssystem, Lizenzstatus und Geräte-ID) in
   Cloudflare Workers KV, höchstens 400 Tage, zur Lizenz-ID und nicht zum Schlüssel.
@@ -228,7 +228,7 @@
 </p>
 <p>
   Bewerbungen, Anschreiben, Lebenslaufdaten, E-Mails oder sonstige Inhalte gehen bei
-  der Lizenzprüfung nicht mit. Die App bleibt auch ohne Internetverbindung nutzbar.
+  der Lizenzprüfung nicht mit. Die erste Freischaltung braucht Internet. Nach erfolgreicher Prüfung ist die Alpha innerhalb einer Karenzzeit von bis zu 30 Tagen offline nutzbar. Ohne gültige Lizenz bleiben die Arbeitsbereiche gesperrt; lokale Daten werden dadurch nicht gelöscht.
 </p>
 
 <h2>5 · Was die App selbst verarbeitet</h2>

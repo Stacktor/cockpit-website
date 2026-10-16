@@ -10,12 +10,12 @@ icon: key-round
 ## So bekommst du einen
 
 1. Melde dich auf der [Alpha-Seite](/alpha/) an. Das dauert zwei Minuten.
-2. Die Plätze werden von Hand vergeben. Bist du dabei, kommt eine Mail mit deinem **Alpha-Schlüssel**. Absender ist Polar, darüber wird cockpit später auch verkauft. Über den Zugang zu deiner Bestellung bei Polar lädst du auch die Installer; öffentliche Download-Links gibt es in der Alpha nicht. Der Schlüssel beginnt mit `COCKPIT-`, zum Beispiel `COCKPIT-1A2B3C4D-…`.
+2. Die Plätze werden von Hand vergeben. Bist du dabei, kommt eine Einladung von cockpit mit deinem **persönlichen Alpha-Schlüssel** und dem Downloadlink. Neue Schlüssel beginnen mit `COCKPIT-KG-` und werden über Keygen verwaltet. Ein Kauf oder eigenes Keygen-Konto ist dafür nicht nötig.
 3. Keine Mail da? Schau in den Spam-Ordner oder schreib an [Kontakt@mesco.cc](mailto:Kontakt@mesco.cc).
 
 ## Eintragen
 
-- **Beim ersten Start:** auf der letzten Seite der Einführung (*Schnell-Setup*) ins Feld *Alpha-Schlüssel*.
+- **Beim ersten Start:** in der Freischaltansicht ins Feld *Lizenzschlüssel*. Ohne gültige Freischaltung sind die Arbeitsbereiche der Alpha gesperrt.
 - **Später:** unter **Einstellungen → Lizenz → Freischalten**.
 
 Danach steht unter *Einstellungen → Lizenz* „Alpha-Tester“. In der Seitenleiste taucht **Feedback geben** auf, und alle Pro-Funktionen sind frei: Auto-Modus, Sync über den cockpit-Server, Lebenslauf je Stelle, Autofill der Browser-Erweiterung und die erweiterte Analyse.
@@ -23,8 +23,8 @@ Danach steht unter *Einstellungen → Lizenz* „Alpha-Tester“. In der Seitenl
 ## Was du wissen solltest
 
 - **Mehrere Geräte:** Ein Schlüssel reicht für bis zu drei Rechner. Unter *Einstellungen → Lizenz → Geräte dieser Lizenz* stehen alle Geräte, auf denen der Schlüssel freigeschaltet ist. Dort lässt sich jedes davon abmelden, auch ein Rechner, den du nicht mehr hast. Ist das Limit erreicht, zeigt cockpit die Liste beim Freischalten auf dem neuen Gerät an, damit du dort einen Platz freimachen kannst.
-- **Offline:** cockpit prüft die Lizenz ab und zu im Hintergrund. Bis zu 30 Tage ohne Internet sind kein Problem.
-- **Gesperrt oder abgelaufen:** Dann bleibt der Schlüssel gespeichert, und cockpit läuft als Kostenlos weiter. Deine Daten bleiben, wie sie sind. Unter *Einstellungen → Lizenz* steht der Grund, und mit *Erneut prüfen* holst du Pro zurück, sobald die Lizenz wieder gilt.
+- **Offline:** cockpit prüft die Lizenz ab und zu im Hintergrund. Die erste Aktivierung braucht Internet. Nach einer erfolgreichen Prüfung sind bis zu 30 Tage offline möglich. Nach Ablauf dieser Frist muss die Lizenz erneut online bestätigt werden.
+- **Gesperrt oder abgelaufen:** Dann bleibt der Schlüssel gespeichert, und die Alpha zeigt wieder die Freischaltansicht. Deine Daten bleiben erhalten. Dort steht der Grund; mit *Erneut prüfen* kannst du die Nutzung wieder freigeben, sobald die Lizenz wieder gilt.
 - **Der Schlüssel bleibt privat:** Er liegt im Schlüsselbund deines Betriebssystems.
 
 ## Feedback geben

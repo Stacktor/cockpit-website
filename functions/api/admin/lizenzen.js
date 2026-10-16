@@ -18,6 +18,8 @@ import { alsText, escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vor
 import { allesLoeschen, belegtGeteilt, GESAMT_MAX, praefixFuer, SICHERUNG_MAX } from "../../../lib/sync.js";
 import { istPolarId, lizenzId, polar, polarAnsicht, polarFehler, polarLizenz, polarOrg } from "../../../lib/polar.js";
 
+import { istKeygenId, keygen, keygenAnsicht, KEYGEN_PRODUCT } from "../../../lib/keygen.js";
+
 const OHNE_ANBIETER = "Weder Polar noch Lemon Squeezy ist verbunden. Trag das Polar-Token unter Einstellungen ein.";
 
 /** Polar-Lizenz samt Aktivierungen (Organisations-Token). */
@@ -115,8 +117,20 @@ const ansicht = (l) => {
 
 export async function onRequestGet({ request, data }) {
   const env = data.env;
-  if (!env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
+  if (!env.KEYGEN_PRODUCT_TOKEN && !env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
   const id = new URL(request.url).searchParams.get("id");
+  if (id && istKeygenId(lizenzId(id))) return keygenEinzeln(env,lizenzId(id));
+  if (!id && env.KEYGEN_PRODUCT_TOKEN) {
+    const r=await keygen(env,`licenses?limit=100&product=${env.KEYGEN_PRODUCT_ID || KEYGEN_PRODUCT}`);
+    if (!r.ok || !Array.isArray(r.daten?.data)) return json(502,{fehler:"Keygen-Lizenzen konnten nicht geladen werden."});
+    const liste=r.daten.data.map(keygenAnsicht), z=await zusatz(env,liste.map(l=>l.id));
+    let alt=[];
+    if (env.POLAR_ACCESS_TOKEN || env.LEMONSQUEEZY_API_KEY) {
+      const a=await onRequestGet({request,data:{...data,env:{...env,KEYGEN_PRODUCT_TOKEN:undefined}}});
+      if(a.ok) alt=(await a.json()).lizenzen || [];
+    }
+    return json(200,{lizenzen:[...liste.map(l=>({...l,...z[l.id]})),...alt]});
+  }
   if (id && istPolarId(lizenzId(id))) return polarEinzeln(env, lizenzId(id));
   if (!env.LEMONSQUEEZY_API_KEY) {
     if (id) return json(404, { fehler: "Lizenz nicht gefunden." });
@@ -194,14 +208,14 @@ async function polarEinzeln(env, id) {
 
 export async function onRequestPost({ request, data }) {
   const env = data.env;
-  if (!env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
+  if (!env.KEYGEN_PRODUCT_TOKEN && !env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
   const d = await request.json().catch(() => null);
   if (Array.isArray(d?.ids)) return sammelaktion(env, data, d);
   const id = lizenzId(d?.id);
   if (!id || !d?.aktion) return json(400, { fehler: "Es fehlen Angaben (id, aktion)." });
   const istPolar = istPolarId(id);
   if (istPolar && !env.POLAR_ACCESS_TOKEN) return json(412, { fehler: OHNE_ANBIETER });
-  if (!istPolar && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Für ältere Lizenzen fehlt der Lemon-Squeezy-Schlüssel." });
+  if (!istPolar && !istKeygenId(id) && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: "Für ältere Lizenzen fehlt der Lemon-Squeezy-Schlüssel." });
 
   if (d.aktion === "notiz") {
     const text = String(d.text || "").trim().slice(0, 2000);
@@ -224,7 +238,11 @@ export async function onRequestPost({ request, data }) {
     if (betreff.length < 3 || text.length < 5) return json(422, { fehler: "Betreff und Text dürfen nicht leer sein." });
     if (!env.RESEND_API_KEY) return json(412, { fehler: "Der Resend-Schlüssel fehlt. Trag ihn unter Einstellungen ein." });
     let a;
-    if (istPolar) {
+    if (istKeygenId(id)) {
+      const l=await keygen(env,`licenses/${id.slice(7)}`);
+      a={user_email:l.daten?.data?.attributes?.metadata?.email,user_name:l.daten?.data?.attributes?.metadata?.name};
+      if (!l.ok || !a.user_email) return json(502,{fehler:"Zur Keygen-Lizenz gibt es keine E-Mail-Adresse."});
+    } else if (istPolar) {
       const l = await polarLizenzLaden(env, id);
       a = { user_email: l.daten?.customer?.email, user_name: l.daten?.customer?.name };
       if (!l.ok || !a.user_email) return json(502, { fehler: l.ok ? "Zur Lizenz gibt es keine E-Mail-Adresse." : polarFehler(l) });
@@ -254,6 +272,12 @@ export async function onRequestPost({ request, data }) {
     return json(200, { ok: true, meldung: `Mail an ${a.user_email} gesendet.` });
   }
 
+  if (istKeygenId(id)) {
+    const e=await keygenAendern(env,id,d);
+    if(e.fehler) return json(e.status,{fehler:e.fehler});
+    await protokolliere(env,data.benutzer,`Lizenz ${e.beschreibung}`,`Lizenz ${id}`);
+    return json(200,{ok:true,meldung:`Lizenz ${e.beschreibung}.`,lizenz:e.lizenz});
+  }
   if (d.aktion === "geraet-abmelden" && istPolar) {
     const instanz = String(d.instanz || "").trim();
     if (!instanz) return json(400, { fehler: "Es fehlt das Gerät (instanz)." });
@@ -357,6 +381,11 @@ async function sammelaktion(env, data, d) {
   let ok = 0;
   const fehler = [];
   for (const id of ids) {
+    if (istKeygenId(id)) {
+      const e=await keygenAendern(env,id,d);
+      if(e.fehler) fehler.push(id); else {ok++;await protokolliere(env,data.benutzer,`Lizenz ${e.beschreibung} (Sammelaktion)`,`Lizenz ${id}`);}
+      continue;
+    }
     if (istPolarId(id)) {
       const e = env.POLAR_ACCESS_TOKEN ? await polarAendern(env, id, d) : { fehler: OHNE_ANBIETER };
       if (e.fehler) fehler.push(id);
@@ -385,4 +414,35 @@ async function sammelaktion(env, data, d) {
     ok: fehler.length === 0,
     meldung: `${ok} von ${ids.length} Lizenzen geändert.${fehler.length ? ` Fehlgeschlagen: ${fehler.join(", ")}.` : ""}`,
   });
+}
+
+async function keygenEinzeln(env,id) {
+  const r=await keygen(env,`licenses/${id.slice(7)}`);
+  if(!r.ok || r.daten?.data?.relationships?.product?.data?.id !== (env.KEYGEN_PRODUCT_ID || KEYGEN_PRODUCT)) return json(404,{fehler:"Keygen-Lizenz nicht gefunden."});
+  const m=await keygen(env,`machines?license=${id.slice(7)}&limit=100`);
+  if(!m.ok) return json(502,{fehler:"Keygen-Geräte konnten nicht geladen werden."});
+  const [z,protokoll,sync]=await Promise.all([zusatz(env,[id]),leseProtokoll(env,500),env.SYNC ? belegtGeteilt(env.SYNC,praefixFuer(id)):null]);
+  return json(200,{lizenz:{...keygenAnsicht(r.daten.data),...z[id]},geraete:(m.daten?.data || []).map(g=>({id:g.id,identifier:g.id,name:g.attributes.name,erstellt:g.attributes.created,zuletzt:null})),verlauf:protokoll.filter(e=>String(e.details).includes(`Lizenz ${id}`)).slice(0,30),sync:sync?{...sync.sync,grenze:GESAMT_MAX,sicherungen:{...sync.sicherungen,grenze:SICHERUNG_MAX}}:null});
+}
+async function keygenAendern(env,id,d) {
+  const raw=id.slice(7), l=await keygen(env,`licenses/${raw}`);
+  if(!env.KEYGEN_PRODUCT_TOKEN || !l.ok || l.daten?.data?.relationships?.product?.data?.id !== (env.KEYGEN_PRODUCT_ID || KEYGEN_PRODUCT)) return {status:404,fehler:"Keygen-Lizenz nicht gefunden."};
+  let r,beschreibung;
+  if(d.aktion==="geraet-abmelden") {
+    const instanz=String(d.instanz || "");
+    if(!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(instanz)) return {status:400,fehler:"Ungültige Gerätekennung."};
+    const m=await keygen(env,`machines/${instanz}`);
+    if(!m.ok || m.daten?.data?.relationships?.license?.data?.id!==raw) return {status:404,fehler:"Gerät gehört nicht zu dieser Lizenz."};
+    r=await keygen(env,`machines/${instanz}`,{method:"DELETE"});beschreibung="Gerät abgemeldet";
+  } else if (["sperren","entsperren"].includes(d.aktion)) {
+    r=await keygen(env,`licenses/${raw}/actions/${d.aktion==="sperren"?"suspend":"reinstate"}`,{method:"POST"});beschreibung=d.aktion==="sperren"?"gesperrt":"wieder freigegeben";
+  } else {
+    let attributes;
+    if(d.aktion==="unbefristet") {attributes={expiry:null};beschreibung="auf unbefristet gesetzt";}
+    else if(d.aktion==="verlaengern") {const basis=Math.max(Date.now(),Date.parse(l.daten.data.attributes.expiry)||0);attributes={expiry:new Date(basis+Math.min(3650,Math.max(1,Number(d.tage)||365))*864e5).toISOString()};beschreibung="verlängert";}
+    else if(d.aktion==="geraete") {attributes={maxMachines:Math.min(100,Math.max(1,Number(d.limit)||3))};beschreibung="Gerätelimit geändert";}
+    else return {status:400,fehler:"Unbekannte Aktion."};
+    r=await keygen(env,`licenses/${raw}`,{method:"PATCH",body:{data:{type:"licenses",id:raw,attributes}}});
+  }
+  return r.ok?{beschreibung,lizenz:r.daten?.data?keygenAnsicht(r.daten.data):undefined}:{status:502,fehler:"Keygen hat die Änderung abgelehnt."};
 }
