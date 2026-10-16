@@ -248,11 +248,11 @@ const mailAnBewerber = (name, platz, { warteliste, discord }) =>
           platz ? `, du bist Nummer <b>${platz}</b>` : ""
         }.</p>
   <p style="margin:0 0 14px;">Ich vergebe die Plätze selbst und melde mich in den nächsten Tagen.
-  Bist du dabei, kommt dein <b>Alpha-Schlüssel</b> per Mail (Absender: Polar). Klappt es
+  Bist du dabei, kommt eine Mail von Polar mit deinem <b>Alpha-Schlüssel</b> und dem Zugang zu den Installern. Klappt es
   diesmal nicht, sage ich dir auch das.</p>
   ${kasten(
     "So geht es dann weiter",
-    `1. Installer laden: in deinem Polar-Zugang (Link in der Polar-Mail), ${link("https://cockpit.mesco.cc/download/", "so geht es")}<br>
+    `1. In der Mail von Polar auf den Zugang zu deiner Bestellung gehen und den Installer für dein System laden (Windows, Linux oder macOS). Öffentliche Download-Links gibt es in der Alpha nicht, ${link("https://cockpit.mesco.cc/download/", "so geht es")}<br>
     2. Alpha-Schlüssel beim ersten Start eintragen (${link("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
     3. Loslegen. Nach ein paar Tagen fragt dich die App kurz, wie es läuft.`,
   )}

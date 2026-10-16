@@ -142,21 +142,23 @@ async function einladungSenden(env, benutzer, key, eintrag, link, code, anbieter
   const html = mailHtml(
     `${titel(`Du bist dabei, ${vorname}!`)}
     <p style="margin:0 0 14px;">Danke für deine Anmeldung. Schön, dass du die <b>0.1 Alpha</b> von cockpit testest.
-    So kommst du an deinen Alpha-Schlüssel:</p>
-    ${knopf(link.href, "Alpha-Schlüssel abholen")}
+    So kommst du an deinen Alpha-Schlüssel und an die Installer:</p>
+    ${knopf(link.href, "Schlüssel und Installer abholen")}
     <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Der Link führt zu ${anbieter}, über die cockpit später verkauft wird.
     ${code ? `Der Code <b>${escapeHtml(code)}</b> ist schon eingetragen, du zahlst <b>0 €</b>.` : "Die Alpha-Variante kostet 0 €."}
-    Danach kommt der Schlüssel per Mail.</p>
+    Danach schickt ${anbieter} dir eine Mail mit deinem Alpha-Schlüssel und dem Zugang zu den Dateien. Öffentliche Download-Links gibt es in der Alpha nicht, die Installer liegen nur dort.</p>
     ${kasten(
-      "Dann",
-      `1. App laden: ${mailLink("https://cockpit.mesco.cc/download/", "cockpit.mesco.cc/download")}<br>
-      2. Schlüssel beim ersten Start eintragen (${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
-      3. Nach ein paar Tagen fragt dich die App kurz, wie es läuft. Unter „Feedback geben“ kannst du jederzeit Fehler melden.`,
+      "So geht es weiter",
+      `1. In der Mail von ${anbieter} auf den Zugang zu deiner Bestellung gehen und den Installer für dein System laden: Windows (.exe oder .msi), Linux (AppImage oder .deb) oder macOS (.zip)<br>
+      2. Installieren, die Schritte stehen unter ${mailLink("https://cockpit.mesco.cc/hilfe/erste-schritte/", "Erste Schritte")}<br>
+      3. Den Alpha-Schlüssel beim ersten Start eintragen (${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/", "Anleitung")})<br>
+      4. Nach ein paar Tagen fragt dich die App kurz, wie es läuft. Unter „Feedback geben“ kannst du jederzeit Fehler melden.`,
     )}
+    <p style="margin:0 0 14px;font-size:14px;color:#5b6675;">Keine Mail von ${anbieter} da? Schau im Spam-Ordner nach (Absender ist ${anbieter}, nicht cockpit) oder antworte auf diese Mail.</p>
     ${env.DISCORD_URL ? `<p style="margin:0 0 14px;">Austausch mit den anderen Testern: ${mailLink(env.DISCORD_URL, "Discord")}.</p>` : ""}
     <p style="margin:0 0 14px;">Bei Fragen antworte einfach auf diese Mail.</p>
     <p style="margin:0;">Viele Grüße<br>Thomas</p>`,
-    { vorschau: "Hier holst du deinen Alpha-Schlüssel ab.", grund: "Du bekommst diese Mail, weil du dich auf cockpit.mesco.cc für die Alpha angemeldet hast." },
+    { vorschau: "Hier holst du Alpha-Schlüssel und Installer ab.", grund: "Du bekommst diese Mail, weil du dich auf cockpit.mesco.cc für die Alpha angemeldet hast." },
   );
 
   const r = await resend(env, "emails", {
