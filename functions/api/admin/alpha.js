@@ -14,16 +14,20 @@ import { alsText, kasten, knopf, link as mailLink, mailHtml, titel } from "../..
 import { plaetze } from "../../../lib/alpha-optionen.js";
 import { polarFehler, polarRabatt } from "../../../lib/polar.js";
 
+import { keygenAlphaLizenz, cockpitLizenz, KEYGEN_PREFIX } from "../../../lib/keygen.js";
+
 const STATUS = ["neu", "angenommen", "eingeladen", "warteliste", "abgelehnt"];
 
 export async function onRequestGet({ data }) {
   const env = data.env;
   if (!env.ALPHA) return json(503, { fehler: "KV-Namespace ALPHA ist nicht verbunden." });
   const liste = await anmeldungen(env);
-  const einladenBereit = env.POLAR_ACCESS_TOKEN
+  const einladenBereit = env.KEYGEN_PRODUCT_TOKEN
+    ? Boolean(env.ALPHA_DOWNLOAD_URL && env.RESEND_API_KEY)
+    : env.POLAR_ACCESS_TOKEN
     ? Boolean(env.POLAR_ALPHA_CHECKOUT_URL && env.POLAR_ALPHA_PRODUCT_ID && env.POLAR_ORG_ID && env.RESEND_API_KEY)
     : Boolean(env.LEMONSQUEEZY_API_KEY && env.LS_STORE_ID && env.LS_ALPHA_VARIANT_ID && env.LS_ALPHA_CHECKOUT_URL && env.RESEND_API_KEY);
-  return json(200, { plaetze: await plaetze(env), status: STATUS, einladenBereit, eintraege: liste.map(({ _key, ...e }) => e) });
+  return json(200, { plaetze: await plaetze(env), status: STATUS, anbieter: env.KEYGEN_PRODUCT_TOKEN ? "Keygen" : env.POLAR_ACCESS_TOKEN ? "Polar" : "Lemon Squeezy", einladenBereit, eintraege: liste.map(({ _key, ...e }) => e) });
 }
 
 export async function onRequestPost({ request, data }) {
@@ -76,6 +80,7 @@ export async function onRequestPost({ request, data }) {
 }
 
 async function einladen(env, benutzer, key, eintrag, ohneCode) {
+  if (env.KEYGEN_PRODUCT_TOKEN) return einladenKeygen(env, benutzer, key, eintrag);
   if (env.POLAR_ACCESS_TOKEN) return einladenPolar(env, benutzer, key, eintrag, ohneCode);
   const fehlt = ["LS_ALPHA_CHECKOUT_URL", "RESEND_API_KEY", ...(ohneCode ? [] : ["LEMONSQUEEZY_API_KEY", "LS_STORE_ID", "LS_ALPHA_VARIANT_ID"])].filter((n) => !env[n]);
   if (fehlt.length) return json(412, { fehler: `Für Einladungen fehlt in den Einstellungen: ${fehlt.join(", ")}.` });
@@ -183,4 +188,32 @@ async function einladungSenden(env, benutzer, key, eintrag, link, code, anbieter
   await zaehleBelegt(env);
   await protokolliere(env, benutzer, "Alpha-Einladung gesendet", `${eintrag.mail}${code ? ` (Code …${code.slice(-4)})` : ""}`);
   return json(200, { ok: true, meldung: `Einladung an ${eintrag.mail} gesendet.`, eintrag });
+}
+
+/** Alpha ohne Checkout: persönliche Lizenz direkt in der Einladungsmail. */
+async function einladenKeygen(env, benutzer, key, eintrag) {
+  if (!env.ALPHA_DOWNLOAD_URL || !env.RESEND_API_KEY) return json(412,{fehler:"Für Keygen-Einladungen fehlen Alpha-Downloadlink oder Resend-Schlüssel."});
+  if (!/^https:\/\/(cockpit\.mesco\.cc|github\.com\/Stacktor\/cockpit-releases)\//.test(env.ALPHA_DOWNLOAD_URL)) return json(412,{fehler:"Alpha-Downloadlink ist ungültig."});
+  const l=await keygenAlphaLizenz(env,eintrag);
+  if (!l.ok || !cockpitLizenz(env,l.daten?.data) || !l.daten.data.attributes.key) return json(502,{fehler:"Die Alpha-Lizenz konnte bei Keygen nicht erstellt oder geladen werden."});
+  eintrag.keygen_lizenz_id=l.daten.data.id;
+  await env.ALPHA.put(key,JSON.stringify(eintrag));
+  const schluessel=KEYGEN_PREFIX+l.daten.data.attributes.key;
+  const html=mailHtml(`${titel(`Du bist dabei, ${String(eintrag.name || "hallo").split(/\s+/)[0]}!`)}
+    <p>Dein persönlicher Schlüssel für die kostenlose cockpit Alpha:</p>
+    ${kasten("Alpha-Schlüssel",escapeHtml(schluessel))}
+    ${knopf(env.ALPHA_DOWNLOAD_URL,"cockpit herunterladen")}
+    <p>Installiere cockpit und gib beim ersten Start diesen Schlüssel ein. Ohne Freischaltung ist die Alpha gesperrt. Du kannst bis zu drei Geräte aktivieren und Geräte in der App wieder abmelden.</p>
+    <p>Die erste Aktivierung braucht Internet. Danach sind bis zu 30 Tage offline möglich. Bitte teile deinen persönlichen Schlüssel nicht.</p>
+    <p>${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/","Hilfe zur Freischaltung")}. Bei Fragen antworte auf diese Mail.</p>
+    <p>Viele Grüße<br>Thomas</p>`,{vorschau:"Dein persönlicher Alpha-Schlüssel für cockpit.",grund:"Du hast dich auf cockpit.mesco.cc für die Alpha angemeldet."});
+  const r=await resend(env,"emails",{method:"POST",body:JSON.stringify({from:env.MAIL_VON || "Bewerbungs-Cockpit <onboarding@resend.dev>",to:[eintrag.mail],reply_to:env.MAIL_AN || "Kontakt@mesco.cc",subject:"Dein Alpha-Schlüssel für cockpit",html,text:alsText(html)})});
+  if (!r.ok) {
+    await protokolliere(env,benutzer,"Alpha-Einladung: Mail fehlgeschlagen",`${eintrag.mail} (Keygen-Lizenz bleibt für Wiederholung erhalten)`);
+    return json(502,{fehler:"Die Mail konnte nicht gesendet werden. Die vorhandene Keygen-Lizenz wird beim nächsten Versuch wiederverwendet."});
+  }
+  eintrag.status="eingeladen";eintrag.eingeladen={zeit:new Date().toISOString(),anbieter:"Keygen"};
+  await env.ALPHA.put(key,JSON.stringify(eintrag));await zaehleBelegt(env);
+  await protokolliere(env,benutzer,"Alpha-Einladung gesendet",`${eintrag.mail} (Keygen)`);
+  return json(200,{ok:true,meldung:`Einladung an ${eintrag.mail} gesendet.`,eintrag});
 }

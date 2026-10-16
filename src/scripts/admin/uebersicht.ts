@@ -199,7 +199,7 @@ function betrieb(d: Daten) {
         icon: "lizenz",
         titel: "Lizenzen",
         status: l.ok ? badge(`${zahl(l.aktiv)} aktiv`, "ok") : null,
-        unter: l.ok ? `${zahl(l.geraete)} Geräte · ${euro(l.umsatz30, l.waehrung)} in 30 Tagen` : "Polar nicht verbunden",
+        unter: l.ok ? `${zahl(l.geraete)} Geräte · ${euro(l.umsatz30, l.waehrung)} in 30 Tagen` : "Lizenzanbieter nicht verbunden",
         inhalt: [nichtDa(l), l.ok ? h("a", { href: "#/lizenzen", class: "a-knopf", style: "justify-self:start" }, "Lizenzen öffnen") : null],
       }),
       akkEintrag({
@@ -384,7 +384,7 @@ const KATALOG: Widget[] = [
   {
     id: "lizenzen",
     titel: "Aktive Lizenzen",
-    text: "Aktive Lizenzschlüssel und Geräte (Polar).",
+    text: "Aktive Lizenzschlüssel und Geräte.",
     icon: "lizenz",
     ziel: "#/lizenzen",
     groessen: KPI,
@@ -555,7 +555,7 @@ const KATALOG: Widget[] = [
   {
     id: "verbindungen",
     titel: "Verbindungen",
-    text: "Welche Dienste verbunden sind (KV, Polar, Resend, GitHub).",
+    text: "Welche Dienste verbunden sind (KV, Lizenzanbieter, Resend, GitHub).",
     icon: "einstellungen",
     ziel: "#/einstellungen",
     groessen: BLOCK,
@@ -563,7 +563,7 @@ const KATALOG: Widget[] = [
     render: ({ d }, w) => {
       const dienste: [string, Daten][] = [
         ["Datenbank (KV)", d.alpha],
-        ["Polar", d.lizenzen],
+        ["Lizenzen", d.lizenzen],
         ["Resend", d.mails],
         ["GitHub", d.downloads],
         ["Sync-Speicher (R2)", d.sync],
@@ -1158,7 +1158,7 @@ export function meldungen(d: Daten | null): Meldung[] {
   if (d.alpha?.ok && d.alpha.frei === 0) m.push({ text: "Alle Alpha-Plätze belegt", unter: "neue Anmeldungen landen auf der Warteliste", href: "#/alpha", icon: "lizenz", wichtig: false });
   if (d.mails?.ok && d.mails.probleme) m.push({ text: `${d.mails.probleme} Mail-Probleme`, unter: "unzustellbar oder Beschwerde", href: "#/mail", icon: "mail", wichtig: true });
   for (const [name, x, href] of [
-    ["Polar", d.lizenzen, "#/einstellungen"],
+    ["Lizenzen", d.lizenzen, "#/einstellungen"],
     ["Resend", d.mails, "#/einstellungen"],
     ["GitHub", d.downloads, "#/einstellungen"],
   ] as [string, Daten, string][]) {

@@ -4,11 +4,11 @@ import Seitenkopf from "../components/Seitenkopf.astro";
 import Icon from "../components/Icon.astro";
 ---
 
-<Base title="Download" description="So bekommst du cockpit für Windows, Linux und macOS: Die Installer gibt es derzeit nicht öffentlich, sondern für Alpha-Tester über Polar.">
+<Base title="Download" description="So bekommst du cockpit für Windows, Linux und macOS: Die geschlossene Alpha benötigt einen persönlichen Lizenzschlüssel.">
   <Seitenkopf
     eyebrow="Download"
     titel="So bekommst du cockpit"
-    lead="Für Windows, Linux und macOS. Kostenlos und ohne Konto. Die Installer gibt es in der Alpha nur für Tester, über Polar."
+    lead="Für Windows, Linux und macOS. Die geschlossene Alpha ist kostenlos; zur Nutzung brauchst du deinen persönlichen Schlüssel."
     krumen={[["Download", "/download/"]]}
     zentriert
   />
@@ -16,32 +16,32 @@ import Icon from "../components/Icon.astro";
   <section class="abschnitt">
     <div class="wrap">
       <div class="hinweis warn center" style="margin-bottom:28px">
-        <b>Öffentliche Download-Links sind derzeit nicht verfügbar.</b>
-        Die Installer bekommst du mit der Zusage zur <a href="/alpha/">Alpha</a>: Polar schickt dir eine Mail mit deinem Alpha-Schlüssel und dem Zugang zu den Dateien für dein System.
+        <b>Die neuen Alpha-Installer mit verpflichtender Freischaltung werden vorbereitet.</b>
+        Mit der Zusage zur <a href="/alpha/">Alpha</a> bekommst du von cockpit deinen persönlichen Schlüssel und den passenden Downloadlink. Die Dateien und signierten Updates werden über GitHub bereitgestellt.
       </div>
 
       <ol class="weg">
         <li class="rv"><span class="schritt-nr">1</span><div><h3>Anmelden</h3><p>Auf der <a href="/alpha/">Alpha-Seite</a>, das dauert zwei Minuten.</p></div></li>
-        <li class="rv" style="--d:1"><span class="schritt-nr">2</span><div><h3>Mail von Polar</h3><p>Bist du dabei, kommt dein Alpha-Schlüssel. Absender ist Polar, nicht cockpit; schau auch im Spam-Ordner nach.</p></div></li>
-        <li class="rv" style="--d:2"><span class="schritt-nr">3</span><div><h3>Installer laden</h3><p>Über den Link in der Mail kommst du zu deinem Polar-Zugang. Dort liegen die Dateien für Windows, Linux und macOS.</p></div></li>
+        <li class="rv" style="--d:1"><span class="schritt-nr">2</span><div><h3>Dein persönlicher Schlüssel</h3><p>Bist du dabei, kommt eine Einladung von cockpit mit deinem Alpha-Schlüssel. Schau auch im Spam-Ordner nach.</p></div></li>
+        <li class="rv" style="--d:2"><span class="schritt-nr">3</span><div><h3>Installer laden</h3><p>Folge dem Downloadlink in der Einladung. Installiere die Datei für dein System und schalte die App beim ersten Start frei.</p></div></li>
       </ol>
 
       <div class="systeme">
         <div class="system karte rv" id="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
           <p class="micro">Dateien: Installer (.exe), für Firmenrechner auch als .msi-Paket.</p>
           <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
         </div>
         <div class="system karte rv" style="--d:1" id="linux">
           <div class="kopf"><span class="ic"><Icon name="terminal" /></span><div><h2>Linux</h2><p class="micro">x86_64 · Ubuntu, Debian, Fedora, Arch …</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
           <p class="micro">Dateien: AppImage, dazu .deb für Debian, Ubuntu und Mint.</p>
           <p class="micro"><code>chmod +x cockpit-linux-x86_64.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
         </div>
         <div class="system karte rv" style="--d:2" id="macos">
           <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26 oder neuer</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Über Polar nach der Zusage</span>
+          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
           <p class="micro">Datei: Mac-App als ZIP.</p>
           <p class="micro">ZIP entpacken, <b>cockpit</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
         </div>
@@ -53,7 +53,7 @@ import Icon from "../components/Icon.astro";
           <h2>Browser-Erweiterung für Chrome und Edge</h2>
           <p>
             Speichert Stellenanzeigen mit einem Klick in cockpit und füllt Bewerbungsformulare aus (Pro).
-            Sie spricht nur mit cockpit auf deinem Rechner. In der Alpha liegt sie als ZIP bei den Dateien in Polar.
+            Sie spricht nur mit cockpit auf deinem Rechner. In der Alpha liegt sie als ZIP bei den Installern auf GitHub.
           </p>
           <ol>
             <li>ZIP laden und entpacken.</li>
@@ -78,7 +78,7 @@ import Icon from "../components/Icon.astro";
           <li><b>macOS:</b> 26 oder neuer. Die Mac-App ist nativ (SwiftUI) und nutzt denselben Kern wie die anderen Systeme. Dazu kommen Apple Intelligence als KI-Anbieter (wo verfügbar), Termine im Apple Kalender und Systemmitteilungen mit Aktionen. Passwörter und Schlüssel liegen im Schlüsselbund.</li>
           <li><b>Linux:</b> x86_64 mit WebKitGTK 4.1 (bei aktuellen Distributionen vorhanden) und einem Secret-Service (GNOME-Schlüsselbund oder KWallet) für Passwörter und Schlüssel.</li>
           <li><b>Speicher:</b> cockpit selbst braucht wenig Platz. Lokale KI-Modelle brauchen zusätzlich mehrere GB und am besten 16 GB Arbeitsspeicher.</li>
-          <li><b>Updates:</b> cockpit meldet neue Versionen selbst und installiert sie auf Klick.</li>
+          <li><b>Updates:</b> Wenn eingeschaltet, prüft cockpit beim Start und danach stündlich auf Updates. Installiert wird nach deiner Bestätigung.</li>
         </ul>
       </div>
     </div>

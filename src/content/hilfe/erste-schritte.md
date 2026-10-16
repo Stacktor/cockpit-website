@@ -9,7 +9,7 @@ icon: rocket
 
 ## 1. Herunterladen
 
-Öffentliche Download-Links gibt es in der Alpha nicht. Mit der Zusage schickt Polar dir eine Mail mit dem Alpha-Schlüssel; über den Link darin kommst du zu deinem Polar-Zugang und findest dort die Datei für dein System ([so geht es](/download/)):
+Mit der Zusage zur Alpha bekommst du von cockpit eine Einladung mit deinem persönlichen Lizenzschlüssel und dem Downloadlink. Installer und signierte Updates liegen auf GitHub. Die neue Alpha muss vor der ersten Nutzung freigeschaltet werden ([so geht es](/download/)):
 
 | System | Datei |
 |---|---|

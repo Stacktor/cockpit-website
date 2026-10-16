@@ -5,7 +5,7 @@ Quellcode der Website von **Bewerbungs-Cockpit**: **[cockpit.mesco.cc](https://c
 cockpit ist ein Bewerbungsmanager für Windows, Linux und macOS, der die Daten auf dem Gerät lässt:
 Pipeline, Stellensuche, KI-Anschreiben mit eigenem Schlüssel oder lokalem Modell, Inbox, Kalender
 und Interview-Training. Er ist in der geschlossenen **0.1 Alpha**.
-[Alpha-Zugang anfragen](https://cockpit.mesco.cc/alpha/) · Installer: für Alpha-Tester über Polar · [Hilfe-Center](https://cockpit.mesco.cc/hilfe/)
+[Alpha-Zugang anfragen](https://cockpit.mesco.cc/alpha/) · Installer: signierte Dateien über GitHub, persönliche Alpha-Lizenz erforderlich · [Hilfe-Center](https://cockpit.mesco.cc/hilfe/)
 
 ---
 
@@ -77,7 +77,7 @@ Texte folgen dem Leitfaden im Doku-Repo (`leitfaeden/texte.md`): Stimme des Unte
 ## Admin
 
 `/admin/` ist nur über Cloudflare Access erreichbar (Fallback: `ADMIN_TOKEN`). Schlüssel für
-Lemon Squeezy, Resend, Cloudflare und GitHub liegen verschlüsselt im Tresor (KV, Schlüssel
+Keygen, Polar, Lemon Squeezy, Resend, Cloudflare und GitHub liegen verschlüsselt im Tresor (KV, Schlüssel
 `ADMIN_MASTER_KEY`). Das Admin folgt dem System-Theme oder wird im Kopf auf Hell oder Dunkel gestellt.
 
 ## Sync-Server
@@ -100,3 +100,11 @@ zählt nur ein täglich wechselnder Hash. Alles Weitere steht in der
 Fragen, Hinweise oder ein Fehler auf der Seite: über die Website oder als
 [Issue](https://github.com/Stacktor/cockpit-website/issues) in diesem Repo. Sicherheitslücken
 bitte nach [SECURITY.md](SECURITY.md) melden.
+
+## Geschlossene Alpha mit Keygen
+
+Neue Alpha-Schlüssel beginnen mit `COCKPIT-KG-`. Der kostenlose Zugang benötigt keinen Checkout und kein Kundenkonto bei Keygen. Das Admin stellt persönliche Lizenzen aus und sendet sie über Resend; bis zu drei Geräte pro Lizenz, erste Aktivierung online, danach bis zu 30 Tage Offline-Karenz. Pro- und ältere Polar-/Lemon-Squeezy-Wege bleiben bestehen.
+
+Im Admin-Tresor: `KEYGEN_PRODUCT_TOKEN` (nur cockpit-Produkt, zehn begrenzte Lizenz-/Geräterechte), `KEYGEN_ACCOUNT_ID`, `KEYGEN_PRODUCT_ID`, `KEYGEN_ALPHA_POLICY_ID`. `ALPHA_DOWNLOAD_URL` erst setzen, wenn ein signierter Installer mit verpflichtender Aktivierung veröffentlicht ist. Solange der Link fehlt, bleiben Einladungen gesperrt. Lizenz-ID wird beim ersten Versuch gespeichert; Schlüssel bleiben bei Keygen und werden bei einer Mail-Wiederholung geladen. Namen und E-Mail werden zur Lizenzzuordnung an Keygen übermittelt.
+
+Downloads und automatische Updates liegen im öffentlichen Repo `Stacktor/cockpit-releases`. Alte Installer erhalten keine rückwirkende Sperre; neue Builds zuerst über dev prüfen, die normale Freigabe folgt nach dem Main-Merge des Nutzers.

@@ -15,7 +15,7 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
   { id: "alpha", titel: "Anmeldungen", kurz: "Alpha", text: "Bewerbungen für die Alpha prüfen, annehmen und einladen." },
   { id: "umfragen", titel: "Umfragen", kurz: "Umfragen", text: "Fragebögen für die App anlegen und Antworten auswerten." },
   { id: "fehler", titel: "Fehlerberichte", kurz: "Fehler", text: "Meldungen aus der App sichten und abarbeiten." },
-  { id: "lizenzen", titel: "Lizenzen", kurz: "Lizenzen", text: "Schlüssel, Geräte und Laufzeiten aus Polar (ältere aus Lemon Squeezy)." },
+  { id: "lizenzen", titel: "Lizenzen", kurz: "Lizenzen", text: "Schlüssel, Geräte und Laufzeiten aus Keygen, Polar und Lemon Squeezy." },
   { id: "umsatz", titel: "Kunden & Umsatz", kurz: "Umsatz", text: "Bestellungen, Kunden, Erstattungen und Rabattcodes." },
   { id: "mail", titel: "Mail", kurz: "Mail", text: "Zustellung prüfen und Rundmails an Tester schicken." },
   { id: "analytics", titel: "Analytics", kurz: "Analytics", text: "Besuche, Quellen, Kampagnen und der Weg zur Anmeldung." },
