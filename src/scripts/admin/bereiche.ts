@@ -181,6 +181,26 @@ const MERKMALE = ["läuft in 30 Tagen ab", "abgelaufen", "Testmodus", "nie in de
 export const lizenzen: Bereich = async (ziel, neu) => {
   const d = await api("lizenzen");
   const l: Daten[] = d.lizenzen;
+  const nameNeu = eingabe({ name: "name", autocomplete: "name", placeholder: "Vor- und Nachname", required: true, maxlength: 100 });
+  const mailNeu = eingabe({ name: "email", type: "email", autocomplete: "email", placeholder: "person@beispiel.de", required: true, maxlength: 254 });
+  const formular = h("form", { class: "a-werkzeuge" }, feld("Name", nameNeu), feld("E-Mail", mailNeu)) as HTMLFormElement;
+  const anlegen = knopf("Alpha-Lizenz anlegen", () => {}, "a-p", "plus");
+  anlegen.type = "submit";
+  formular.append(anlegen);
+  formular.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    void aktion(anlegen, async () => {
+      const r = await api("lizenzen", { aktion: "alpha-anlegen", name: nameNeu.value, mail: mailNeu.value });
+      const x = r.lizenz;
+      if (x?.schluessel) schublade("Alpha-Lizenz angelegt", liste([
+        ["Person", `${x.kundenName || nameNeu.value} · ${x.kunde || mailNeu.value}`],
+        ["Schlüssel", h("span", { class: "a-schluessel" }, h("span", { class: "a-mono" }, x.schluessel), kopierKnopf(x.schluessel, "Schlüssel kopieren"))],
+        ["Download", "Es wurde keine E-Mail versendet. Den freigegebenen Downloadlink separat weitergeben."],
+      ]));
+      formular.reset();
+      return r;
+    }, neu);
+  });
   const status = [...new Set(l.map(statusVon))];
   const produkte = [...new Set(l.map((x) => x.produkt).filter(Boolean))] as string[];
   const sammel = (aktionName: string, frage: string, extra: Daten = {}) => async (zeilen: Daten[]) => {
@@ -197,6 +217,7 @@ export const lizenzen: Bereich = async (ziel, neu) => {
       kpi("Läuft in 30 Tagen ab", zahl(l.filter((x) => merkmale(x).includes("läuft in 30 Tagen ab")).length)),
       kpi("Gesperrt / abgelaufen", zahl(l.filter((x) => x.deaktiviert || x.status === "expired").length)),
     ),
+    karte("Alpha-Lizenz manuell anlegen", h("p", { class: "a-klein a-notiz" }, "Erstellt eine Keygen-Lizenz für bis zu drei Geräte und zeigt den Schlüssel zum Kopieren. Es wird keine Einladung oder E-Mail versendet."), formular),
     karte(
       null,
       tabelle(

@@ -18,7 +18,7 @@ import { alsText, escapeHtml, mailHtml, textZuHtml } from "../../../lib/mail/vor
 import { allesLoeschen, belegtGeteilt, GESAMT_MAX, praefixFuer, SICHERUNG_MAX } from "../../../lib/sync.js";
 import { istPolarId, lizenzId, polar, polarAnsicht, polarFehler, polarLizenz, polarOrg } from "../../../lib/polar.js";
 
-import { istKeygenId, keygen, keygenAnsicht, KEYGEN_PRODUCT } from "../../../lib/keygen.js";
+import { cockpitLizenz, istKeygenId, keygen, keygenAlphaLizenz, keygenAnsicht, KEYGEN_PRODUCT } from "../../../lib/keygen.js";
 
 const OHNE_ANBIETER = "Weder Polar noch Lemon Squeezy ist verbunden. Trag das Polar-Token unter Einstellungen ein.";
 
@@ -211,6 +211,19 @@ export async function onRequestPost({ request, data }) {
   if (!env.KEYGEN_PRODUCT_TOKEN && !env.POLAR_ACCESS_TOKEN && !env.LEMONSQUEEZY_API_KEY) return json(412, { fehler: OHNE_ANBIETER });
   const d = await request.json().catch(() => null);
   if (Array.isArray(d?.ids)) return sammelaktion(env, data, d);
+  if (d?.aktion === "alpha-anlegen") {
+    if (!env.KEYGEN_PRODUCT_TOKEN) return json(412, { fehler: "Keygen ist nicht verbunden." });
+    const mail = String(d.mail || "").trim().toLowerCase();
+    const name = String(d.name || "").trim().replace(/\s+/g, " ").slice(0, 100);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) || mail.length > 254) return json(422, { fehler: "Bitte eine gültige E-Mail-Adresse eingeben." });
+    if (!name) return json(422, { fehler: "Bitte den Namen der Person eingeben." });
+    const r = await keygenAlphaLizenz(env, { mail, name });
+    const lizenz = r.daten?.data;
+    if (!r.ok || !cockpitLizenz(env, lizenz)) return json(r.status === 0 ? 503 : 502, { fehler: "Keygen konnte die Alpha-Lizenz nicht sicher anlegen oder bestätigen." });
+    const ansicht = keygenAnsicht(lizenz);
+    await protokolliere(env, data.benutzer, "Alpha-Lizenz manuell angelegt", `Lizenz ${ansicht.id} für ${mail}`);
+    return json(200, { ok: true, meldung: `Alpha-Lizenz für ${mail} angelegt. Es wurde keine Mail versendet.`, lizenz: ansicht });
+  }
   const id = lizenzId(d?.id);
   if (!id || !d?.aktion) return json(400, { fehler: "Es fehlen Angaben (id, aktion)." });
   const istPolar = istPolarId(id);
