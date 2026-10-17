@@ -111,6 +111,17 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   await tresor.setzeEinstellung(env, "DISCORD_URL", "https://discord.gg/abc123", "t");
   assert.equal((await tresor.mitSchluesseln(env)).DISCORD_URL, "https://discord.gg/abc123");
   await assert.rejects(() => tresor.setzeGeheim(env, "UNBEKANNT", "xxxxxxxxxx", "t"), /Unbekannt/);
+  const originalFetch = globalThis.fetch;
+  await tresor.setzeGeheim(env, "GITHUB_RELEASE_TOKEN", "test-only-release-token", "test@x");
+  globalThis.fetch = async (url, init) => {
+    assert.equal(url, "https://api.github.com/repos/Stacktor/Bewerbungs-Cockpit/actions/workflows");
+    assert.equal(init.method, undefined, "Verbindungstest startet keine Builds");
+    return new Response("{}", {status: 200});
+  };
+  assert.equal((await tresor.testeGeheim(env, "GITHUB_RELEASE_TOKEN")).ok, true);
+  globalThis.fetch = async () => new Response("{}", {status: 403});
+  assert.equal((await tresor.testeGeheim(env, "GITHUB_RELEASE_TOKEN")).ok, false);
+  globalThis.fetch = originalFetch;
   console.log("Tresor: ok");
 }
 
