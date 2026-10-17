@@ -15,9 +15,9 @@ import Icon from "../components/Icon.astro";
 
   <section class="abschnitt">
     <div class="wrap">
-      <div class="hinweis warn center" style="margin-bottom:28px">
-        <b>Die neuen Alpha-Installer mit verpflichtender Freischaltung werden vorbereitet.</b>
-        Mit der Zusage zur <a href="/alpha/">Alpha</a> bekommst du von cockpit deinen persönlichen Schlüssel und den passenden Downloadlink. Die Dateien und signierten Updates werden über GitHub bereitgestellt.
+      <div class="hinweis center" style="margin-bottom:28px">
+        <b>Die Alpha ist bereit. Du brauchst deinen persönlichen Lizenzschlüssel.</b>
+        Mit der Zusage zur <a href="/alpha/">Alpha</a> bekommst du von cockpit deinen persönlichen Schlüssel und den passenden Downloadlink. Lade unten die aktuelle Alpha für dein System. Updates werden in der App angeboten; ein Checkout ist nicht nötig.
       </div>
 
       <ol class="weg">
@@ -29,21 +29,23 @@ import Icon from "../components/Icon.astro";
       <div class="systeme">
         <div class="system karte rv" id="windows">
           <div class="kopf"><span class="ic"><Icon name="monitor" /></span><div><h2>Windows</h2><p class="micro">Windows 10 und 11, 64 Bit</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
+          <a class="btn btn-s" href="/api/download?system=windows">Windows-Installer laden (.exe)</a>
+          <p class="micro"><a href="/api/download?system=msi">MSI-Paket für verwaltete Rechner</a></p>
           <p class="micro">Dateien: Installer (.exe), für Firmenrechner auch als .msi-Paket.</p>
-          <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Installer sind noch nicht signiert.</p>
+          <p class="micro">Beim ersten Start warnt Windows einmal („Der Computer wurde durch Windows geschützt“): <b>Weitere Informationen → Trotzdem ausführen</b>. Die Update-Dateien sind kryptografisch signiert. Ein Windows-Herstellerzertifikat ist noch nicht eingerichtet.</p>
         </div>
         <div class="system karte rv" style="--d:1" id="linux">
           <div class="kopf"><span class="ic"><Icon name="terminal" /></span><div><h2>Linux</h2><p class="micro">x86_64 · Ubuntu, Debian, Fedora, Arch …</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
+          <a class="btn btn-s" href="/api/download?system=linux">AppImage laden</a>
+          <p class="micro"><a href="/api/download?system=deb">Debian-/Ubuntu-Paket (.deb)</a></p>
           <p class="micro">Dateien: AppImage, dazu .deb für Debian, Ubuntu und Mint.</p>
-          <p class="micro"><code>chmod +x cockpit-linux-x86_64.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
+          <p class="micro"><code>chmod +x cockpit.Alpha_*.AppImage</code>, dann starten. Fehlt FUSE: <code>sudo apt install libfuse2</code>.</p>
         </div>
         <div class="system karte rv" style="--d:2" id="macos">
-          <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26 oder neuer</p></div></div>
-          <span class="btn btn-s" aria-disabled="true">Downloadlink in der Einladung</span>
+          <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26+ · Apple Silicon (M1 oder neuer)</p></div></div>
+          <a class="btn btn-s" href="/api/download?system=mac">Mac-App laden (.zip)</a>
           <p class="micro">Datei: Mac-App als ZIP.</p>
-          <p class="micro">ZIP entpacken, <b>cockpit</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
+          <p class="micro">ZIP entpacken, <b>cockpit Alpha</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
         </div>
       </div>
 
@@ -56,7 +58,7 @@ import Icon from "../components/Icon.astro";
             Sie spricht nur mit cockpit auf deinem Rechner. In der Alpha liegt sie als ZIP bei den Installern auf GitHub.
           </p>
           <ol>
-            <li>ZIP laden und entpacken.</li>
+            <li><a href="/api/download?system=erweiterung">Erweiterung als ZIP laden</a> und entpacken.</li>
             <li><code>chrome://extensions</code> bzw. <code>edge://extensions</code> öffnen, den Entwicklermodus einschalten.</li>
             <li>„Entpackte Erweiterung laden“ und den Ordner wählen.</li>
             <li>In cockpit unter Einstellungen → Verbindungen einen Kopplungscode erzeugen und im Popup eingeben.</li>

@@ -28,4 +28,4 @@ Die Erweiterung spricht nur mit cockpit auf deinem Rechner (`127.0.0.1`). Gekopp
 
 ## Installation
 
-In der Alpha bekommst du die Erweiterung als ZIP über deinen Polar-Zugang (siehe [Download-Seite](/download/)) und lädst sie im Entwicklermodus. In den Chrome Web Store kommt sie nach der Alpha.
+In der Alpha bekommst du die Erweiterung als ZIP auf der Download-Seite (siehe [Download-Seite](/download/)) und lädst sie im Entwicklermodus. In den Chrome Web Store kommt sie nach der Alpha.

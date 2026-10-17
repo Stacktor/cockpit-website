@@ -127,3 +127,8 @@ Prüfung: `npm run test:api` verwendet lokale SQLite-D1- und Anbieter-Fixtures, 
 ### App-Freigabeanschluss, 17.10.2026
 
 Website32 produktiv. Separater GitHub-Token nach ausdrücklicher Nutzerentscheidung ohne Ablauf, ausschließlich App-Repo mit Actions RW, Contents/Pull requests/Metadata read; verschlüsselt im Admin-Tresor verbunden. Kein Rohwert in Dateien oder Protokollen. Der Verbindungstest prüft lesend den festen App-Workflow-Endpunkt; Schreibrecht erst durch bewusst gestarteten Testbuild, keine automatische Alpha-Freigabe. Der Alpha-Basisbau ist am Linux-Quellarchivdatum gescheitert; App-PR196 behebt das separat vom Onboarding-Hotfix193.
+
+
+### Alpha-Downloadweg,17.10.2026
+
+Nach erfolgreichem Ersatz der ungenutzten0.1.1: öffentliche Downloadseite mit direkten Windows-/Mac-/Linux-/Erweiterungsaktionen. Fester API-Anschluss löst ausschließlich passende Assets der letzten regulären Alpha auf; keine Vorabversionen und keine fremden Ziele. Pflichtlizenz bleibt in der App. Registrierungs- und Hilfetexte von altem Polar-Checkout bereinigt. Nach Produktionsfreigabe ALPHA_DOWNLOAD_URL im Tresor auf https://cockpit.mesco.cc/download/ setzen. Keine Einladungen automatisch versenden.
