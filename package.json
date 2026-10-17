@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:api": "node tests/api.test.mjs && node tests/admin.test.mjs && node tests/keygen.test.mjs && node tests/betrieb.test.mjs && node tests/dispatch.test.mjs",
+    "test:api": "node tests/api.test.mjs && node tests/admin.test.mjs && node tests/keygen.test.mjs && node tests/betrieb.test.mjs && node tests/dispatch.test.mjs && node tests/releases.test.mjs",
     "audit": "node scripts/audit.mjs",
     "audit:admin": "node tests/admin-ui.mjs"
   },
