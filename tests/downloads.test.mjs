@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {onRequestGet} from '../functions/api/download.js';
+const release={tag_name:'v0.1.2',draft:false,prerelease:false,assets:[{name:'cockpit.Alpha_0.1.2_x64-setup.exe',browser_download_url:'https://github.com/Stacktor/cockpit-releases/releases/download/v0.1.2/cockpit.Alpha_0.1.2_x64-setup.exe'}]};
+let calls=0;
+globalThis.fetch=async()=>{calls++;return Response.json(release)};
+const get=system=>onRequestGet({request:new Request('https://cockpit.mesco.cc/api/download?system='+system)});
+let r=await get('windows');assert.equal(r.status,302);assert.equal(r.headers.get('location'),release.assets[0].browser_download_url);
+const count=calls;r=await get('https://evil.invalid');assert.equal(r.status,400);assert.equal(calls,count);
+r=await get('mac');assert.equal(r.status,503);
+release.prerelease=true;r=await get('windows');assert.equal(r.status,503);release.prerelease=false;
+release.assets[0].browser_download_url='https://evil.invalid/file.exe';r=await get('windows');assert.equal(r.status,503);
+release.assets[0].browser_download_url='https://github.com/Stacktor/cockpit-releases/releases/download/dev/file.exe';r=await get('windows');assert.equal(r.status,503);
+globalThis.fetch=async()=>new Response('private upstream detail',{status:403});r=await get('windows');assert.equal(r.status,503);assert(!(await r.text()).includes('private upstream'));
+console.log('Alpha-Downloads: echte Installer, keine Dev-Version, fremde Ziele/fehlende Pakete/Upstreamfehler gesperrt.');

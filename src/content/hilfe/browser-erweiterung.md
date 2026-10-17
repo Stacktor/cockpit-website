@@ -11,7 +11,7 @@ Mit der Erweiterung speicherst du eine Stellenanzeige, während du sie ansiehst.
 
 ## Installieren
 
-In der Alpha gibt es die Erweiterung als ZIP-Datei bei deinen Dateien in Polar (siehe [Download-Seite](/download/)).
+In der Alpha gibt es die Erweiterung als öffentliche ZIP-Datei auf der Download-Seite (siehe [Download-Seite](/download/)).
 
 1. ZIP herunterladen und entpacken.
 2. In Chrome `chrome://extensions` öffnen, in Edge `edge://extensions`.
