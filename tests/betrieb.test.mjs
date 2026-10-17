@@ -21,7 +21,7 @@ globalThis.fetch=async(url,init={})=>{
   if(u.pathname.endsWith('/actions/suspend'))suspended=true;
   if(u.pathname.endsWith('/actions/reinstate'))suspended=false;
   if(init.method==='DELETE'){if(missingPermission)return ok({},403);deleted++;return ok(null,204);}
-  if(u.pathname.endsWith('/licenses')){pages++;return ok({data:[fixture()],links:{next:u.searchParams.has('page[cursor]')?null:`${u.pathname}?product=${KEYGEN_PRODUCT}&page[cursor]=${id.slice(7)}`}});}
+  if(u.pathname.endsWith('/licenses')){if(!u.searchParams.has('page[cursor]')){assert.equal(u.searchParams.get('limit'),'100');assert.equal(u.searchParams.has('page[size]'),false);}pages++;return ok({data:[fixture()],links:{next:u.searchParams.has('page[cursor]')?null:`${u.pathname}?product=${KEYGEN_PRODUCT}&page[cursor]=${id.slice(7)}`}});}
   return ok({data:fixture()});
 };
 assert.equal((await keygenListe(env,`licenses?product=${KEYGEN_PRODUCT}`)).liste.length,1);assert.equal(pages,2);
