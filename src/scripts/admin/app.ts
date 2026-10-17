@@ -15,7 +15,7 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
   { id: "alpha", titel: "Anmeldungen", kurz: "Alpha", text: "Bewerbungen für die Alpha prüfen, annehmen und einladen." },
   { id: "umfragen", titel: "Umfragen", kurz: "Umfragen", text: "Fragebögen für die App anlegen und Antworten auswerten." },
   { id: "fehler", titel: "Fehlerberichte", kurz: "Fehler", text: "Meldungen aus der App sichten und abarbeiten." },
-  { id: "lizenzen", titel: "Lizenzen", kurz: "Lizenzen", text: "Schlüssel, Geräte und Laufzeiten aus Keygen, Polar und Lemon Squeezy." },
+  { id: "lizenzen", titel: "Lizenzen", kurz: "Lizenzen", text: "Persönliche Zugänge, Geräteplätze, Laufzeiten und letzte Prüfungen." },
   { id: "umsatz", titel: "Kunden & Umsatz", kurz: "Umsatz", text: "Bestellungen, Kunden, Erstattungen und Rabattcodes." },
   { id: "mail", titel: "Mail", kurz: "Mail", text: "Zustellung prüfen und Rundmails an Tester schicken." },
   { id: "analytics", titel: "Analytics", kurz: "Analytics", text: "Besuche, Quellen, Kampagnen und der Weg zur Anmeldung." },
@@ -28,7 +28,14 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
 ];
 const EINTRAG = Object.fromEntries(NAV.map((p) => [p.id, p])) as Record<Id, (typeof NAV)[number]>;
 /** In der Kopfleiste steht „Einstellungen" als Zahnrad rechts. */
-const OBEN = NAV.filter((p) => p.id !== "einstellungen");
+const GRUPPEN: {titel: string; ids: Id[]}[] = [
+  {titel:"Arbeitszentrale",ids:["uebersicht"]},
+  {titel:"Menschen & Zugang",ids:["alpha","lizenzen","speicher"]},
+  {titel:"Feedback",ids:["umfragen","fehler"]},
+  {titel:"Betrieb",ids:["builds","mail","alarme","einstellungen"]},
+  {titel:"Inhalte",ids:["inhalte","doku"]},
+  {titel:"Erweitert",ids:["analytics","umsatz"]},
+];
 
 const inhalt = document.getElementById("a-inhalt")!;
 const titel = document.getElementById("a-titel")!;
@@ -72,19 +79,14 @@ function aktuell(): Id {
 
 function zeichneNavigation() {
   const id = aktuell();
-  document.getElementById("a-nav")!.replaceChildren(
-    ...OBEN.map((p) => h("a", { class: "a-nav", href: `#/${p.id}`, "aria-current": p.id === id ? "page" : null }, p.kurz)),
-  );
-  document.getElementById("a-blatt-nav")!.replaceChildren(
-    ...NAV.map((p) =>
-      h(
-        "a",
-        { class: "a-blatt-link", href: `#/${p.id}`, "aria-current": p.id === id ? "page" : null },
-        h("span", {}, p.titel),
-        h("small", {}, p.text),
-      ),
-    ),
-  );
+  const gruppen = (mobil = false) => GRUPPEN.map(g => h("section", {class:"a-nav-gruppe"},
+    h("h2",{},g.titel), ...g.ids.map(key=>{
+      const p=EINTRAG[key];
+      return h("a", {class:mobil?"a-blatt-link":"a-nav",href:`#/${p.id}`,"aria-current":p.id===id?"page":null},
+        h("span",{},p.titel),mobil?h("small",{},p.text):null);
+    })));
+  document.getElementById("a-nav")!.replaceChildren(...gruppen());
+  document.getElementById("a-blatt-nav")!.replaceChildren(...gruppen(true));
   document.getElementById("a-ziele")!.replaceChildren(...NAV.map((p) => h("option", { value: p.titel })));
 }
 

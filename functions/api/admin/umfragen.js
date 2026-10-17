@@ -11,6 +11,8 @@ import { json } from "../../../lib/admin/zugang.js";
 import { alleSchluessel, anmeldungen, antworten } from "../../../lib/admin/daten.js";
 import { csv, webUmfrage, werteAus } from "../../../lib/admin/auswertung.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
+import { aussenden } from "../../../lib/survey-dispatch.js";
+import { betrieb } from "../../../lib/admin/betrieb.js";
 import { STANDARD_UMFRAGEN, ladeUmfragen, pruefeDefinition } from "../../../lib/umfragen.js";
 
 export async function onRequestGet({ request, data }) {
@@ -23,6 +25,9 @@ export async function onRequestGet({ request, data }) {
   // Zahl der Tester, die antworten können: Alpha-Anmeldungen mit Status „eingeladen“ (für die Quote).
   const eingeladen = (await anmeldungen(env)).filter((e) => e.status === "eingeladen").length;
   const version = new URL(request.url).searchParams.get("version") || "";
+  const params=new URL(request.url).searchParams;
+  const system=params.get("system")||"",von=params.get("von")||"",bis=params.get("bis")||"";
+  const until=bis&&Number.isFinite(Date.parse(bis))?new Date(Date.parse(bis)+864e5).toISOString():"";
   const exportId = new URL(request.url).searchParams.get("export");
   if (exportId) {
     const u = umfragen.find((x) => x.id === exportId);
@@ -36,9 +41,14 @@ export async function onRequestGet({ request, data }) {
     });
   }
 
+  const db=betrieb(env);
+  const dispatches=db?(await db.prepare(`SELECT d.id,d.survey_id,d.created_at,d.audience,
+    COUNT(r.device_id) AS empfangen,COUNT(r.opened_at) AS geoeffnet,COUNT(r.answered_at) AS beantwortet
+    FROM survey_dispatch d LEFT JOIN survey_receipt r ON r.dispatch_id=d.id GROUP BY d.id ORDER BY d.created_at DESC LIMIT 100`).all()).results:[];
   return json(200, {
+    aussendungen: dispatches,
     standard: !eigene,
-    umfragen: umfragen.map((u) => ({ definition: u, auswertung: werteAus(u, alle, { eingeladen, version }) })),
+    umfragen: umfragen.map((u) => ({ definition: u, auswertung: {...werteAus(u, alle, { eingeladen, version,system,von,bis:until }),filter:{system,von,bis}} })),
     web: await webUmfrage(env).catch(() => null),
   });
 }
@@ -54,6 +64,15 @@ export async function onRequestPost({ request, data }) {
   };
 
   switch (d?.aktion) {
+    case "senden": {
+      const definition=(await ladeUmfragen(env,{nurAktive:false})).find(u=>u.id===d.id);
+      if(!definition)return json(404,{fehler:'Umfrage nicht gefunden.'});
+      try {
+        const result=await aussenden(env,definition,d.zielgruppe,data.benutzer);
+        await protokolliere(env,data.benutzer,'Umfrage ausgesendet',`${definition.id} · ${result.id}`);
+        return json(200,{ok:true,aussendung:result,meldung:'Aussendung erstellt. Geöffnete aktuelle Apps erhalten einen Hinweis.'});
+      }catch(e){return json(env.BETRIEB?422:503,{fehler:e.message});}
+    }
     case "speichern": {
       const { umfrage, fehler } = pruefeDefinition(d.umfrage);
       if (fehler) return json(422, { fehler });

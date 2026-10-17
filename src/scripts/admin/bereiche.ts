@@ -9,7 +9,6 @@ import {
   feld,
   hinweisKachel,
   karte,
-  kopierKnopf,
   karteMitKopf,
   knopf,
   kpi,
@@ -25,8 +24,9 @@ import {
   verlauf,
 } from "./ui";
 
-import { dashboard } from "./uebersicht";
+import { arbeitszentrale } from "./arbeitszentrale";
 import { dialogFenster, popupMenue } from "./menue";
+import { reiter } from "./reiter";
 import { saeubern } from "./saeubern";
 
 export type Bereich = (ziel: HTMLElement, neu: () => void) => Promise<void>;
@@ -46,7 +46,7 @@ const text = (wert = "", attrs: Daten = {}) => {
 // ═════════════ Übersicht ═════════════
 // Anpassbares Dashboard (Kacheln verschieben, hinzufügen, Größe) — siehe uebersicht.ts.
 
-export const uebersicht: Bereich = (ziel, neu) => dashboard(ziel, neu);
+export const uebersicht: Bereich = (ziel, neu) => arbeitszentrale(ziel, neu);
 
 // ═════════════ Alpha ═════════════
 
@@ -57,7 +57,7 @@ export const alpha: Bereich = async (ziel, neu) => {
   const belegt = e.filter((x) => !["warteliste", "abgelehnt"].includes(x.status || "neu")).length;
   const plaetzeEingabe = eingabe({ class: "a-eingabe a-schmal", type: "number", min: 0, max: 10000, value: d.plaetze, "aria-label": "Plätze" });
 
-  fuege(ziel, 
+  fuege(ziel,
     raster(
       "a-r4",
       kpi("Plätze belegt", `${belegt} / ${d.plaetze}`, `${Math.max(0, d.plaetze - belegt)} frei`),
@@ -162,224 +162,7 @@ function alphaDetail(x: Daten, d: Daten, neu: () => void) {
 
 // ═════════════ Lizenzen ═════════════
 
-const TAG = 864e5;
-const statusVon = (x: Daten) => (x.deaktiviert ? "disabled" : x.status);
-/** Merkmale für den Filter „Merkmal“. */
-function merkmale(x: Daten): string[] {
-  const m: string[] = [];
-  const ab = x.laeuftAb ? new Date(x.laeuftAb).getTime() : 0;
-  if (ab && ab > Date.now() && ab - Date.now() < 30 * TAG) m.push("läuft in 30 Tagen ab");
-  if (ab && ab < Date.now()) m.push("abgelaufen");
-  if (x.testmodus) m.push("Testmodus");
-  if (!x.ping) m.push("nie in der App geprüft");
-  else if (Date.now() - new Date(x.ping.zeit).getTime() > 30 * TAG) m.push("seit 30 Tagen nicht geprüft");
-  if (x.notiz) m.push("mit Notiz");
-  return m;
-}
-const MERKMALE = ["läuft in 30 Tagen ab", "abgelaufen", "Testmodus", "nie in der App geprüft", "seit 30 Tagen nicht geprüft", "mit Notiz"];
-
-export const lizenzen: Bereich = async (ziel, neu) => {
-  const d = await api("lizenzen");
-  const l: Daten[] = d.lizenzen;
-  const nameNeu = eingabe({ name: "name", autocomplete: "name", placeholder: "Vor- und Nachname", required: true, maxlength: 100 });
-  const mailNeu = eingabe({ name: "email", type: "email", autocomplete: "email", placeholder: "person@beispiel.de", required: true, maxlength: 254 });
-  const formular = h("form", { class: "a-werkzeuge" }, feld("Name", nameNeu), feld("E-Mail", mailNeu)) as HTMLFormElement;
-  const anlegen = knopf("Alpha-Lizenz anlegen", () => {}, "a-p", "plus");
-  anlegen.type = "submit";
-  formular.append(anlegen);
-  formular.addEventListener("submit", (ev) => {
-    ev.preventDefault();
-    void aktion(anlegen, async () => {
-      const r = await api("lizenzen", { aktion: "alpha-anlegen", name: nameNeu.value, mail: mailNeu.value });
-      const x = r.lizenz;
-      if (x?.schluessel) schublade("Alpha-Lizenz angelegt", liste([
-        ["Person", `${x.kundenName || nameNeu.value} · ${x.kunde || mailNeu.value}`],
-        ["Schlüssel", h("span", { class: "a-schluessel" }, h("span", { class: "a-mono" }, x.schluessel), kopierKnopf(x.schluessel, "Schlüssel kopieren"))],
-        ["Download", "Es wurde keine E-Mail versendet. Den freigegebenen Downloadlink separat weitergeben."],
-      ]));
-      formular.reset();
-      return r;
-    }, neu);
-  });
-  const status = [...new Set(l.map(statusVon))];
-  const produkte = [...new Set(l.map((x) => x.produkt).filter(Boolean))] as string[];
-  const sammel = (aktionName: string, frage: string, extra: Daten = {}) => async (zeilen: Daten[]) => {
-    if (!zeilen.length) return;
-    if (!(await bestaetigen(`${zeilen.length} Lizenzen ${frage}?`, "Die Änderung geht direkt an den Lizenzanbieter. Die App übernimmt sie bei der nächsten Prüfung.", "Ausführen"))) return;
-    await aktion(null, () => api("lizenzen", { ids: zeilen.map((x) => x.id), aktion: aktionName, ...extra }), neu);
-  };
-  fuege(
-    ziel,
-    raster(
-      "a-r4",
-      kpi("Lizenzen", zahl(l.length)),
-      kpi("Aktiv", zahl(l.filter((x) => x.status === "active" && !x.deaktiviert).length)),
-      kpi("Läuft in 30 Tagen ab", zahl(l.filter((x) => merkmale(x).includes("läuft in 30 Tagen ab")).length)),
-      kpi("Gesperrt / abgelaufen", zahl(l.filter((x) => x.deaktiviert || x.status === "expired").length)),
-    ),
-    karte("Alpha-Lizenz manuell anlegen", h("p", { class: "a-klein a-notiz" }, "Erstellt eine Keygen-Lizenz für bis zu drei Geräte und zeigt den Schlüssel zum Kopieren. Es wird keine Einladung oder E-Mail versendet."), formular),
-    karte(
-      null,
-      tabelle(
-        [
-          {
-            titel: "Schlüssel",
-            wert: (x) => h("span", { class: "a-schluessel" }, h("span", { class: "a-mono" }, x.schluessel), x.schluessel ? kopierKnopf(x.schluessel, "Schlüssel kopieren") : null),
-            suche: (x) => x.schluessel,
-          },
-          { titel: "Kunde", wert: (x) => h("div", {}, x.kundenName || "—", h("div", { class: "a-klein" }, x.kunde)), suche: (x) => `${x.kundenName} ${x.kunde} ${x.notiz || ""}` },
-          { titel: "Produkt", wert: (x) => x.produkt },
-          { titel: "Status", wert: (x) => h("span", {}, badge(statusVon(x)), x.testmodus ? badge("Test", "") : null) },
-          { titel: "Geräte", wert: (x) => `${x.genutzt ?? 0} / ${x.limit ?? "∞"}`, klasse: "a-zahl" },
-          {
-            titel: "App",
-            wert: (x) => (x.ping ? h("div", {}, relativ(x.ping.zeit), h("div", { class: "a-klein" }, `${x.ping.version || "?"} · ${x.ping.system || "?"}`)) : "—"),
-            suche: (x) => (x.ping ? `${x.ping.version} ${x.ping.system}` : ""),
-          },
-          { titel: "Läuft ab", wert: (x) => (x.laeuftAb ? datum(x.laeuftAb) : "unbefristet") },
-          { titel: "Erstellt", wert: (x) => datum(x.erstellt) },
-        ],
-        l,
-        {
-          filter: [
-            { name: "Status", werte: status, feld: statusVon },
-            ...(produkte.length > 1 ? [{ name: "Produkt", werte: produkte, feld: (x: Daten) => x.produkt || "" }] : []),
-            { name: "Merkmal", werte: MERKMALE, feld: merkmale },
-          ],
-          beiKlick: (x) => lizenzDetail(x.id, neu),
-          leerText: "Noch keine Lizenzen.",
-          auswahl: {
-            schluessel: (x) => String(x.id),
-            aktionen: [
-              { titel: "Um 30 Tage verlängern", aus: sammel("verlaengern", "um 30 Tage verlängern", { tage: 30 }) },
-              { titel: "Entsperren", aus: sammel("entsperren", "entsperren") },
-              { titel: "Sperren", klasse: "a-rot", aus: sammel("sperren", "sperren") },
-            ],
-          },
-        },
-      ),
-    ),
-  );
-};
-
-async function lizenzDetail(id: string, neu: () => void) {
-  schublade("Lizenz wird geladen …", h("div", { class: "a-lade" }, h("div")));
-  let d: Daten;
-  try {
-    d = await api(`lizenzen?id=${encodeURIComponent(id)}`);
-  } catch (e) {
-    schublade("Lizenz", h("div", { class: "a-hinweis a-fehler" }, (e as Error).message));
-    return;
-  }
-  const x = d.lizenz;
-  const tageEingabe = eingabe({ class: "a-eingabe a-schmal", type: "number", value: 365, min: 1, max: 3650, "aria-label": "Tage" });
-  const limitEingabe = eingabe({ class: "a-eingabe a-schmal", type: "number", value: x.limit || 3, min: 1, max: 100, "aria-label": "Geräte" });
-  const tu = (daten: Daten) => (ev: Event) =>
-    aktion(ev.currentTarget as HTMLButtonElement, () => api("lizenzen", { id: x.id, ...daten }), () => {
-      lizenzDetail(id, neu);
-      neu();
-    });
-  const notiz = text(x.notiz || "", { rows: 3, placeholder: "Nur für dich sichtbar, z. B. „Rabatt zugesagt“", "aria-label": "Notiz" });
-  const betreff = eingabe({ class: "a-eingabe a-voll", placeholder: "Betreff", "aria-label": "Betreff" });
-  const mailText = text("", { rows: 5, placeholder: "Text der Mail (Anrede mit Vorname kommt automatisch)", "aria-label": "Text" });
-  const sync = d.sync as Daten | null;
-
-  schublade(
-    `Lizenz ${x.kurz || x.id}`,
-    liste([
-      ["Schlüssel", x.schluessel ? h("span", { class: "a-schluessel" }, h("span", { class: "a-mono" }, x.schluessel), kopierKnopf(x.schluessel, "Schlüssel kopieren")) : "—"],
-      ["Kunde", x.kundenName],
-      ["E-Mail", x.kunde ? h("a", { href: `mailto:${x.kunde}` }, x.kunde) : null],
-      ["Produkt", x.produkt],
-      ["Status", badge(statusVon(x))],
-      ["Geräte", `${x.genutzt ?? 0} von ${x.limit ?? "∞"}`],
-      ["Läuft ab", x.laeuftAb ? zeit(x.laeuftAb) : "unbefristet"],
-      ["Letzte App-Prüfung", x.ping ? `${zeit(x.ping.zeit)} · ${x.ping.version || "?"} · ${x.ping.system || "?"} · ${x.ping.status || "?"}` : "noch keine"],
-      ["Bestellung", x.bestellung],
-      ["Erstellt", zeit(x.erstellt)],
-    ]),
-    karte(
-      "Notiz",
-      notiz,
-      h("div", { class: "a-werkzeuge a-mt" }, knopf("Speichern", (ev) => tu({ aktion: "notiz", text: notiz.value })(ev))),
-    ),
-    karte(
-      "Geräte",
-      d.geraete.length
-        ? h(
-            "div",
-            { class: "a-balken" },
-            d.geraete.map((g: Daten) =>
-              h(
-                "div",
-                { class: "a-frage-kopf" },
-                h("span", { class: "a-luecke" }, g.name, h("div", { class: "a-klein a-blass" }, `seit ${datum(g.erstellt)}${g.zuletzt ? ` · zuletzt geprüft ${relativ(g.zuletzt)}` : ""}`)),
-                knopf("Abmelden", async (ev) => {
-                  if (await bestaetigen("Gerät abmelden?", `„${g.name}“ verliert die Freischaltung; der Platz wird frei.`, "Abmelden")) tu({ aktion: "geraet-abmelden", instanz: g.identifier || g.id })(ev);
-                }),
-              ),
-            ),
-          )
-        : leer("Kein Gerät angemeldet."),
-    ),
-    karte(
-      "Aktionen",
-      h(
-        "div",
-        { class: "a-werkzeuge a-mb" },
-        x.deaktiviert
-          ? knopf("Entsperren", tu({ aktion: "entsperren" }))
-          : knopf("Sperren", async (ev) => (await bestaetigen("Lizenz sperren?", "Die App zeigt „Gesperrt“, behält den Schlüssel und läuft als kostenlose Version weiter.", "Sperren")) && tu({ aktion: "sperren" })(ev), "a-rot"),
-        knopf("Unbefristet", tu({ aktion: "unbefristet" })),
-      ),
-      h("div", { class: "a-werkzeuge a-mb" }, "Verlängern um", tageEingabe, "Tage", knopf("Verlängern", (ev) => tu({ aktion: "verlaengern", tage: Number(tageEingabe.value), bisherAblauf: x.laeuftAb })(ev))),
-      h("div", { class: "a-werkzeuge" }, "Geräte-Limit", limitEingabe, knopf("Setzen", (ev) => tu({ aktion: "geraete", limit: Number(limitEingabe.value) })(ev))),
-    ),
-    sync
-      ? karte(
-          "Sync-Speicher",
-          liste([
-            ["Sync", `${mb(sync.belegt)} von ${mb(sync.grenze)} · ${zahl(sync.dateien)} Dateien`],
-            ["Cloud-Sicherungen", sync.sicherungen ? `${mb(sync.sicherungen.belegt)} von ${mb(sync.sicherungen.grenze)} · ${zahl(sync.sicherungen.dateien)} Dateien` : "—"],
-          ]),
-          h("p", { class: "a-fussnote" }, "Alles ist auf dem Gerät verschlüsselt. Hier lässt sich nichts davon lesen."),
-          sync.dateien
-            ? knopf("Sync-Speicher leeren", async (ev) => (await bestaetigen("Sync-Speicher leeren?", "Alle Sync-Pakete dieser Lizenz verschwinden vom Server. Die Cloud-Sicherungen bleiben, die Daten auf den Geräten auch. Beim nächsten Abgleich lädt ein Gerät seinen Stand neu hoch.", "Leeren")) && tu({ aktion: "sync-leeren" })(ev), "a-rot")
-            : null,
-        )
-      : null,
-    karte(
-      "Mail an Kunden",
-      x.kunde
-        ? h(
-            "div",
-            { class: "a-stapel eng" },
-            betreff,
-            mailText,
-            h(
-              "div",
-              { class: "a-werkzeuge a-mt" },
-              knopf("Senden", async (ev) => {
-                if (!betreff.value.trim() || !mailText.value.trim()) return toast("Betreff und Text ausfüllen.", true);
-                if (await bestaetigen("Mail senden?", `An ${x.kunde}, mit cockpit-Logo und Fußzeile.`, "Senden")) tu({ aktion: "mail", betreff: betreff.value, text: mailText.value })(ev);
-              }),
-            ),
-          )
-        : leer("Zu dieser Lizenz gibt es keine E-Mail-Adresse."),
-    ),
-    karte(
-      "Verlauf",
-      d.verlauf?.length
-        ? h(
-            "ol",
-            { class: "a-zeitleiste" },
-            d.verlauf.map((e: Daten) => h("li", {}, h("b", {}, e.aktion), h("div", { class: "a-klein" }, `${zeit(e.zeit)} · ${e.benutzer || "?"}`))),
-          )
-        : leer("Noch keine Änderungen aus dem Admin."),
-      h("p", { class: "a-klein a-fussnote" }, `Erstellt ${zeit(x.erstellt)} beim Zahlungsanbieter.`),
-    ),
-  );
-}
+export { lizenzen } from "./lizenzen";
 
 // ═════════════ Kunden & Umsatz ═════════════
 
@@ -421,7 +204,7 @@ export const umsatz: Bereich = async (ziel, neu) => {
   };
   const tabs = h("div", { class: "a-tabs", role: "tablist" }, reiter.map((r, i) => h("button", { class: "a-tab", role: "tab", type: "button", onclick: () => zeige(i) }, r)));
   zeige(0);
-  fuege(ziel, 
+  fuege(ziel,
     raster(
       "a-r4",
       kpi("Umsatz gesamt", euro(k.umsatz, k.waehrung), `${k.bestellungen} bezahlte Bestellungen`),
@@ -500,18 +283,24 @@ function zeitplanBadges(def: Daten): HTMLElement[] {
   if (def.start && new Date(def.start).getTime() > jetzt) b.push(badge(`startet ${datum(def.start)}`, "warn"));
   if (def.ende) b.push(new Date(def.ende).getTime() < jetzt ? badge("beendet", "") : badge(`bis ${datum(def.ende)}`, ""));
   if (def.verzoegerungStunden) b.push(badge(`+${def.verzoegerungStunden} Std.`, ""));
-  if (def.erzwingen) b.push(badge("kommt wieder", "violett"));
+
   return b;
 }
 
 export const umfragen: Bereich = async (ziel, neu) => {
   const d = await api("umfragen");
-  fuege(ziel, 
+  fuege(ziel,
     d.standard
       ? h("div", { class: "a-hinweis" }, "Es gelten die Standard-Fragebögen. Sobald du einen bearbeitest oder eine neue Umfrage anlegst, landen beide im KV. Danach kannst du sie hier ändern.")
       : null,
     h("div", { class: "a-werkzeuge" }, knopf("Neue Umfrage", () => editor(null, neu), "a-p")),
-    ...d.umfragen.map((u: Daten) => umfrageKarte(u.definition, u.auswertung, neu)),
+    reiter([
+      {titel:"Fragebögen",inhalt:()=>h("div",{class:"a-detail-stack"},...d.umfragen.map((u:Daten)=>umfrageKarte(u.definition,u.auswertung,neu)))},
+      {titel:"Aussendungen",inhalt:()=>tabelle([
+        {titel:"Umfrage",wert:r=>r.survey_id},{titel:"Gesendet",wert:r=>zeit(r.created_at)},
+        {titel:"Empfangen (Geräte)",wert:r=>r.empfangen},{titel:"Geöffnet",wert:r=>r.geoeffnet},{titel:"Beantwortet",wert:r=>r.beantwortet},
+      ],d.aussendungen||[],{leerText:"Noch keine Aussendung. Öffne einen Fragebogen und wähle Jetzt senden."})},
+    ]),
     d.web && d.web.ok && d.web.gesamt ? webUmfrageKarte(d.web) : null,
   );
 };
@@ -522,7 +311,7 @@ function umfrageKarte(def: Daten, aus: Daten, neu: () => void) {
   const zeige = (a: Daten) =>
     inhalt.replaceChildren(
       ...auswertung(a, async (version: string) => {
-        const r = await api(`umfragen${version ? `?version=${encodeURIComponent(version)}` : ""}`);
+        const r = await api(`umfragen${version ? `?${version}` : ""}`);
         const neuA = r.umfragen.find((x: Daten) => x.definition.id === def.id)?.auswertung;
         if (neuA) zeige(neuA);
       }),
@@ -548,6 +337,7 @@ function umfrageKarte(def: Daten, aus: Daten, neu: () => void) {
       "div",
       { class: "a-werkzeuge a-mb" },
       umschalten,
+      knopf("Jetzt senden", () => dispatchDialog(def,neu), "a-p"),
       knopf("Bearbeiten", () => editor(def, neu)),
       knopf(def.aktiv ? "Pausieren" : "Aktivieren", (ev) => aktion(ev.currentTarget as HTMLButtonElement, () => api("umfragen", { aktion: "aktiv", id: def.id, aktiv: !def.aktiv }), neu)),
       h("a", { class: "a-knopf", href: exportUrl(`umfragen?export=${encodeURIComponent(def.id)}`), download: `umfrage-${def.id}.csv` }, "CSV"),
@@ -570,14 +360,17 @@ function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLEleme
     h("option", { value: "" }, "Alle Versionen"),
     ...((a.versionen ?? []) as Daten[]).map((v) => h("option", { value: v.name, selected: a.version === v.name }, `${v.name} (${v.anzahl})`)),
   ) as HTMLSelectElement;
-  wahl.addEventListener("change", () => nachVersion(wahl.value));
+  const system=h("select",{class:"a-eingabe","aria-label":"Umfragen nach System filtern"},h("option",{value:""},"Alle Systeme"),...((a.systeme||[]) as Daten[]).map(s=>h("option",{value:s.name,selected:a.filter?.system===s.name},s.name))) as HTMLSelectElement;
+  const from=eingabe({type:"date",value:a.filter?.von||"","aria-label":"Antworten ab"}),to=eingabe({type:"date",value:a.filter?.bis||"","aria-label":"Antworten bis"});
+  const filter=()=>nachVersion(new URLSearchParams({version:wahl.value,system:system.value,von:from.value,bis:to.value}).toString());
+  for(const field of [wahl,system,from,to])field.addEventListener("change",filter);
   const nurNodes = (...xs: (HTMLElement | null)[]) => xs.filter((x): x is HTMLElement => x !== null);
   teile.push(
-    h("div", { class: "a-werkzeuge a-mb" }, h("span", { class: "a-klein" }, "Auswerten für"), wahl),
+    h("div", { class: "a-werkzeuge a-mb" }, h("span", { class: "a-klein" }, "Auswerten für"), wahl,system,feld("Ab",from),feld("Bis",to)),
     raster(
       "a-r4",
       kpi("Antworten", zahl(a.antworten), a.version ? `von ${zahl(a.gesamt)} insgesamt` : a.letzte ? `letzte ${relativ(a.letzte)}` : ""),
-      kpi("Antwortquote", a.quote ? `${a.quote.anteil} %` : "—", a.quote ? `von ${a.quote.eingeladen} eingeladenen Testern` : "noch niemand eingeladen"),
+      kpi("Einladungen", a.quote ? String(a.quote.eingeladen) : "—", "separat erfasst; keine sichere Antwortquote"),
       kpi("Vollständigkeit", a.vollstaendig != null ? `${a.vollstaendig} %` : "—", "beantwortete Fragen je Antwort"),
       kpi("Zeitraum", a.erste ? `${datum(a.erste)}` : "—", a.letzte ? `bis ${datum(a.letzte)}` : ""),
     ),
@@ -600,18 +393,15 @@ function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLEleme
         "div",
         { class: "a-frage" },
         h("b", {}, `Preis nach Van Westendorp (${p.n} stimmige Antworten)`),
-        p.n >= 3
+        p.n >= 20
           ? raster("a-r4", kpi("Optimaler Preis", euro(p.optimal)), kpi("Untere Grenze", euro(p.untereGrenze)), kpi("Obere Grenze", euro(p.obereGrenze)), kpi("Median „günstig“", euro(p.median?.guenstig)))
-          : leer("Ab drei stimmigen Antworten gibt es Preispunkte."),
+          : h("p", {class:"a-klein a-blass"}, "Für eine Preisempfehlung ist diese Stichprobe zu klein. Die einzelnen Preisangaben stehen unter Fragen."),
       ),
     );
   }
-  let abschnitt = "";
+  const overview = h("div", {class:"a-detail-stack"}, ...teile);
+  const questions: HTMLElement[] = [];
   for (const f of a.fragen) {
-    if (f.abschnitt && f.abschnitt !== abschnitt) {
-      abschnitt = f.abschnitt;
-      teile.push(h("h3", { class: "a-zwischentitel" }, abschnitt));
-    }
     const kopf = h("div", { class: "a-frage-kopf" }, badge(f.typ, ""), h("b", { class: "a-luecke" }, f.text), h("span", { class: "a-klein a-blass" }, `n = ${f.n}`));
     let koerper: Node;
     switch (f.typ) {
@@ -620,11 +410,11 @@ function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLEleme
         koerper = balken(f.verteilung, 30);
         break;
       case "skala":
-        koerper = h("div", {}, h("div", { class: "a-klein a-mb" }, `Durchschnitt ${f.schnitt ?? "—"} von 5`), balken(f.verteilung));
+        koerper = h("div", {}, h("div", { class: "a-klein a-mb" }, `Durchschnitt ${f.schnitt ?? "—"} von 5`), verteilung(f.verteilung));
         break;
       case "nps":
         koerper = f.nps
-          ? h("div", {}, raster("a-r4", kpi("NPS", String(f.nps.wert)), kpi("Promotoren", zahl(f.nps.promotoren)), kpi("Passive", zahl(f.nps.passive)), kpi("Kritiker", zahl(f.nps.kritiker))))
+          ? h("div", {}, h("p",{},`NPS ${f.nps.wert} · ${f.nps.promotoren} Promotoren · ${f.nps.passive} Passive · ${f.nps.kritiker} Kritiker`),verteilung(f.verteilung))
           : leer("—");
         break;
       case "euro":
@@ -635,11 +425,8 @@ function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLEleme
           "div",
           {},
           h("div", { class: "a-klein a-mb" }, "Durchschnitt je Funktion von 1 bis 5. „Nicht genutzt“ zählt nicht mit."),
-          balken(
-            f.zeilen.filter((z: Daten) => z.schnitt !== null).map((z: Daten) => ({ name: `${z.name} (n = ${z.n})`, anzahl: z.schnitt })),
-            30,
-            5,
-          ),
+          h("div", {class:"a-matrix"}, ...f.zeilen.map((z:Daten)=>h("div", {class:"a-matrix-row"},
+            h("span",{},z.name),verteilung(z.verteilung || []),h("span",{},z.schnitt===null?"nicht genutzt":`${z.schnitt} / 5 · n=${z.n}`)))),
         );
         break;
       case "text": {
@@ -675,9 +462,21 @@ function auswertung(a: Daten, nachVersion: (version: string) => void): HTMLEleme
       default:
         koerper = leer("—");
     }
-    teile.push(h("div", { class: "a-frage" }, kopf, koerper));
+    questions.push(h("div", { class: "a-frage" }, kopf, koerper));
   }
-  return teile;
+  const questionView=()=>{
+    const chooser=h("select",{class:"a-eingabe","aria-label":"Frage auswählen"},...a.fragen.map((f:Daten,i:number)=>h("option",{value:i},`${f.abschnitt?f.abschnitt+' · ':''}${i+1}. ${f.text}`))) as HTMLSelectElement;
+    const body=h("div",{class:"a-mt"});
+    const draw=()=>body.replaceChildren(questions[Number(chooser.value)] || leer("Keine Frage ausgewählt."));
+    chooser.addEventListener("change",draw);draw();
+    return h("div",{},chooser,body);
+  };
+  const responses=()=>tabelle([
+    {titel:"Person",wert:r=>r.name||r.email||"Ohne Namen",suche:r=>`${r.name} ${r.email}`},
+    {titel:"Version",wert:r=>r.version||"—"},{titel:"System",wert:r=>r.system||"—"},{titel:"Zeit",wert:r=>zeit(r.zeit)},
+  ],a.einzelantworten||[],{beiKlick:r=>schublade("Antwort",liste(a.fragen.map((f:Daten)=>[f.text,typeof r.antworten?.[f.id]==='object'?JSON.stringify(r.antworten[f.id]):String(r.antworten?.[f.id]??'—')]))),leerText:"Keine Antworten für diesen Filter."});
+  return [Number(a.antworten)<20?h("p",{class:"a-hinweis a-mb"},`Kleine Stichprobe (n=${a.antworten}). Ergebnisse sind Hinweise einzelner Tester, keine belastbare Marktprognose.`):h("span"),
+    reiter([{titel:"Überblick",inhalt:()=>overview},{titel:"Fragen",inhalt:questionView},{titel:"Einzelantworten",inhalt:responses}])];
 }
 
 function webUmfrageKarte(w: Daten) {
@@ -719,7 +518,7 @@ function editor(def: Daten | null, neu: () => void) {
   const verzoegerung = eingabe({ type: "number", min: 0, max: 720, value: u.verzoegerungStunden ?? 0 });
   const spaeter = eingabe({ type: "number", min: 1, max: 60, value: u.spaeterTage ?? 3 });
   const ruhe = eingabe({ type: "number", min: 0, max: 168, value: u.ruheStunden ?? 20 });
-  const erzwingen = h("input", { type: "checkbox", checked: Boolean(u.erzwingen) }) as HTMLInputElement;
+
   const fragenListe = h("div", { class: "a-stapel" });
 
   const fragen: Daten[] = u.fragen.map((f: Daten) => ({ ...f }));
@@ -807,6 +606,7 @@ function editor(def: Daten | null, neu: () => void) {
     feld("ID", id, "Kleinbuchstaben, Ziffern und Bindestriche. Bleibt für immer gleich, weil die Antworten daran hängen."),
     feld("Titel", titel),
     feld("Beschreibung", beschreibung),
+    h("details", {}, h("summary",{},"Erweiterter Zeitplan"),
     h("div", { class: "a-feld" }, h("span", {}, "Auslöser"), h("div", { class: "a-werkzeuge" }, art, wert, zaehler), h("small", {}, "Die App zählt lokal: Tage seit dem ersten Start oder angelegte Bewerbungen bzw. Anschreiben. Die Zahlen verlassen das Gerät nicht.")),
     h(
       "fieldset",
@@ -820,13 +620,9 @@ function editor(def: Daten | null, neu: () => void) {
         feld("Pause nach „Später“ (Tage)", spaeter),
         feld("Abstand zur nächsten (Std.)", ruhe),
       ),
-      h(
-        "label",
-        { class: "a-schalter" },
-        erzwingen,
-        h("span", {}, h("b", {}, "Erzwingen"), h("span", { class: "a-klein a-leise" }, " · Lässt sich wegklicken, kommt aber beim nächsten Start, Sync oder Update-Check wieder, bis die Person antwortet.")),
-      ),
+
       h("p", { class: "a-fussnote" }, "Leer lassen heißt: ab sofort und ohne Ende. Ohne Angabe gelten 3 Tage Pause nach „Später“ und 20 Stunden Abstand."),
+    ),
     ),
     h("label", { class: "a-schalter" }, aktiv, "Aktiv: Alpha-Tester bekommen die Umfrage angezeigt"),
     h("h3", { class: "a-zwischentitel" }, "Fragen"),
@@ -838,6 +634,7 @@ function editor(def: Daten | null, neu: () => void) {
         fragen.push({ id: `frage${fragen.length + 1}`, typ: "einfach", text: "", pflicht: false, optionen: [] });
         zeichneFragen();
       }),
+      knopf("Vorschau",()=>umfrageVorschau({titel:titel.value,beschreibung:beschreibung.value,fragen})),
       h("span", { class: "a-luecke" }),
       knopf(
         "Speichern",
@@ -858,7 +655,7 @@ function editor(def: Daten | null, neu: () => void) {
                   verzoegerungStunden: Number(verzoegerung.value) || 0,
                   spaeterTage: Number(spaeter.value) || null,
                   ruheStunden: ruhe.value === "" ? null : Number(ruhe.value),
-                  erzwingen: erzwingen.checked,
+                  erzwingen: false,
                   fragen,
                 },
               }),
@@ -878,7 +675,7 @@ function editor(def: Daten | null, neu: () => void) {
 export const fehler: Bereich = async (ziel, neu) => {
   const d = await api("fehler");
   const b: Daten[] = d.berichte;
-  fuege(ziel, 
+  fuege(ziel,
     raster(
       "a-r4",
       kpi("Neu", zahl(b.filter((x) => x.status === "neu").length)),
@@ -1201,13 +998,16 @@ function pegel(teil: number, ganz: number, warnAb = 0.8) {
 
 function speicherDetail(l: Daten, d: Daten, neu: () => void) {
   const tu = (aktionName: string, extra: Daten = {}) => (ev: Event) =>
-    aktion(ev.currentTarget as HTMLButtonElement, () => api("sync", { lizenz: l.lizenz, aktion: aktionName, ...extra }), () => {
+    aktion((ev.currentTarget || (ev.target as Element)?.closest("button")) as HTMLButtonElement, () => api("sync", { lizenz: l.lizenz, aktion: aktionName, ...extra }), () => {
       schubladeZu();
       neu();
     });
   schublade(
-    `Lizenz ${l.lizenz}`,
+    l.person?.name || `Lizenz ${l.lizenz}`,
     liste([
+      ["Person",l.person?`${l.person.name} · ${l.person.email}`:"Noch nicht zugeordnet"],
+      ["Lizenz-ID",h("code",{},l.lizenz)],
+      ["Zustand",l.person?.deleted_at?"Lizenz gelöscht; Speicher separat erhalten":"Lizenz zugeordnet"],
       ["Sync", h("div", {}, `${mb(l.sync.belegt)} von ${mb(d.grenze)} · ${zahl(l.sync.dateien)} Dateien`, pegel(l.sync.belegt, d.grenze))],
       ["Cloud-Sicherungen", h("div", {}, `${mb(l.sicherungen.belegt)} von ${mb(d.grenzeSicherungen)} · ${zahl(l.sicherungen.staende)} Stände`, pegel(l.sicherungen.belegt, d.grenzeSicherungen))],
       ["Zuletzt hochgeladen", l.zuletzt ? `${zeit(l.zuletzt)} (${relativ(l.zuletzt)})` : "—"],
@@ -1277,7 +1077,7 @@ export const speicher: Bereich = async (ziel, neu) => {
       "Je Lizenz",
       tabelle(
         [
-          { titel: "Lizenz", wert: (l) => h("span", { class: "a-mono" }, l.lizenz), suche: (l) => l.lizenz },
+          { titel: "Person / Lizenz", wert: (l) => h("div",{},h("b",{},l.person?.name||"Noch nicht zugeordnet"),h("div",{class:"a-klein a-blass"},l.person?.email||l.lizenz),l.person?.deleted_at?badge("Lizenz gelöscht", "warn"):null), suche: (l) => `${l.person?.name||""} ${l.person?.email||""} ${l.lizenz}` },
           { titel: "Sync", wert: (l) => h("div", { class: "a-zelle-pegel" }, h("span", {}, mb(l.sync.belegt)), pegel(l.sync.belegt, d.grenze)) },
           { titel: "Sicherungen", wert: (l) => h("div", { class: "a-zelle-pegel" }, h("span", {}, `${mb(l.sicherungen.belegt)} · ${l.sicherungen.staende}`), pegel(l.sicherungen.belegt, d.grenzeSicherungen)) },
           { titel: "Geräte", wert: (l) => zahl(l.geraete.length) },
@@ -1451,7 +1251,7 @@ export const builds: Bereich = async (ziel) => {
   const gesamt = r.ok ? r.liste.reduce((s: number, x: Daten) => s + x.downloads, 0) : 0;
   const proDatei: Record<string, number> = {};
   if (r.ok) for (const rel of r.liste) for (const f of rel.dateien) proDatei[f.name] = (proDatei[f.name] || 0) + f.downloads;
-  fuege(ziel, 
+  fuege(ziel,
     raster(
       "a-r4",
       kpi("Downloads gesamt", r.ok ? zahl(gesamt) : "—"),
@@ -1881,10 +1681,10 @@ function syncKarte(sync: Daten | null, d: Daten, neu: () => void) {
 }
 
 export const einstellungen: Bereich = async (ziel, neu) => {
-  const [d, sync] = await Promise.all([api("einstellungen"), api("sync").catch(() => null)]);
+  const [d, sync, betrieb] = await Promise.all([api("einstellungen"), api("sync").catch(() => null),api("betrieb").catch(()=>null)]);
   const s = d.schutz;
   const t = d.tresor;
-  fuege(ziel, 
+  fuege(ziel,
     karte(
       "Schutz & Grundlagen",
       h(
@@ -1906,6 +1706,9 @@ export const einstellungen: Bereich = async (ziel, neu) => {
           )
         : null,
     ),
+    karte("Betriebsindex (D1)",badge(betrieb?.eingerichtet?"verbunden":"nicht verbunden",betrieb?.eingerichtet?"ok":"warn"),
+      h("p",{class:"a-klein a-mt"},betrieb?.eingerichtet?`${betrieb.lizenzen} Lizenzen · ${betrieb.geraete} Geräte · ${betrieb.speicherzuordnungen} Speicherräume`:"Cloudflare D1-Datenbank als BETRIEB binden und migrations/0001_betrieb.sql anwenden. Der Index enthält Betriebsmetadaten; keine Schlüssel oder Bewerbungsinhalte."),
+      betrieb?.eingerichtet?knopf("Bestand abgleichen",ev=>aktion(ev.currentTarget as HTMLButtonElement,()=>api("betrieb",{aktion:"migrieren"}),neu)):null),
     syncKarte(sync, d, neu),
     karte(
       "API-Schlüssel",
@@ -1982,3 +1785,33 @@ export const einstellungen: Bereich = async (ziel, neu) => {
 };
 
 export { inhalte } from "./inhalte";
+
+function verteilung(values:Daten[]) {
+  const total=values.reduce((n,v)=>n+Number(v.anzahl||0),0);
+  const colors=['#be123c','#d97706','#a3a3a3','#6366f1','#047857'];
+  if(!total)return leer("Noch keine Angaben.");
+  return h("div",{},h("div",{class:"a-distribution",role:"img","aria-label":values.map(v=>`${v.name}: ${v.anzahl}`).join(', ')},
+    ...values.filter(v=>v.anzahl).map((v,i)=>h("span",{title:`${v.name}: ${v.anzahl}`,style:`width:${100*v.anzahl/total}%;background:${colors[Math.min(colors.length-1,Math.floor(i*colors.length/Math.max(1,values.length)))]}`},v.anzahl))),
+    h("div",{class:"a-klein a-blass a-mt"},values.map(v=>`${v.name}: ${v.anzahl}`).join(' · ')));
+}
+function dispatchDialog(def:Daten,neu:()=>void) {
+  const ids=eingabe({placeholder:"Optional: keygen:… durch Komma getrennt","aria-label":"Lizenz-Zielgruppe"});
+  const version=eingabe({placeholder:"Alle Versionen","aria-label":"App-Version"});
+  const system=eingabe({placeholder:"Alle Systeme","aria-label":"Betriebssystem"});
+  const form=h("form",{class:"a-detail-stack"},h("p",{},"Erstellt eine unveränderliche Aussendung. Geöffnete aktuelle Apps sehen innerhalb etwa 15 Sekunden einen dezenten Hinweis. Keine wiederholten Zwangsdialoge."),feld("Bestimmte Lizenzen (leer = aktive Alpha)",ids),feld("Version",version),feld("System",system)) as HTMLFormElement;
+  const send=knopf("Aussendung starten",()=>{},"a-p");send.type="submit";form.append(send);
+  const close=dialogFenster("Umfrage jetzt senden",form);
+  form.addEventListener("submit",e=>{e.preventDefault();void aktion(send,()=>api("umfragen",{aktion:"senden",id:def.id,zielgruppe:{lizenzen:ids.value.split(',').map(v=>v.trim()).filter(Boolean),version:version.value,system:system.value}}),()=>{close();neu();});});
+}
+
+function umfrageVorschau(def:Daten) {
+  const content=h("div",{class:"a-detail-stack"},h("p",{},def.beschreibung||""),...def.fragen.map((f:Daten)=>{
+    let control:Node;
+    if(f.typ==="text")control=h("textarea",{class:"a-eingabe",rows:3,"aria-label":f.text});
+    else if(["einfach","mehrfach"].includes(f.typ))control=h("div",{class:"a-detail-stack"},...(f.optionen||[]).map((option:string)=>h("label",{},h("input",{type:f.typ==="einfach"?"radio":"checkbox",name:f.id})," ",option)));
+    else if(f.typ==="matrix")control=h("div",{},...(f.zeilen||[]).map((row:string)=>feld(row,h("input",{type:"range",min:1,max:5,"aria-label":row}))));
+    else control=h("input",{class:"a-eingabe",type:"number",min:f.typ==="nps"?0:1,max:f.typ==="nps"?10:f.typ==="skala"?5:f.max,"aria-label":f.text});
+    return karte(f.text+(f.pflicht?" *":""),control);
+  }));
+  dialogFenster(def.titel||"Umfrage-Vorschau",content,{breit:true,untertitel:"Nur Vorschau. Es werden keine Antworten gespeichert oder versendet."});
+}

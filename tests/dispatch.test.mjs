@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {database} from './d1-fixture.mjs';
+import {aussenden,dispatchLaden,passt,quittieren,zielgruppe} from '../lib/survey-dispatch.js';
+const {db,sqlite}=database(),env={BETRIEB:db};
+const definition={id:'test',titel:'Frage',fragen:[{id:'a',typ:'text',text:'Was?'}],erzwingen:true};
+const dispatch=await aussenden(env,definition,{version:'0.1.1'},'fixture');
+definition.fragen[0].text='Changed';
+const saved=await dispatchLaden(env,'send-'+dispatch.id,'42','0.1.1','windows');
+assert.equal(saved.definition.fragen[0].text,'Was?');assert.equal(saved.definition.erzwingen,false);
+assert.equal(await dispatchLaden(env,'send-'+dispatch.id,'42','0.1.0','windows'),null);
+assert.ok(passt({lizenzen:['42'],version:'',system:'mac'},'42','1','macOS ARM64'));
+assert.ok(!passt({lizenzen:['42'],version:'',system:''},'43','1','windows'));
+assert.throws(()=>zielgruppe({lizenzen:['../../bad']}));
+for(const e of ['received','received','opened','answered'])await quittieren(env,dispatch.id,'42','device',e);
+assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM survey_receipt').get().n,1);
+const row=sqlite.prepare('SELECT * FROM survey_receipt').get();assert.ok(row.received_at&&row.opened_at&&row.answered_at);
+console.log('Aussendungen: unveränderliche Definition, Zielgruppen, idempotente Empfangs-/Öffnungs-/Antwortquittungen: ok');

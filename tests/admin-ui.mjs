@@ -109,6 +109,7 @@ Der Kalender zeigt alles mit Datum an einer Stelle.
 `;
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
+  if (u.includes("api.keygen.sh")) return keygenFixture(u,init);
   const j = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
   if (u.includes("license-keys?")) return j({ data: [0, 1, 2, 3, 4, 5].map(lizenz), meta: { page: { lastPage: 1 } } });
   if (u.includes("license-keys/")) return j({ data: lizenz(0) });
@@ -152,6 +153,40 @@ globalThis.fetch = async (url, init = {}) => {
   return j({}, 404);
 };
 
+// Zusätzlicher Sandbox-Bestand nur für die lokale manuelle Vorschau.
+const keygenLicenses=new Map(),keygenMachines=new Map();
+async function keygenFixture(url,init) {
+  const u=new URL(url),path=u.pathname.split('/accounts/')[1].split('/').slice(1).join('/');
+  const json=(v,s=200)=>new Response(s===204?null:JSON.stringify(v),{status:s});
+  const body=init.body?JSON.parse(init.body):{};
+  if(path==='licenses' && init.method==='POST'){
+    const id=crypto.randomUUID(),attr=body.data.attributes;
+    const l={id,type:'licenses',attributes:{...attr,suspended:false,maxMachines:3,expiry:null,created:new Date().toISOString()},relationships:{product:{data:{id:'8788b1db-b3c3-4375-b2c2-5677f73259b5'}},policy:{data:{id:'af9cc4aa-8fa8-4960-846c-53dcc0dec239'}}}};
+    keygenLicenses.set(id,l);return json({data:l},201);
+  }
+  if(path==='licenses')return json({data:[...keygenLicenses.values()]});
+  if(path==='machines')return json({data:[...keygenMachines.values()].filter(m=>!u.searchParams.get('license')||m.relationships.license.data.id===u.searchParams.get('license'))});
+  const [type,id,actions,action]=path.split('/');
+  const map=type==='licenses'?keygenLicenses:keygenMachines;
+  const item=map.get(id)||[...map.values()].find(v=>v.attributes.key===id);
+  if(!item)return json({errors:[{title:'Not Found'}]},404);
+  if(init.method==='DELETE'){map.delete(item.id);return json(null,204);}
+  if(init.method==='PATCH')Object.assign(item.attributes,body.data.attributes);
+  if(actions==='actions')item.attributes.suspended=action==='suspend';
+  return json({data:item});
+}
+if(process.argv.includes('--serve')) {
+  const {database}=await import('./d1-fixture.mjs');env.BETRIEB=database().db;env.KEYGEN_PRODUCT_TOKEN='fixture-only';
+  for(let i=0;i<6;i++) {
+    const id=`11111111-1111-4111-8111-${String(i+1).padStart(12,'0')}`;
+    keygenLicenses.set(id,{id,type:'licenses',attributes:{key:`example-${i}-never-a-real-license`,name:namen[i],suspended:i===4,expiry:i===3?tag(3):null,maxMachines:3,created:tag(i*3),metadata:{name:namen[i],email:`tester${i}@example.org`}},relationships:{product:{data:{id:'8788b1db-b3c3-4375-b2c2-5677f73259b5'}},policy:{data:{id:'af9cc4aa-8fa8-4960-846c-53dcc0dec239'}}}});
+    for(let d=0;d<i%3;d++){
+      const mid=`22222222-2222-4222-8222-${String(i*10+d).padStart(12,'0')}`;
+      keygenMachines.set(mid,{id:mid,type:'machines',attributes:{name:d?'MacBook':'Windows PC',created:tag(2)},relationships:{license:{data:{id}}}});
+    }
+  }
+}
+
 const tresor = await imp("../lib/admin/tresor.js");
 await tresor.setzeEinstellung(env, "DISCORD_URL", "https://discord.gg/cockpit", "vorschau");
 
@@ -161,6 +196,11 @@ const handler = async (pfad, request) => {
   const fn = request.method === "GET" ? m.onRequestGet : m.onRequestPost;
   return fn({ request, env, data: { env: await tresor.mitSchluesseln(env), benutzer: "thomas@example.org" } });
 };
+
+if (process.argv.includes('--serve')) {
+  const { servePreview }=await import('./admin-preview.mjs');
+  await servePreview(handler);
+}
 
 const server = spawn("npx", ["astro", "preview", "--port", "4329"], { stdio: "ignore" });
 for (let i = 0; i < 60; i++) {
@@ -202,9 +242,11 @@ try {
       // Lizenzen: Merkmal-Filter, Auswahl mit Sammelaktionen, Detail mit Notiz und Verlauf.
       await page.goto("http://localhost:4329/admin/#/lizenzen", { waitUntil: "networkidle" });
       await page.waitForTimeout(500);
-      await page.selectOption('select[aria-label="Merkmal"]', "mit Notiz");
-      if ((await page.locator("tbody tr").count()) !== 1) funde.push("Lizenzen: Merkmal-Filter „mit Notiz“ zeigt nicht genau eine Lizenz");
-      await page.selectOption('select[aria-label="Merkmal"]', "");
+      await page.locator('input[aria-label="Lizenzen suchen"]').fill("Jonas");
+      await page.waitForTimeout(400);
+      if ((await page.locator("tbody tr").count()) !== 1) funde.push("Lizenzen: Suche nach Jonas zeigt nicht genau eine Lizenz");
+      await page.locator('input[aria-label="Lizenzen suchen"]').fill("");
+      await page.waitForTimeout(400);
       await page.locator('thead input[type="checkbox"]').check();
       if (!/6 ausgewählt/.test(await page.locator(".a-auswahl").innerText())) funde.push("Lizenzen: Auswahl aller sichtbaren fehlt");
       await page.screenshot({ path: `${OUT}/desktop-lizenzen-auswahl.png` });
@@ -212,7 +254,7 @@ try {
       await page.locator("tbody tr").first().locator("td").nth(1).click();
       await page.waitForTimeout(600);
       const detail = await page.locator("#a-schublade").innerText();
-      if (!/Letzte App-Prüfung/.test(detail) || !/Verlauf/.test(detail) || !/Mail an Kunden/.test(detail)) funde.push(`Lizenz-Detail unvollständig: ${detail.slice(0, 160)}`);
+      if (!/Letzte Anbieterbestätigung/.test(detail) || !/Verlauf/.test(detail) || !/Speicher/.test(detail)) funde.push(`Lizenz-Detail unvollständig: ${detail.slice(0, 160)}`);
       await page.screenshot({ path: `${OUT}/desktop-lizenz-detail.png` });
       await page.keyboard.press("Escape");
 
@@ -239,10 +281,10 @@ try {
       if (await page.locator("dialog.a-rueckfrage").count()) funde.push("Rückfrage: Escape schließt nicht");
       await page.keyboard.press("Escape");
 
-      // Lizenz: voller Schlüssel mit Kopier-Knopf.
+      // Lizenzschlüssel sind in der Liste maskiert; Kopieren steht im Detail.
       await page.goto("http://localhost:4329/admin/#/lizenzen", { waitUntil: "networkidle" });
       await page.waitForTimeout(600);
-      if (!(await page.locator(".a-schluessel .a-kopier").count())) funde.push("Lizenzen: Kopier-Knopf fehlt");
+      if ((await page.locator(".a-schluessel").count())) funde.push("Lizenzen: Schlüssel nicht standardmäßig maskiert");
 
       // Mail: Vorschau im Rahmen, Detail aus dem Verlauf.
       await page.goto("http://localhost:4329/admin/#/mail", { waitUntil: "networkidle" });
@@ -251,63 +293,12 @@ try {
       await page.waitForTimeout(900);
       await page.screenshot({ path: `${OUT}/desktop-mail-entwurf.png`, fullPage: true });
 
-      // Dashboard: anklickbar, Glocke, Anpassen (hinzufügen, verschieben, Größe, entfernen), gespeichert.
-      await page.goto("http://localhost:4329/admin/#/uebersicht", { waitUntil: "networkidle" });
-      await page.waitForTimeout(600);
-      const reihenfolge = () => page.$$eval(".a-brett > .a-platz[data-id]", (els) => els.map((e) => e.getAttribute("data-id")));
-      const start = await reihenfolge();
-      if (start.length < 12) funde.push(`Dashboard: nur ${start.length} Kacheln`);
-      await page.locator('.a-platz[data-id="fehler"] a.a-wkpi').click();
-      await page.waitForTimeout(300);
-      if ((await page.evaluate(() => location.hash)) !== "#/fehler") funde.push("Dashboard: Kennzahl-Kachel führt nicht in den Bereich");
-      await page.goto("http://localhost:4329/admin/#/uebersicht", { waitUntil: "networkidle" });
-      await page.waitForTimeout(500);
-      await page.click("#a-glocke");
-      const glocke = await page.locator(".a-popup").innerText();
-      if (!/offene Fehlerberichte/.test(glocke) || !/neue Anmeldungen/.test(glocke) || !/Neuer Fehlerbericht/.test(glocke)) funde.push(`Glocke: ${glocke.slice(0, 120)}`);
-      await page.screenshot({ path: `${OUT}/desktop-glocke.png` });
-      await page.keyboard.press("Escape");
-      if (await page.locator(".a-popup").count()) funde.push("Glocke: Escape schließt nicht");
-
-      await page.getByRole("button", { name: "Anpassen" }).click();
-      await page.getByRole("button", { name: "Kachel hinzufügen" }).first().click();
-      await page.locator("dialog.a-dialog").waitFor();
-      await page.screenshot({ path: `${OUT}/desktop-katalog.png` });
-      await page.locator(".a-katalog-eintrag", { hasText: "Website-Besuche" }).click();
-      await page.waitForTimeout(900);
-      if (!(await page.locator('.a-platz[data-id="besucher"] svg[role=img]').count())) funde.push("Dashboard: Besucher-Kachel ohne Diagramm");
-      // Tastatur: erste Kachel eins nach hinten.
-      const vorher = await reihenfolge();
-      await page.locator(`.a-platz[data-id="${vorher[0]}"] .a-griff`).first().focus();
-      await page.keyboard.press("ArrowRight");
-      const nachTaste = await reihenfolge();
-      if (nachTaste[1] !== vorher[0]) funde.push(`Dashboard: Pfeiltaste verschiebt nicht (${nachTaste.slice(0, 3)})`);
-      // Ziehen (beide sichtbar): dritte Kachel vor die erste.
-      const letzte = nachTaste[2];
-      await page.evaluate(() => scrollTo(0, 0));
-      await page.locator(`.a-platz[data-id="${letzte}"]`).dragTo(page.locator(`.a-platz[data-id="${nachTaste[0]}"]`), { targetPosition: { x: 5, y: 20 } });
-      const nachZiehen = await reihenfolge();
-      if (nachZiehen[0] !== letzte) funde.push(`Dashboard: Ziehen wirkt nicht (${nachZiehen.slice(0, 3)})`);
-      // Größe über das Kachel-Menü.
-      await page.getByRole("button", { name: "Anmeldungen im Verlauf: Optionen" }).click();
-      await page.getByRole("menuitemradio", { name: "Ganze Breite" }).click();
-      if (!(await page.locator('.a-platz[data-id="verlauf"].g-voll').count())) funde.push("Dashboard: Größe ändert sich nicht");
-      await page.getByRole("button", { name: "Verbindungen entfernen" }).count().then(async (n) => {
-        if (n) await page.getByRole("button", { name: "Verbindungen entfernen" }).click();
-      });
-      await page.getByRole("button", { name: "NPS entfernen" }).click();
-      if (await page.locator('.a-platz[data-id="nps"]').count()) funde.push("Dashboard: Entfernen wirkt nicht");
-      await page.screenshot({ path: `${OUT}/desktop-anpassen.png`, fullPage: true });
-      await page.getByRole("button", { name: "Fertig" }).click();
-      await page.waitForTimeout(900);
-      const gespeichert = JSON.parse(kv.m.get("admin:layout:thomas@example.org") || "null");
-      if (!gespeichert || gespeichert.layout[0].id !== letzte || gespeichert.layout.some((x) => x.id === "nps")) funde.push(`Dashboard: Layout nicht gespeichert (${JSON.stringify(gespeichert)?.slice(0, 160)})`);
-      await page.evaluate(() => localStorage.clear());
-      await page.reload({ waitUntil: "networkidle" });
-      await page.waitForTimeout(800);
-      const nachLaden = await reihenfolge();
-      if (nachLaden[0] !== letzte || nachLaden.includes("nps")) funde.push(`Dashboard: Layout nach Neuladen weg (${nachLaden.slice(0, 3)})`);
-      await page.screenshot({ path: `${OUT}/desktop-dashboard-angepasst.png`, fullPage: true });
+      // Arbeitszentrale: vier Kennzahlen und konkrete Aufgaben, keine Kachelwand.
+      await page.goto("http://localhost:4329/admin/#/uebersicht", {waitUntil:"networkidle"});
+      if(await page.locator(".a-r4 > *").count()!==4)funde.push("Arbeitszentrale: genau vier Kennzahlen erwartet");
+      if(!/Als Nächstes/.test(await page.locator("#a-inhalt").innerText()))funde.push("Arbeitszentrale: Aufgaben fehlen");
+      await page.locator("#a-inhalt").getByRole("link",{name:/Fehlerberichte bearbeiten/}).click();
+      if(!((await page.url()).includes("#/fehler")))funde.push("Arbeitszentrale: Aufgabe führt nicht zum Bereich");
 
       // Doku: Säuberung und Navigation zwischen Dateien.
       await page.goto("http://localhost:4329/admin/#/doku", { waitUntil: "networkidle" });

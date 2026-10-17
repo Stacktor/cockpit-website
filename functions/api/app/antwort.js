@@ -7,6 +7,7 @@
  * aus der App.
  */
 import { imKontingent, json, pruefeAlphaLizenz } from "../../../lib/app-lizenz.js";
+import {dispatchId,dispatchLaden,quittieren} from "../../../lib/survey-dispatch.js";
 import { ladeUmfragen, pruefeAntworten } from "../../../lib/umfragen.js";
 
 export async function onRequestPost({ request, env }) {
@@ -20,7 +21,8 @@ export async function onRequestPost({ request, env }) {
   if (!env.ALPHA)
     return json(503, { ok: false, fehler: "Umfragen sind gerade nicht erreichbar." });
 
-  const umfrage = (await ladeUmfragen(env, { nurAktive: false })).find((u) => u.id === d.umfrage);
+  const dispatch=dispatchId(d.umfrage)?await dispatchLaden(env,d.umfrage,pruefung.lizenz.id,d.version,d.system):null;
+  const umfrage = dispatch?.definition || (await ladeUmfragen(env, { nurAktive: false })).find((u) => u.id === d.umfrage);
   if (!umfrage) return json(404, { ok: false, fehler: "Diese Umfrage gibt es nicht (mehr)." });
 
   const { antworten, fehler } = pruefeAntworten(umfrage, d.antworten);
@@ -32,7 +34,8 @@ export async function onRequestPost({ request, env }) {
   await env.ALPHA.put(
     key,
     JSON.stringify({
-      umfrage: umfrage.id,
+      umfrage: dispatch?.survey_id || umfrage.id,
+      aussendung: dispatch?.id || null,
       lizenzId: pruefung.lizenz.id,
       email: pruefung.lizenz.email,
       name: pruefung.lizenz.name,
@@ -42,5 +45,6 @@ export async function onRequestPost({ request, env }) {
       zeit: new Date().toISOString(),
     }),
   );
+  if(dispatch)await quittieren(env,dispatch.id,pruefung.lizenz.id,d.instanz,'answered');
   return json(200, { ok: true, aktualisiert: Boolean(vorher) });
 }
