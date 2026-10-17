@@ -16,7 +16,8 @@ import { json } from "../../../lib/admin/zugang.js";
 import { protokolliere } from "../../../lib/admin/protokoll.js";
 import { alleObjekte, allesLoeschen, belegt, bereichVon, GESAMT_MAX, praefixFuer, SICHERUNG_MAX } from "../../../lib/sync.js";
 
-const ID = /^[0-9A-Za-z_-]{1,40}$/;
+import { lizenzIdentitaet, speicherPersonen } from "../../../lib/admin/betrieb.js";
+const ID = { test: lizenzIdentitaet };
 const GERAET = /^[0-9A-Za-z_.-]{1,80}$/;
 /** R2-Gratiskontingent für gespeicherte Daten (Cloudflare, Stand 2026). */
 export const R2_FREI = 10 * 1024 * 1024 * 1024;
@@ -90,6 +91,7 @@ export async function onRequestGet({ request, data }) {
     return json(200, { eingerichtet: true, grenze: GESAMT_MAX, ...(await belegt(env.SYNC, praefixFuer(id))) });
   }
   const a = auswerten(await alleObjekte(env.SYNC, "l/"));
+  a.lizenzen = await speicherPersonen(env,a.lizenzen);
   return json(200, { eingerichtet: true, grenze: GESAMT_MAX, grenzeSicherungen: SICHERUNG_MAX, frei: R2_FREI, ...a });
 }
 

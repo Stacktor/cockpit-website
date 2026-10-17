@@ -10,6 +10,7 @@
 import { imKontingent, json, pruefeLizenz } from "../../../lib/app-lizenz.js";
 import { alarmeImHintergrund } from "../../../lib/admin/alarme.js";
 
+import { merkeKontakt } from "../../../lib/admin/betrieb.js";
 const TTL = 400 * 86400;
 const kurz = (v, n) => String(v ?? "").trim().slice(0, n);
 
@@ -27,8 +28,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
     system: kurz(d.system, 40),
     status: kurz(d.status, 30),
     instanz: kurz(d.instanz, 60),
+    validiert_am: p.validiert_am,
   };
   await env.ALPHA.put(`lping:${p.lizenz.id}`, JSON.stringify(eintrag), { expirationTtl: TTL });
+  await merkeKontakt(env,p.lizenz.id,eintrag,p.lizenz);
   waitUntil?.(alarmeImHintergrund(env));
   return json(200, { ok: true });
 }

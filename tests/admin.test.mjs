@@ -781,8 +781,8 @@ const anfrage = (pfad, { methode = "GET", body, kopf = {} } = {}) =>
   assert.equal(e.quote.anteil, 50);
   assert.equal(e.vollstaendig, 89, "2 volle Antworten und eine ohne Freitext");
   assert.equal(e.verlauf.length, 3);
-  assert.ok(e.kernaussagen.some((t) => t.includes("NPS")));
-  assert.ok(e.kernaussagen.some((t) => t.includes("schlechtesten")));
+  assert.deepEqual(e.kernaussagen, [], "Kleine Stichproben erhalten keine verallgemeinernden Kernaussagen");
+  assert.ok(werteAus(u, Array.from({length:21},(_,i)=>({...alle[i%3],zeit:`2026-10-17T00:${String(i).padStart(2,"0")}:00Z`}))).kernaussagen.some(t=>t.includes("NPS")), "Ausreichende Stichprobe erhält beschreibende Kernaussagen");
   assert.ok(e.fragen[2].stichworte.some((s) => s.name === "suche"), "häufiges Wort erkannt");
   assert.equal(werteAus(u, alle, { version: "0.1.0" }).antworten, 2, "Filter nach Version");
   assert.equal(werteAus(u, alle, { version: "0.1.0" }).gesamt, 3);
