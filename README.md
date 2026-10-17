@@ -122,3 +122,8 @@ Archivieren sperrt eine Lizenz; Wiederherstellen hebt die Sperre auf. Dauerhafte
 Manuell versendete Umfragen sind unveränderliche D1-Aussendungen mit eigenem Cursor und optionaler Zielgruppe (Lizenz, System, Version). Aktive Apps fragen etwa alle zehn Sekunden nach Neuem; Fehler führen zu längeren Abständen. Zustellung, Öffnung und Antwort werden getrennt gezählt. Die Auswertung zeigt eine Frage oder Einzelantwort statt vieler paralleler Balken; kleine Stichproben werden kenntlich gemacht. Ohne D1 gibt es keine manuelle Sofortaussendung.
 
 Prüfung: `npm run test:api` verwendet lokale SQLite-D1- und Anbieter-Fixtures, `npm run check` prüft die Oberfläche, `npm run build` erzeugt die Website. `node tests/admin-ui.mjs --serve` startet nach dem Build eine isolierte Admin-Vorschau auf Port 4330; hier angelegte Beispieldaten und Mails gelangen nicht zu echten Diensten. Browserbedienung über die Computersteuerung prüfen. Eine produktive Einrichtung und ein vollständiger eigener Einladungs-/Installationstest bleiben separate Abnahmen.
+
+
+### App-Freigabeanschluss, 17.10.2026
+
+Website32 produktiv. Separater GitHub-Token nach ausdrücklicher Nutzerentscheidung ohne Ablauf, ausschließlich App-Repo mit Actions RW, Contents/Pull requests/Metadata read; verschlüsselt im Admin-Tresor verbunden. Kein Rohwert in Dateien oder Protokollen. Der Verbindungstest prüft lesend den festen App-Workflow-Endpunkt; Schreibrecht erst durch bewusst gestarteten Testbuild, keine automatische Alpha-Freigabe. Der Alpha-Basisbau ist am Linux-Quellarchivdatum gescheitert; App-PR196 behebt das separat vom Onboarding-Hotfix193.
