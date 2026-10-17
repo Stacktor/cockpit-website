@@ -45,8 +45,23 @@ import Icon from "../components/Icon.astro";
           <div class="kopf"><span class="ic"><Icon name="laptop" /></span><div><h2>macOS</h2><p class="micro">macOS 26+ · Apple Silicon (M1 oder neuer)</p></div></div>
           <a class="btn btn-s" href="/api/download?system=mac">Mac-App laden (.zip)</a>
           <p class="micro">Datei: Mac-App als ZIP.</p>
-          <p class="micro">ZIP entpacken, <b>cockpit Alpha</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS einmal nach: <b>Öffnen</b>.</p>
+          <p class="micro">ZIP entpacken, <b>cockpit Alpha</b> in den Ordner <i>Programme</i> ziehen und öffnen. Beim ersten Start fragt macOS nach (siehe Hinweis unten): <b>Öffnen</b>. <a href="/hilfe/mac-app/">Hilfe zur Mac-App</a></p>
         </div>
+      </div>
+
+      <div class="warnungen karte rv">
+        <h2>Beim ersten Start warnt dein System, und das ist erwartet</h2>
+        <p>
+          Die Installer sind kryptografisch signiert, aber noch nicht von einer Zertifizierungsstelle beglaubigt
+          (Windows-Herstellerzertifikat, Apple-Notarisierung). Das folgt nach der Alpha. Bis dahin zeigen Windows und macOS beim ersten Start eine Warnung.
+          Lade cockpit nur von dieser Seite oder aus der Einladung.
+        </p>
+        <ul>
+          <li><b>Windows:</b> „Der Computer wurde durch Windows geschützt“ → <b>Weitere Informationen → Trotzdem ausführen</b>.</li>
+          <li><b>Mac:</b> Die Frage, ob du die aus dem Internet geladene App öffnen willst, mit <b>Öffnen</b> bestätigen. Zeigt macOS nur „Fertig“, öffne <b>Systemeinstellungen → Datenschutz &amp; Sicherheit</b>, scrolle nach unten und wähle <b>Trotzdem öffnen</b>.</li>
+          <li><b>Mac, Schlüsselbund:</b> Dein Lizenzschlüssel und deine KI-Schlüssel liegen im Schlüsselbund von macOS. macOS fragt beim ersten Start und eventuell nach einem Update erneut: <b>Immer erlauben</b> wählen. Die Abfrage kommt von macOS, cockpit sieht dein Passwort nie.</li>
+        </ul>
+        <p class="micro">Mehr dazu in der <a href="/hilfe/mac-app/">Hilfe zur Mac-App</a> und unter <a href="/hilfe/probleme/">Probleme lösen</a>.</p>
       </div>
 
       <div class="erweiterung karte rv">
@@ -123,6 +138,21 @@ import Icon from "../components/Icon.astro";
     .weg {
       grid-template-columns: 1fr;
     }
+  }
+  .warnungen {
+    padding: 26px;
+    margin-top: 20px;
+  }
+  .warnungen h2 {
+    font-size: 19px;
+    margin: 0 0 8px;
+  }
+  .warnungen ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+    color: var(--ink-2);
   }
   .erweiterung {
     display: grid;

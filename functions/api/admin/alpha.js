@@ -205,7 +205,11 @@ async function einladenKeygen(env, benutzer, key, eintrag) {
     ${knopf(env.ALPHA_DOWNLOAD_URL,"cockpit herunterladen")}
     <p>Installiere cockpit und gib beim ersten Start diesen Schlüssel ein. Ohne Freischaltung ist die Alpha gesperrt. Du kannst bis zu drei Geräte aktivieren und Geräte in der App wieder abmelden.</p>
     <p>Die erste Aktivierung braucht Internet. Danach sind bis zu 30 Tage offline möglich. Bitte teile deinen persönlichen Schlüssel nicht.</p>
-    <p>${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/","Hilfe zur Freischaltung")}. Bei Fragen antworte auf diese Mail.</p>
+    ${kasten("Gut zu wissen beim ersten Start",`Die Installer sind signiert, aber noch nicht von einer Zertifizierungsstelle beglaubigt (das folgt nach der Alpha). Deshalb warnen die Systeme beim ersten Start einmal:<br>
+      <b>Windows:</b> „Der Computer wurde durch Windows geschützt“ → <i>Weitere Informationen</i> → <i>Trotzdem ausführen</i>.<br>
+      <b>Mac:</b> Die Frage nach dem Öffnen mit <i>Öffnen</i> bestätigen. Erscheint nur „Fertig“, dann <i>Systemeinstellungen</i> → <i>Datenschutz &amp; Sicherheit</i> → <i>Trotzdem öffnen</i>. Danach fragt macOS nach dem Schlüsselbund, dort liegt dein Schlüssel verschlüsselt: <i>Immer erlauben</i>. Nach einem Update kann die Frage wiederkommen.<br>
+      Den Installer bekommst du nur über den Knopf oben oder von ${mailLink("https://cockpit.mesco.cc/download/","cockpit.mesco.cc/download")}.`)}
+    <p>${mailLink("https://cockpit.mesco.cc/hilfe/alpha-schluessel/","Hilfe zur Freischaltung")}${" · "}${mailLink("https://cockpit.mesco.cc/hilfe/probleme/","Probleme lösen")}. Bei Fragen antworte auf diese Mail${env.DISCORD_URL ? ` oder schau auf dem ${mailLink(env.DISCORD_URL,"Discord-Server")} vorbei` : ""}. Fehler meldest du am besten in der App unter <i>Feedback geben</i> → <i>Fehler melden</i>.</p>
     <p>Viele Grüße<br>Thomas</p>`,{vorschau:"Dein persönlicher Alpha-Schlüssel für cockpit.",grund:"Du hast dich auf cockpit.mesco.cc für die Alpha angemeldet."});
   const r=await resend(env,"emails",{method:"POST",body:JSON.stringify({from:env.MAIL_VON || "Bewerbungs-Cockpit <onboarding@resend.dev>",to:[eintrag.mail],reply_to:env.MAIL_AN || "Kontakt@mesco.cc",subject:"Dein Alpha-Schlüssel für cockpit",html,text:alsText(html)})});
   if (!r.ok) {

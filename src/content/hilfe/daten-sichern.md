@@ -13,7 +13,7 @@ cockpit speichert alles lokal in einer SQLite-Datenbank und sichert sie selbstst
 
 Standardmäßig legt cockpit **einmal am Tag** eine Sicherung an, dazu **vor jedem Update**. Schlägt die Sicherung vor einem Update fehl, wird das Update nicht installiert.
 
-Die Sicherungen liegen in **Dokumente/Cockpit Backups**. Jeder Stand ist ein eigener Ordner mit Datum und Uhrzeit im Namen, etwa `2026-10-03_14-30-05_automatisch`. Darin stecken:
+Die Sicherungen liegen in einem Ordner **Cockpit Backups**: unter Windows und Linux in *Dokumente*, auf dem Mac im App-Datenordner (ein vorhandener Ordner in *Dokumente* bleibt in Gebrauch). Unter *Einstellungen → Sicherungen* siehst du den genauen Pfad und kannst einen eigenen Ordner wählen. Jeder Stand ist ein eigener Ordner mit Datum und Uhrzeit im Namen, etwa `2026-10-03_14-30-05_automatisch`. Darin stecken:
 
 - `cockpit.db`: die komplette Datenbank mit Bewerbungen, Profil, Stellen, Kontakten, Erinnerungen, Mails und Einstellungen
 - `dokumente/`: deine Dateien wie Lebenslauf und Zeugnisse
