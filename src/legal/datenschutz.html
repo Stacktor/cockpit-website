@@ -1,5 +1,5 @@
 <h1>Datenschutzerklärung</h1>
-<p class="upd">Stand: 15.10.2026</p>
+<p class="upd">Stand: 17.10.2026</p>
 
 <div class="hi">
   <b>Das Wichtigste zuerst</b>
@@ -79,9 +79,9 @@
   <b>Derzeit findet kein öffentlicher Verkauf statt</b>
   Die Software befindet sich in einer geschlossenen Alpha-Phase. Auf dieser Website
   werden <b>keine Zahlungsdienste eingebunden</b> und keine Skripte Dritter
-  geladen. Eingeladene Alpha-Tester erhalten per E-Mail einen Link zur Bezahlseite von Polar (für die Alpha-Variante
-  über 0 €); dabei sind E-Mail-Adresse und Name im Link vorausgefüllt, und Polar verarbeitet diese Angaben für die
-  Ausstellung des Schlüssels. Über denselben Polar-Zugang stellt Polar auch die Installer bereit; diese Website bietet keine öffentlichen Download-Links an. Der folgende Abschnitt gilt für diesen Weg und ab dem Verkaufsstart.
+  geladen. Eingeladene Alpha-Tester erhalten per E-Mail ihren persönlichen Lizenzschlüssel (siehe Abschnitt 4) und den Link zur
+  Download-Seite dieser Website; ein Kauf oder Checkout findet für die Alpha nicht statt. Zum Laden der Installer siehe Abschnitt 5.
+  Der folgende Abschnitt gilt ab dem Verkaufsstart.
 </div>
 <p>
   Der Verkauf wird über <b>Polar Software, Inc.</b> (USA) als Händler und Vertragspartner
@@ -168,7 +168,7 @@
 <table>
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
   <tbody>
-    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Prüfung, dass die Anfrage von einem Alpha-Tester kommt (bei Polar); gespeichert wird nur die Lizenz-ID, nie der Schlüssel</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Prüfung, dass die Anfrage von einem Alpha-Tester kommt (bei Keygen); gespeichert wird nur eine Prüfsumme (Hash) aus Schlüssel und Geräte-ID mit dem Prüfergebnis, nie der Schlüssel</td><td>Cloudflare D1 (Prüfergebnis, max. 1 Stunde)</td></tr>
     <tr><td>E-Mail-Adresse und Name aus deiner Lizenz</td><td>Rückfragen zu deiner Antwort oder deinem Fehlerbericht</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Antworten auf Umfragen</td><td>Verbesserung der App, Festlegung von Preis und Lizenzmodell</td><td>Cloudflare Workers KV</td></tr>
     <tr><td>Fehlerbeschreibung, optional technisches Protokoll (App-Version, Betriebssystem, letzte Fehlermeldungen, keine Bewerbungsdaten)</td><td>Fehlerbehebung</td><td>Cloudflare Workers KV, Resend (Benachrichtigung an mich)</td></tr>
@@ -223,7 +223,8 @@
   prüft beides beim zugehörigen Lizenzanbieter. So sehe ich, welche Versionen im Einsatz sind und
   wann eine Lizenz zuletzt geprüft wurde. Gespeichert wird je Lizenz nur die letzte
   Meldung (Zeitpunkt, App-Version, Betriebssystem, Lizenzstatus und Geräte-ID) in
-  Cloudflare Workers KV, höchstens 400 Tage, zur Lizenz-ID und nicht zum Schlüssel.
+  Cloudflare Workers KV, höchstens 400 Tage, zur Lizenz-ID und nicht zum Schlüssel. Für die Verwaltung der Alpha
+  gleicht der Server diese Angaben zusätzlich in den Betriebsindex ab (Abschnitt 5c).
   Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Betrieb und Support der Lizenz).
 </p>
 <p>
@@ -236,11 +237,12 @@
   <thead><tr><th>Daten</th><th>Wo sie liegen</th><th>Wer sie sieht</th></tr></thead>
   <tbody>
     <tr><td>Bewerbungen, Profil, Anschreiben, Notizen</td><td>SQLite-Datei auf deinem Gerät</td><td>nur du</td></tr>
-    <tr><td>Automatische Sicherungen (Datenbank und Dokumente)</td><td>Ordner „Cockpit Backups“ in deinen Dokumenten oder ein Ordner deiner Wahl auf deinem Gerät</td><td>nur du</td></tr>
+    <tr><td>Automatische Sicherungen (Datenbank und Dokumente)</td><td>Ordner „Cockpit Backups“ (Windows und Linux: in deinen Dokumenten, Mac: im App-Datenordner) oder ein Ordner deiner Wahl auf deinem Gerät</td><td>nur du</td></tr>
     <tr><td>Zugangsdaten und API-Schlüssel</td><td>Schlüsselbund deines Betriebssystems</td><td>nur du</td></tr>
     <tr><td>Anfragen an ein KI-Modell</td><td>bei deinem selbst gewählten Anbieter — oder rein lokal</td><td>der von dir gewählte Anbieter</td></tr>
     <tr><td>Abruf von Stellenanzeigen</td><td>offizielle Schnittstellen der jeweiligen Anbieter; nur wenn du es einschaltest, auch die öffentlichen Suchseiten von LinkedIn, StepStone und Indeed</td><td>der jeweilige Anbieter</td></tr>
     <tr><td>Optionaler Geräte-Sync</td><td>ein Ordner deiner Wahl (z.&nbsp;B. in deinem Cloud-Speicher), deine iCloud oder der cockpit-Sync-Server (siehe 5a), immer Ende-zu-Ende verschlüsselt</td><td>nur du</td></tr>
+    <tr><td>Laden der Installer von der Download-Seite (IP-Adresse)</td><td>Weiterleitung von <code>cockpit.mesco.cc/api/download</code> auf die Datei im öffentlichen Release-Repository bei GitHub; diese Website speichert dazu nichts</td><td>GitHub, Inc.</td></tr>
     <tr><td>Suche nach Updates (App-Version, IP-Adresse)</td><td>Abfrage der Datei <code>latest.json</code> bei GitHub</td><td>GitHub, Inc.</td></tr>
   </tbody>
 </table>
@@ -263,7 +265,7 @@
   <thead><tr><th>Daten</th><th>Wozu</th><th>Wo gespeichert</th></tr></thead>
   <tbody>
     <tr><td>Verschlüsselte Pakete deiner App-Daten und Dokumente</td><td>Abgleich zwischen deinen Geräten</td><td>Cloudflare R2, bis du sie löschst</td></tr>
-    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung bei Polar); gespeichert wird nur die Lizenz-ID</td><td>Cloudflare Workers KV (Prüfergebnis, max. 1 Stunde)</td></tr>
+    <tr><td>Lizenzschlüssel und Geräte-ID der Lizenz</td><td>Anmeldung am Sync-Server (Prüfung beim Lizenzanbieter, in der Alpha bei Keygen); gespeichert wird nur eine Prüfsumme (Hash) aus Schlüssel und Geräte-ID mit dem Prüfergebnis</td><td>Cloudflare D1 (Prüfergebnis, max. 1 Stunde)</td></tr>
     <tr><td>Verschlüsselte Cloud-Sicherungen (Datenbank und Dokumente, genauso verschlüsselt)</td><td>Wiederherstellen, falls ein Gerät kaputtgeht. Läuft nur mit aktivem Server-Sync und lässt sich unter Einstellungen → Sicherungen abschalten</td><td>Cloudflare R2, die drei neuesten je Gerät, bis du sie löschst</td></tr>
     <tr><td>Dateigrößen und Zeitpunkte</td><td>Speichergrenzen (200 MB Sync, 300 MB Sicherungen je Lizenz) und Betrieb</td><td>Cloudflare R2</td></tr>
   </tbody>
@@ -300,6 +302,43 @@
   <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse ist,
     die App nach dem tatsächlichen Bedarf weiterzuentwickeln. Weil keine Kennung mitgeht,
     lassen sich die Zahlen keiner Person zuordnen.</li>
+</ul>
+
+<h2 id="betriebsindex">5c · Betriebsindex für die Verwaltung der Alpha</h2>
+<p>
+  Damit ich Lizenzen, Geräte und Speicher der Alpha verwalten und Fehler zuordnen kann, führt der Server einen
+  Betriebsindex in einer <b>Cloudflare-D1-Datenbank (EU)</b>. Sie enthält ausschließlich Betriebsangaben, keine
+  Lizenzschlüssel und keine Inhalte deiner App.
+</p>
+<table>
+  <thead><tr><th>Daten</th><th>Wozu</th></tr></thead>
+  <tbody>
+    <tr><td>Name und E-Mail-Adresse, Zeitpunkt der Anlage</td><td>Zuordnung der Lizenzen zu einer Person, Rückfragen</td></tr>
+    <tr><td>Lizenz-Referenz beim Anbieter (Keygen-ID), Status, Ablauf, Gerätelimit, Archivierung, letzter Kontakt und letzte Bestätigung</td><td>Verwaltung und Support der Lizenzen</td></tr>
+    <tr><td>Gerätename, Betriebssystem, App-Version, letzter Kontakt und Status je Gerät</td><td>Geräteübersicht, Abmelden von Geräten, Fehlersuche</td></tr>
+    <tr><td>Zuordnung zum Speicherbereich des Sync-Servers, Größe und letzte Aktivität (nicht der Inhalt)</td><td>Speichergrenzen, Löschen auf Wunsch</td></tr>
+    <tr><td>Protokoll von Verwaltungsaktionen (Art, Ziel, Ergebnis, Zeitpunkt)</td><td>Nachvollziehbarkeit, Schutz vor Fehlbedienung</td></tr>
+    <tr><td>Aussendungen von Umfragen: Lizenz- und Geräte-ID, Zeitpunkte von Empfang, Öffnen und Antwort</td><td>Jede Umfrage nur einmal anzeigen, Auswertung</td></tr>
+    <tr><td>Zähler gegen Missbrauch und kurz gespeicherte Prüfergebnisse (Abschnitt 4)</td><td>Betrieb und Sicherheit</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO (Durchführung der Alpha-Teilnahme) und lit. f DSGVO (Betrieb und Sicherheit).</li>
+  <li><b>Speicherdauer:</b> wie in Abschnitt 3a, spätestens drei Monate nach Ende der Alpha-Phase; auf Wunsch jederzeit früher.</li>
+  <li><b>Dienstleister:</b> Cloudflare, Inc. (siehe Abschnitt 2 zur Übermittlung in die USA).</li>
+</ul>
+
+<h2 id="discord">5d · Discord (freiwillig)</h2>
+<p>
+  Es gibt einen Discord-Server für Austausch und Hilfe. Die Teilnahme ist <b>freiwillig</b>; für die Nutzung der Alpha ist er nicht nötig.
+  Der Einladungslink steht in Bestätigungs- und Einladungsmails. Erst wenn du dem Server beitrittst, verarbeitet <b>Discord Inc.</b> (USA)
+  deine Daten in eigener Verantwortung nach deren Datenschutzerklärung; ich sehe dort deinen Anzeigenamen, dein Profilbild und deine Beiträge und
+  moderiere sie nach den Serverregeln. Aus der App werden keine Daten an Discord übertragen. Der Kanal „Updates“ erhält automatisch nur die
+  öffentlichen Versionshinweise. Bitte poste keine Lizenzschlüssel, Passwörter oder Bewerbungsunterlagen.
+</p>
+<ul>
+  <li><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. a DSGVO (deine Entscheidung, beizutreten) und lit. f DSGVO (Moderation).</li>
+  <li><b>Löschen:</b> Beiträge und Mitgliedschaft löschst oder verlässt du selbst in Discord; auf Wunsch entferne ich Beiträge oder dein Konto vom Server.</li>
 </ul>
 
 <h2>6 · Kontaktaufnahme</h2>
