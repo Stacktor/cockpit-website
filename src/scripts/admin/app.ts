@@ -20,7 +20,7 @@ const NAV: { id: Id; titel: string; kurz: string; text: string }[] = [
   { id: "mail", titel: "Mail", kurz: "Mail", text: "Zustellung prüfen und Rundmails an Tester schicken." },
   { id: "analytics", titel: "Analytics", kurz: "Analytics", text: "Besuche, Quellen, Kampagnen und der Weg zur Anmeldung." },
   { id: "speicher", titel: "Speicher", kurz: "Speicher", text: "Der Sync-Bucket: Belegung je Lizenz und Gerät, aufräumen." },
-  { id: "builds", titel: "Downloads & Builds", kurz: "Builds", text: "Releases, Downloads je Plattform und Build-Läufe." },
+  { id: "builds", titel: "Versionen & Freigaben", kurz: "Versionen", text: "Änderungen testen und bewusst für die Alpha freigeben." },
   { id: "alarme", titel: "Alarme", kurz: "Alarme", text: "Eigene Regeln, wann das Admin dich warnt, auf Wunsch per Mail." },
   { id: "inhalte", titel: "Inhalte", kurz: "Inhalte", text: "Blog, Hilfe, Funktionen und Roadmap der Website bearbeiten." },
   { id: "doku", titel: "Doku", kurz: "Doku", text: "Interne Doku aus dem privaten Repo. Nur du siehst sie." },

@@ -1245,77 +1245,7 @@ export const doku: Bereich = async (ziel) => {
 
 // ═════════════ Downloads & Builds ═════════════
 
-export const builds: Bereich = async (ziel) => {
-  const d = await api("builds");
-  const r = d.releases;
-  const gesamt = r.ok ? r.liste.reduce((s: number, x: Daten) => s + x.downloads, 0) : 0;
-  const proDatei: Record<string, number> = {};
-  if (r.ok) for (const rel of r.liste) for (const f of rel.dateien) proDatei[f.name] = (proDatei[f.name] || 0) + f.downloads;
-  fuege(ziel,
-    raster(
-      "a-r4",
-      kpi("Downloads gesamt", r.ok ? zahl(gesamt) : "—"),
-      kpi("Releases", r.ok ? zahl(r.liste.length) : "—", r.ok && r.liste[0] ? `neueste: ${r.liste[0].tag}` : ""),
-      kpi("Offene Issues", d.issues.ok ? zahl(d.issues.liste.length) : "—"),
-      kpi("Letzter CI-Lauf", d.laeufe.ok && d.laeufe.liste[0] ? d.laeufe.liste[0].ergebnis || d.laeufe.liste[0].status : "—", d.laeufe.ok && d.laeufe.liste[0] ? relativ(d.laeufe.liste[0].zeit) : ""),
-    ),
-    raster(
-      "a-r2",
-      karte("Downloads je Datei", r.ok ? balken(Object.entries(proDatei).map(([name, anzahl]) => ({ name, anzahl })).sort((a, b) => b.anzahl - a.anzahl)) : hinweisKachel(r)),
-      karte(
-        "Releases",
-        r.ok
-          ? r.liste.length
-            ? tabelle(
-                [
-                  { titel: "Version", wert: (x) => h("a", { href: x.url, target: "_blank", rel: "noopener" }, x.tag) },
-                  { titel: "Datum", wert: (x) => datum(x.datum) },
-                  { titel: "Downloads", wert: (x) => zahl(x.downloads), klasse: "a-zahl" },
-                ],
-                r.liste,
-                { suche: false },
-              )
-            : leer("Noch kein öffentliches Release.")
-          : hinweisKachel(r),
-      ),
-    ),
-    karte(
-      "GitHub Actions",
-      d.laeufe.ok
-        ? tabelle(
-            [
-              { titel: "Workflow", wert: (x) => h("a", { href: x.url, target: "_blank", rel: "noopener" }, x.name) },
-              { titel: "Titel", wert: (x) => h("span", { class: "a-klein" }, String(x.titel || "").slice(0, 70)) },
-              { titel: "Zweig", wert: (x) => h("span", { class: "a-mono" }, x.zweig) },
-              { titel: "Ergebnis", wert: (x) => badge(x.ergebnis || x.status) },
-              { titel: "Zeit", wert: (x) => relativ(x.zeit) },
-            ],
-            d.laeufe.liste,
-            { suche: false },
-          )
-        : hinweisKachel(d.laeufe),
-    ),
-    raster(
-      "a-r2",
-      karte(
-        "Offene Issues",
-        d.issues.ok
-          ? d.issues.liste.length
-            ? h("div", { class: "a-balken" }, d.issues.liste.map((i: Daten) => h("div", { class: "a-zitat" }, h("a", { href: i.url, target: "_blank", rel: "noopener" }, `#${i.nummer} ${i.titel}`), h("small", {}, relativ(i.zeit)))))
-            : leer("Keine offenen Issues.")
-          : hinweisKachel(d.issues),
-      ),
-      karte(
-        "Testbuild-Entwürfe",
-        d.entwuerfe.ok
-          ? d.entwuerfe.liste.length
-            ? h("div", { class: "a-balken" }, d.entwuerfe.liste.map((x: Daten) => h("div", { class: "a-zitat" }, h("a", { href: x.url, target: "_blank", rel: "noopener" }, x.name || x.tag), h("small", {}, relativ(x.zeit)))))
-            : leer("Kein Entwurf vorhanden.")
-          : hinweisKachel(d.entwuerfe),
-      ),
-    ),
-  );
-};
+export { releases as builds } from './releases';
 
 // ═════════════ Mail ═════════════
 
