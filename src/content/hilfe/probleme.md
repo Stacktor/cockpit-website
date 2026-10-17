@@ -11,6 +11,14 @@ icon: life-buoy
 
 *„Der Computer wurde durch Windows geschützt“* erscheint, weil der Installer noch nicht signiert ist. **Weitere Informationen → Trotzdem ausführen.** Lade cockpit nur von dieser Website oder aus dem offiziellen [Release-Repo](https://github.com/Stacktor/cockpit-releases/releases).
 
+## Der Mac öffnet cockpit nicht oder warnt
+
+macOS prüft Apps aus dem Internet. cockpit ist signiert, aber noch nicht von Apple beglaubigt. Bestätige die Frage mit **Öffnen**. Zeigt macOS nur „Fertig“: *Systemeinstellungen → Datenschutz & Sicherheit* → nach unten scrollen → **Trotzdem öffnen**. Details in der [Hilfe zur Mac-App](/hilfe/mac-app/).
+
+## Nach dem Mac-Update steht „startet neu“, und nichts passiert
+
+Bei Version 0.1.2 hängt der automatische Neustart. Das Update ist installiert. cockpit beenden (⌘Q oder *Sofort beenden*) und neu öffnen; die Daten sind nicht betroffen.
+
 ## Das AppImage startet nicht
 
 - Ausführbar gemacht? `chmod +x cockpit-linux-x86_64.AppImage`

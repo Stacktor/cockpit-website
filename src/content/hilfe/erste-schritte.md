@@ -42,7 +42,7 @@ sudo apt install ./cockpit-linux-amd64.deb
 
 ### macOS
 
-ZIP per Doppelklick entpacken, **cockpit** in den Ordner *Programme* ziehen und öffnen. Beim ersten Start fragt macOS einmal, ob du die aus dem Internet geladene App öffnen willst: **Öffnen**. Die Mac-App braucht macOS 26 oder neuer und nutzt denselben Datenordner wie die Desktop-Fassung, falls du beide auf einem Mac laufen lässt. Passwörter und Schlüssel liegen im Schlüsselbund von macOS; fragt es beim ersten Zugriff nach, wähle **Immer erlauben**.
+ZIP per Doppelklick entpacken, **cockpit** in den Ordner *Programme* ziehen und öffnen. Beim ersten Start fragt macOS einmal, ob du die aus dem Internet geladene App öffnen willst: **Öffnen**. Zeigt macOS nur „Fertig“, hilft *Systemeinstellungen → Datenschutz & Sicherheit → Trotzdem öffnen*; mehr dazu in der [Hilfe zur Mac-App](/hilfe/mac-app/). Die Mac-App braucht macOS 26 oder neuer und nutzt denselben Datenordner wie die Desktop-Fassung, falls du beide auf einem Mac laufen lässt. Passwörter und Schlüssel liegen im Schlüsselbund von macOS; fragt es beim ersten Zugriff nach, wähle **Immer erlauben**.
 
 ## 3. Erster Start
 
