@@ -159,13 +159,14 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   const { onRequestPost: anmelden, onRequestGet: status } = await import(new URL("../functions/api/alpha.js", import.meta.url).href);
   const mails2 = [];
   globalThis.fetch = async (u, o) => {
+    if (String(u).includes("challenges.cloudflare.com/turnstile/v0/siteverify")) return new Response(JSON.stringify({ success: true, hostname: "x", action: "alpha_signup" }));
     if (String(u).includes("resend.com/audiences")) return new Response(JSON.stringify({ data: [{ id: "aud" }] }));
     if (String(u).includes("resend")) { if (o?.body) mails2.push(JSON.parse(o.body)); return new Response("{}"); }
     throw new Error("unerwartet " + u);
   };
-  const env2 = { ALPHA: new KV(), RESEND_API_KEY: "re_x", ALPHA_PLAETZE: "2" };
+  const env2 = { ALPHA: new KV(), RESEND_API_KEY: "re_x", ALPHA_PLAETZE: "2", TURNSTILE_SITE_KEY: "test-site-key", TURNSTILE_SECRET_KEY: "test-secret-key" };
   const post = async (b) => { const r = await anmelden({ request: new Request("https://x/api/alpha", { method: "POST", body: JSON.stringify(b) }), env: env2 }); return [r.status, await r.json()]; };
-  const basis = { name: "Anna Muster", mail: "anna@example.org", os: "windows", grund: "Ich verliere den Überblick bei vielen Bewerbungen.",
+  const basis = { name: "Anna Muster", mail: "anna@example.org", os: "windows", grund: "Ich verliere den Überblick bei vielen Bewerbungen.", turnstileToken: "test-token",
     situation: "Arbeitsuchend", bewerbungenMonat: "6–15", werkzeuge: ["Excel / Tabelle", "Hack", "Excel / Tabelle"], ki: "Ich nutze lokale Modelle",
     technik: "Klappt mit Anleitung", quelle: "Reddit", feedback: ["Umfragen in der App"], utm: { utm_source: "reddit", evil: "x" }, referrer: "https://reddit.com/r/x" };
 
@@ -194,7 +195,7 @@ console.log("App-API: alle Prüfungen ok · LS-Aufrufe:", lsAufrufe);
   [st, d] = await post({ ...basis, mail: "drei@example.org" }); assert.equal(d.warteliste, true);
   // Status: Plätze aus Env, Admin-Einstellung hat Vorrang
   let r = await status({ env: env2 }); let s = await r.json();
-  assert.deepEqual(s, { plaetze: 2, belegt: 2, frei: 0 });
+  assert.deepEqual(s, { plaetze: 2, belegt: 2, frei: 0, turnstileSiteKey: "test-site-key" });
   await env2.ALPHA.put("config:alpha", JSON.stringify({ plaetze: 50 }));
   s = await (await status({ env: env2 })).json(); assert.equal(s.frei, 48);
   s = await (await status({ env: {} })).json(); assert.equal(s.plaetze, 50);

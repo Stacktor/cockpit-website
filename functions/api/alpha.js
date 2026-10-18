@@ -13,6 +13,8 @@
  *                                        erste Liste des Kontos automatisch verwendet.
  *   MAIL_VON         Variable   empfohlen z. B. "Bewerbungs-Cockpit <alpha@mesco.cc>"
  *   MAIL_AN          Variable   empfohlen z. B. "Kontakt@mesco.cc"
+ *   TURNSTILE_SITE_KEY    Variable  PFLICHT  Öffentlicher Widget-Schlüssel
+ *   TURNSTILE_SECRET_KEY  Secret    PFLICHT  Privater Siteverify-Schlüssel
  *
  *   ALPHA            KV-Namespace  OPTIONAL  Anmeldungen, Zähler, Doppelanmeldungs-Erkennung
  *   ALPHA_PLAETZE    Variable   optional  Anzahl Plätze (Standard 50). Im Admin unter
@@ -32,6 +34,7 @@ import { ALPHA_OPTIONEN as O, einer, mehrere, plaetze } from "../../lib/alpha-op
 import { mitSchluesseln } from "../../lib/admin/tresor.js";
 import { alarmeImHintergrund } from "../../lib/admin/alarme.js";
 import { alsText, kasten, link, mailHtml, titel } from "../../lib/mail/vorlage.js";
+import { pruefeTurnstile } from "../../lib/turnstile.js";
 
 export async function onRequestPost({ request, env: roh, waitUntil }) {
   // Schlüssel aus dem Admin-Tresor haben Vorrang vor Umgebungsvariablen.
@@ -58,6 +61,9 @@ export async function onRequestPost({ request, env: roh, waitUntil }) {
       return antwort(422, "Bitte wähle dein Betriebssystem.");
     if (grund.length < 10)
       return antwort(422, "Schreib bitte ein, zwei Sätze — das hilft mir bei der Auswahl.");
+
+    const sicherheit = await pruefeTurnstile(request, env, daten.turnstileToken);
+    if (!sicherheit.ok) return antwort(sicherheit.status, sicherheit.fehler);
 
     // Weitere Angaben (seit dem neuen Formular). Unbekannte Werte werden
     // verworfen statt abgelehnt — eine Anmeldung soll nie an Kleinkram scheitern.
@@ -188,7 +194,10 @@ export async function onRequestGet({ env }) {
   const max = await plaetze(env);
   let belegt = 0;
   if (env.ALPHA) belegt = Number((await env.ALPHA.get("alpha:anzahl")) || "0");
-  return antwort(200, null, { plaetze: max, belegt, frei: Math.max(0, max - belegt) });
+  return antwort(200, null, {
+    plaetze: max, belegt, frei: Math.max(0, max - belegt),
+    turnstileSiteKey: env.TURNSTILE_SITE_KEY || null,
+  });
 }
 
 // ───────────────────────── Hilfsfunktionen ─────────────────────────

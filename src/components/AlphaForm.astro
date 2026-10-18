@@ -127,6 +127,8 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         <span class="zaehler micro" data-schritt-text>Schritt 1 von 3</span>
         <button type="submit" class="btn btn-p" data-weiter>Weiter <Icon name="arrow-right" size={17} /></button>
       </div>
+      <div data-turnstile></div>
+      <p class="hilfe" data-pruefung role="status" aria-live="polite" hidden></p>
     </form>
   </div>
 
@@ -146,6 +148,8 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
 </div>
 
 <script>
+  import { anmeldungPruefen, SicherheitsFehler } from "../scripts/turnstile";
+
   const wurzel = document.querySelector<HTMLElement>("[data-alpha-form]");
   if (wurzel) {
     const form = wurzel.querySelector("form")!;
@@ -157,6 +161,9 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
     const schrittText = wurzel.querySelector<HTMLElement>("[data-schritt-text]")!;
     const balken = wurzel.querySelector<HTMLElement>(".balken span")!;
     let schritt = 0;
+    let sendet = false;
+    const pruefung = wurzel.querySelector<HTMLElement>("[data-pruefung]")!;
+    const sicherheit = anmeldungPruefen(wurzel.querySelector<HTMLElement>("[data-turnstile]")!);
 
     const wert = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.value?.trim() ?? "";
     const gewaehlt = (name: string) =>
@@ -229,6 +236,7 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (sendet) return;
       const f = pruefe(schritt);
       if (f) return zeigeFehler(f[0], f[1]);
       if (schritt < schritte.length - 1) return gehe(schritt + 1);
@@ -249,13 +257,24 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         website: wert("website"),
       };
 
+      sendet = true;
       weiter.disabled = true;
-      weiter.textContent = "Wird gesendet …";
+      zurueck.disabled = true;
+      schritte.forEach((feld) => { feld.disabled = true; });
+      form.setAttribute("aria-busy", "true");
+      zeigeFehler(null);
+      weiter.textContent = "Wird geprüft …";
+      pruefung.hidden = false;
+      pruefung.textContent = "Die Sicherheitsprüfung läuft. Deine Angaben bleiben erhalten.";
       try {
+        const turnstileToken = await sicherheit.pruefen();
+        weiter.textContent = "Wird gesendet …";
+        pruefung.textContent = "Sicherheitsprüfung erfolgreich. Deine Anmeldung wird gesendet.";
         const r = await fetch("/api/alpha", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(daten),
+          body: JSON.stringify({ ...daten, turnstileToken }),
+          signal: AbortSignal.timeout(20_000),
         });
         const d = await r.json().catch(() => ({}));
         if (!r.ok || !d.ok) {
@@ -278,10 +297,21 @@ const schritte = ["Über dich", "Deine Suche", "Technik & Feedback"];
         fertig.hidden = false;
         fertig.focus({ preventScroll: true });
         fertig.scrollIntoView({ block: "center", behavior: "smooth" });
-      } catch {
+      } catch (fehler) {
         weiter.disabled = false;
         weiter.textContent = "Anmeldung abschicken";
-        zeigeFehler("Keine Verbindung. Versuch es gleich noch einmal oder schreib an Kontakt@mesco.cc.");
+        zeigeFehler(fehler instanceof SicherheitsFehler
+          ? fehler.message
+          : "Keine Verbindung. Versuch es gleich noch einmal oder schreib an Kontakt@mesco.cc.");
+      } finally {
+        sicherheit.aufraeumen();
+        sendet = false;
+        weiter.disabled = false;
+        zurueck.disabled = false;
+        schritte.forEach((feld) => { feld.disabled = false; });
+        form.removeAttribute("aria-busy");
+        pruefung.hidden = true;
+        pruefung.textContent = "";
       }
     });
   }
