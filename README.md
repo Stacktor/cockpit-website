@@ -12,8 +12,9 @@ und Interview-Training. Er ist in der geschlossenen **0.1 Alpha**.
 ## Aufbau
 
 Statische Seiten mit [Astro](https://astro.build); die wenigen Server-Funktionen laufen als
-Cloudflare Pages Functions. Die Website kommt ohne Tracking-Cookies und ohne externe Schriften
-oder Skripte aus. Schriften (Geist, JetBrains Mono) und Symbole werden selbst ausgeliefert.
+Cloudflare Pages Functions. Die Website kommt ohne Tracking-Cookies und ohne externe Schriften aus.
+Schriften (Geist, JetBrains Mono) und Symbole werden selbst ausgeliefert. Erst beim finalen Absenden
+der Alpha-Anmeldung wird Cloudflare Turnstile zur Sicherheitsprüfung geladen.
 
 ```
 src/            Seiten, Komponenten, Inhalte (Astro)
@@ -102,6 +103,31 @@ Fragen, Hinweise oder ein Fehler auf der Seite: über die Website oder als
 bitte nach [SECURITY.md](SECURITY.md) melden.
 
 ## Geschlossene Alpha mit Keygen
+
+### Schutz der Anmeldung durch Cloudflare Turnstile
+
+Startseite und `/alpha/` verwenden dasselbe Formular. Turnstile startet erst nach dem letzten Klick
+auf „Anmeldung abschicken“, nach der Feldprüfung. Modus Managed, `execution: execute`,
+`appearance: interaction-only`, Aktion `alpha_signup`, Pre-clearance ausgeschaltet.
+Die API prüft jeden Token bei Siteverify, einschließlich Hostname und Aktion, **vor**
+Speicherung, Dublettenprüfung und Mailversand. Fehlende Konfiguration oder ein Ausfall lässt keine
+Anmeldung durch. Bei Fehlern bleiben die Eingaben erhalten; ein neuer Versuch erzeugt einen neuen Token.
+
+Im Pages-Projekt für Produktion und die jeweilige Vorschau setzen:
+
+- `TURNSTILE_SITE_KEY`: öffentlicher Sitekey des Widgets (Textvariable).
+- `TURNSTILE_SECRET_KEY`: privater Prüfschlüssel (Secret).
+
+Im Widget nur die verwendeten Hosts zulassen, produktiv `cockpit.mesco.cc`. Vorschauhosts müssen
+zusätzlich im Widget stehen; Siteverify muss den tatsächlich aufgerufenen Host bestätigen.
+`GET /api/alpha` veröffentlicht ausschließlich den Sitekey, nie das Secret. Weder Prüftoken noch
+Secret werden in der Anmeldung oder Logs gespeichert. Es gibt keinen abschaltbaren Schutz-Schalter
+und keine Testschlüssel als Produktions-Fallback. Lokale Integrationstests simulieren Siteverify.
+
+Cloudflare-Dokumentation: [Widget-Konfiguration](https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/widget-configurations/),
+[Siteverify](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/).
+
+### Lizenzvergabe
 
 Neue Alpha-Schlüssel beginnen mit `COCKPIT-KG-`. Der kostenlose Zugang benötigt keinen Checkout und kein Kundenkonto bei Keygen. Das Admin stellt persönliche Lizenzen aus und sendet sie über Resend; bis zu drei Geräte pro Lizenz, erste Aktivierung online, danach bis zu 30 Tage Offline-Karenz. Pro- und ältere Polar-/Lemon-Squeezy-Wege bleiben bestehen.
 
